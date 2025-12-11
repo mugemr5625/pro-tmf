@@ -1,6 +1,6 @@
   /* ViewLine Component Styles */
 .view-line-page-content {
-    font-size: 15px !important;
+    font-size: 14px !important;
   }
   .view-line-page-content {
     padding: 0;
@@ -51,6 +51,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-right: 8px;
     width: 32px;
   }
 
@@ -92,12 +93,12 @@
   .view-line-search-query {
     font-weight: 600;
     color: #1677ff;
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .view-line-results-count {
     margin-left: 12px;
-    font-size: 13px;
+    font-size: 14px;
     color: #52c41a;
     font-weight: 500;
   }
@@ -277,7 +278,7 @@
     height: 32px;
     padding: 4px 12px;
     border: 1px solid #d9d9d9;
-    border-radius: 6px;
+    border-radius: 16px;
     background-color: #fff !important;
     color: rgba(0, 0, 0, 0.88);
     font-weight: 600;

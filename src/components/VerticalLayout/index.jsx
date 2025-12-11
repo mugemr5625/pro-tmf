@@ -208,30 +208,38 @@ const VerticalLayout = (props) => {
       }
     };
   }, [collapsed, isMobile, menuItems]);
-
-  const mobileDrawerContent = (
-    <div style={{ padding: 0, height: "100%" }}>
-      <div style={{ 
-        padding: "12px 16px", 
-        borderBottom: "1px solid #f0f0f0", 
-        marginBottom: "8px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between"
-      }}>
-        <img src={logoLarge} alt="Logo" height="28" style={{ marginLeft: "4px" }} />
-        <Button 
-          type="text" 
-          icon={<MenuFoldOutlined />} 
-          onClick={() => setMobileDrawerVisible(false)}
-          style={{ 
-            fontSize: "16px",
-            padding: "4px",
-            minWidth: "32px",
-            height: "32px"
-          }}
-        />
-      </div>
+const mobileDrawerContent = (
+  <div style={{ padding: 0, height: "100%", display: "flex", flexDirection: "column" }}>
+    <div style={{ 
+      padding: "12px 16px", 
+      borderBottom: "1px solid #f0f0f0", 
+      marginBottom: "8px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      flexShrink: 0
+    }}>
+      <img src={logoLarge} alt="Logo" height="28" style={{ marginLeft: "4px" }} />
+      <Button 
+        type="text" 
+        icon={<MenuFoldOutlined />} 
+        onClick={() => setMobileDrawerVisible(false)}
+        style={{ 
+          fontSize: "16px",
+          padding: "4px",
+          minWidth: "32px",
+          height: "32px"
+        }}
+      />
+    </div>
+    
+    {/* Scrollable menu area with bottom padding */}
+    <div style={{ 
+      flex: 1, 
+      overflowY: "auto", 
+      overflowX: "hidden",
+      paddingBottom: branchName ? "80px" : "16px" // Add padding when branch name exists
+    }}>
       <div style={{ padding: "0 4px" }}>
         <Menu
           mode="inline"
@@ -247,57 +255,166 @@ const VerticalLayout = (props) => {
         />
       </div>
     </div>
-  );
+    
+    {/* Branch name in mobile drawer - fixed at bottom */}
+    {branchName && (
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: '12px 16px',
+        background: '#f0f5ff',
+        borderTop: '1px solid #d9d9d9',
+        textAlign: 'center',
+        zIndex: 10,
+      }}>
+        <div style={{ 
+          fontSize: '10px', 
+          color: '#666', 
+          marginBottom: '4px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px',
+          fontWeight: 600
+        }}>
+          Current Branch
+        </div>
+        <div style={{ 
+          fontSize: '13px', 
+          fontWeight: 600,
+          color: '#1890ff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px'
+        }}>
+          <BankOutlined style={{ fontSize: '14px' }} />
+          <span style={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            maxWidth: '180px'
+          }}>
+            {branchName}
+          </span>
+        </div>
+      </div>
+    )}
+  </div>
+);
 
   // Debug log
   console.log('Render - branchName state:', branchName);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider 
-        trigger={null} 
-        collapsible 
-        collapsed={collapsed}
-        width="max-content"
-        collapsedWidth={80}
-        style={{
-          overflow: 'hidden',
-          height: '100vh',
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          display: isMobile ? 'none' : 'block',
-          minWidth: collapsed ? '80px' : 'max-content',
-          maxWidth: collapsed ? '80px' : '300px',
-        }}
-      >
+     <Sider 
+  trigger={null} 
+  collapsible 
+  collapsed={collapsed}
+  width={250}  // ✅ Set fixed width instead of max-content
+  collapsedWidth={80}
+  style={{
+    overflow: 'auto',  // ✅ Changed from 'hidden' to 'auto'
+    height: '100vh',
+    position: 'fixed',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    display: isMobile ? 'none' : 'block',
+  }}
+>
+  <div style={{ 
+    height: '64px', 
+    margin: '16px', 
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }}>
+    <img 
+      src={collapsed ? logoLight : logoLarge} 
+      alt="Logo" 
+      style={{ 
+        height: collapsed ? '32px' : '40px',
+        transition: 'all 0.2s',
+      }} 
+    />
+  </div>
+  <Menu
+    theme="dark"
+    mode="inline"
+    selectedKeys={selectedKeys}
+    openKeys={collapsed ? [] : openKeys}
+    onOpenChange={collapsed ? () => {} : handleOpenChange}
+    onClick={handleMenuClick}
+    items={menuItems}
+    style={{
+      height: 'calc(100vh - 160px)',
+      overflowY: 'auto',
+      overflowX: 'hidden',  // ✅ Added to prevent horizontal scroll
+      border: 'none',  // ✅ Added
+    }}
+  />
+  {/* Branch name section remains the same */}
+  {branchName && (
+    <div style={{
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      padding: collapsed ? '8px 4px' : '12px 16px',
+      background: 'rgba(255, 255, 255, 0.1)',
+      borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+      textAlign: 'center',
+      transition: 'all 0.2s',
+    }}>
+      {!collapsed ? (
+        <>
+          <div style={{ 
+            fontSize: '10px', 
+            color: 'rgba(255, 255, 255, 0.65)', 
+            marginBottom: '4px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
+            Current Branch
+          </div>
+          <div style={{ 
+            fontSize: '13px', 
+            fontWeight: 500,
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px'
+          }}>
+            <BankOutlined style={{ fontSize: '12px' }} />
+            <span style={{ 
+              overflow: 'hidden',  // ✅ Added
+              textOverflow: 'ellipsis',  // ✅ Added
+              whiteSpace: 'nowrap'  // ✅ Added
+            }}>
+              {branchName}
+            </span>
+          </div>
+        </>
+      ) : (
         <div style={{ 
-          height: '64px', 
-          margin: '16px', 
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          fontSize: '10px', 
+          fontWeight: 500,
+          color: '#fff',
+          lineHeight: 1.2,
+          wordBreak: 'break-word'
         }}>
-          <img 
-            src={collapsed ? logoLight : logoLarge} 
-            alt="Logo" 
-            style={{ 
-              height: collapsed ? '32px' : '40px',
-              transition: 'all 0.2s',
-            }} 
-          />
+          <BankOutlined style={{ fontSize: '14px', marginBottom: '2px' }} />
+          {/* <div style={{ fontSize: '9px', marginTop: '2px' }}>
+            {branchName.length > 8 ? branchName.substring(0, 6) + '...' : branchName}
+          </div> */}
         </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={selectedKeys}
-          openKeys={collapsed ? [] : openKeys}
-          onOpenChange={collapsed ? () => {} : handleOpenChange}
-          onClick={handleMenuClick}
-          items={menuItems}
-        />
-      </Sider>
+      )}
+    </div>
+  )}
+</Sider>
       <Layout 
         className={`main-layout ${collapsed ? 'sidebar-collapsed' : 'sidebar-expanded'} ${isMobile ? 'mobile-view' : 'desktop-view'}`}
         style={{ 
@@ -372,10 +489,29 @@ const VerticalLayout = (props) => {
           <div style={{ 
             display: 'flex', 
             justifyContent: 'flex-end', 
-            alignItems: 'center', 
-            gap: '8px'
+            alignItems: 'flex-start', 
+            gap: '12px'
           }}>
-            <NotificationDropdown />
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center',
+              gap: '0px'
+            }}>
+              <NotificationDropdown />
+              {/* Branch name below notification icon */}
+              {branchName && (
+                <div style={{
+                  fontSize: '11px',
+                  color: '#5f6368',
+                  whiteSpace: 'nowrap',
+                  marginTop: '-50px',
+                  fontWeight: 400,
+                }}>
+                  {branchName}
+                </div>
+              )}
+            </div>
             <ProfileMenu />
           </div>
         </Header>

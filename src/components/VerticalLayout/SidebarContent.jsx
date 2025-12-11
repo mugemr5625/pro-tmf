@@ -151,6 +151,7 @@ const SidebarContent = (props) => {
             border: 'none',
             background: 'transparent',
             height: '100%',
+            
           }}
         />
       </div>

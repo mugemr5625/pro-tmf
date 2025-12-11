@@ -51,7 +51,7 @@ const ExpenseTransactionList = () => {
   const [expenseTypeList, setExpenseTypeList] = useState([]);
   const [areaList, setAreaList] = useState([]); // State for area data
   const [areaLoader, setAreaLoader] = useState(false); // State for area loading
-  const [searchModalVisible, setSearchModalVisible] = useState(true);
+  const [searchModalVisible, setSearchModalVisible] = useState(false);
   const [selectedBranchFromStorage, setSelectedBranchFromStorage] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
@@ -117,7 +117,7 @@ const ExpenseTransactionList = () => {
         // Expense Transactions are filtered here by the stored branch name
         if (storedBranchName) {
           filteredData = response.data.filter(
-            (item) => item.EXPNS_TRNSCTN_BRNCH_NM === storedBranchName
+            (item) => item.BRNCH_NM === storedBranchName
           );
         }
         
@@ -186,8 +186,8 @@ const ExpenseTransactionList = () => {
 
     // Filter areaList items that belong to the current branch
     const filteredAreaLines = areaList
-      .filter(item => item.branch_name === selectedBranchFromStorage)
-      .map(item => item.line_name|| "Uncategorized");
+      .filter(item => item.BRNCH_NM === selectedBranchFromStorage)
+      .map(item => item.LINE_NM || "Uncategorized");
 
     // Get unique lines
     const uniqueLines = [...new Set(filteredAreaLines)];
@@ -199,7 +199,7 @@ const ExpenseTransactionList = () => {
   const groupExpensesByLine = (data) => {
     const grouped = {};
     data.forEach((expense) => {
-      const lineName = expense.EXPNS_TRNSCTN_LINE_NM || "Uncategorized";
+      const lineName = expense.LINE_NM || "Uncategorized";
       if (!grouped[lineName]) {
         grouped[lineName] = [];
       }
@@ -309,7 +309,7 @@ const ExpenseTransactionList = () => {
 
     if (hasLineCriteria) {
       filtered = filtered.filter(item =>
-        selectedLines.includes(item.EXPNS_TRNSCTN_LINE_NM|| "Uncategorized")
+        selectedLines.includes(item.LINE_NM || "Uncategorized")
       );
     }
 
@@ -318,7 +318,7 @@ const ExpenseTransactionList = () => {
       const toDate = dayjs(dateRange.to).endOf('day');
 
       filtered = filtered.filter(item => {
-        const expenseDate = dayjs(item.EXPNS_TRNSCTN_CREATED_TS);
+        const expenseDate = dayjs(item.EXPNS_TRNSCTN_DT);
         return (expenseDate.isAfter(fromDate) || expenseDate.isSame(fromDate)) &&
           (expenseDate.isBefore(toDate) || expenseDate.isSame(toDate));
       });
@@ -375,7 +375,11 @@ const ExpenseTransactionList = () => {
     setSearchCriteria(null);
     setHasSearched(false);
 
-   
+    notification.success({
+      message: "Data Reset",
+      description: "Please perform a new search to view expense transactions.",
+    });
+
     setTimeout(() => {
       setSearchModalVisible(true);
     }, 300);

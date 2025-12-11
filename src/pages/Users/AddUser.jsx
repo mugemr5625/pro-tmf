@@ -1020,6 +1020,8 @@ const AddUser = () => {
                   <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
 
                   {/* User Expense Mapping Section */}
+                  {isEditMode &&(
+                    <>
                   <Divider orientation="center">User Expense Mapping</Divider>
                   
                   {expenseMappings.map((mapping, index) => (
@@ -1141,7 +1143,7 @@ const AddUser = () => {
                       </div>
                     </div>
                   ))}
-
+                 
                   {/* Add button at the bottom */}
                   <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "-15px" }}>
                     <Button
@@ -1158,8 +1160,12 @@ const AddUser = () => {
                       }}
                     />
                   </div>
+                  
 
                   <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
+                   </>
+                )}
+
 
                   {/* Form Actions */}
                   <div className="text-center mt-4">

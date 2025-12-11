@@ -283,7 +283,7 @@
 }
 
 .view-customer-item-subtitle {
-  font-size: 13px;
+  font-size: 14px;
   color: #8c8c8c;
   margin-top: 4px;
 }
@@ -425,17 +425,17 @@
   }
 
   .view-customer-filter-label {
-    font-size: 13px;
+    font-size: 14px;
     margin-right: 8px;
   }
 
   .view-customer-results-count {
     margin-left: 0;
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .view-customer-reorder-info {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .view-customer-collapse-content {

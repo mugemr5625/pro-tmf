@@ -1,7 +1,7 @@
 /* ListBranch Component Styles */
 
 .list-branch-page-content {
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .list-branch-page-content {
@@ -18,6 +18,17 @@
   margin-bottom: 15px;
   flex-wrap: wrap;
   gap: 12px;
+}
+.ant-float-btn-default .ant-float-btn-body {
+  overflow: visible !important;
+}
+
+.ant-float-btn .ant-float-btn-content {
+  overflow: visible !important;
+}
+
+.ant-float-btn-group .ant-float-btn-group-wrap {
+  overflow: visible !important;
 }
 
 .list-branch-title {
@@ -80,12 +91,12 @@
 .list-branch-search-query {
   font-weight: 600;
   color: #1677ff;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .list-branch-results-count {
   margin-left: 12px;
-  font-size: 13px;
+  font-size: 14px;
   color: #52c41a;
   font-weight: 500;
 }
@@ -135,7 +146,7 @@
 .list-branch-item-title {
   font-weight: 600;
   color: black;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 /* Center align avatar icon with content - matching Line module */

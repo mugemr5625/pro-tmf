@@ -452,10 +452,13 @@ const ExpenseTypeList = () => {
         {searchTerm && (
           <div className="expense-type-list-search-results">
             <span className="expense-type-list-search-label">
-              Search Results:{" "}
-              <span className="expense-type-list-search-query">
+              Search Result:{" "}
+              {/* <span className="expense-type-list-search-query">
                 "{searchTerm}"
-              </span>
+              </span> */}
+              <Tag color="blue" style={{ fontSize: 14, padding: "2px 8px" }}>
+                      {searchTerm}
+                    </Tag>
             </span>
             <span className="expense-type-list-results-count">
               ({Object.values(groupedExpenses).flat().length} results)
@@ -490,10 +493,11 @@ const ExpenseTypeList = () => {
                     </span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px'}}>
-                    <Badge
+                    {/* <Badge
                       count={expenses.length}
                       className="expense-type-list-badge"
-                    />
+                    /> */}
+                    <div className="expense-type-list-badge">{expenses.length}</div>
                     <CaretDownOutlined 
                       style={{ 
                         transition: 'transform 0.3s',
@@ -580,11 +584,12 @@ const ExpenseTypeList = () => {
                                     <List.Item.Meta
                                       avatar={
                                         <div className="expense-type-list-avatar-container">
-                                          <img
+                                          {/* <img
                                             src={expenseIcon}
                                             alt="expense-icon"
                                             className="expense-type-list-avatar-icon"
-                                          />
+                                          /> */}
+                                          <Avatar src={expenseIcon} />
                                           <span className="expense-type-list-index-badge">{lineIndex}</span>
                                         </div>
                                       }

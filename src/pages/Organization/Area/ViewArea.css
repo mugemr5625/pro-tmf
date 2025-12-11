@@ -89,12 +89,12 @@
 .view-area-search-query {
   font-weight: 600;
   color: #1677ff;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .view-area-results-count {
   margin-left: 12px;
-  font-size: 13px;
+  font-size: 14px;
   color: #52c41a;
   font-weight: 500;
 }
@@ -124,7 +124,7 @@
 
 .view-area-line-title {
   font-weight: 600;
-  font-size: 18px;
+  font-size: 14px;
   color: #262626;
 }
 .view-area-badge-count {
@@ -243,7 +243,7 @@
 .view-area-item-title {
   font-weight: 600;
   color: black;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .view-area-ellipsis-icon {
@@ -328,7 +328,7 @@
   }
 
   .view-area-line-title {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .view-area-list-item {

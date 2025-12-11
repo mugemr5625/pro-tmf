@@ -560,7 +560,7 @@ const ListBranch = () => {
         type="primary"
         className="list-branch-float-button"
         onClick={() => (window.location.href = "/branch/add")}
-        tooltip="Add New Branch"
+        // tooltip="Add New Branch"
       />
 
       {isInitialized && (

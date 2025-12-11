@@ -17,21 +17,21 @@ const ExpenseCollapseContent = ({ expense }) => {
         }}
       >
        
-        <Descriptions.Item label="Branch Name">
+        <Descriptions.Item label="Branch Name:">
           {expense.branch_name || "N/A"}
         </Descriptions.Item>
-        <Descriptions.Item label="Line Name">
+        <Descriptions.Item label="Line Name:">
           {expense.line_name || "N/A"}
         </Descriptions.Item>
-         <Descriptions.Item label="Expense Name">
+         <Descriptions.Item label="Expense Name:">
           {expense.name || "N/A"}
         </Descriptions.Item>
-        <Descriptions.Item label="Status">
+        <Descriptions.Item label="Status:">
           <Tag color={expense.status === "active" ? "green" : "red"}>
             {expense.status?.toUpperCase() || "N/A"}
           </Tag>
         </Descriptions.Item>
-        <Descriptions.Item label="User">
+        <Descriptions.Item label="User:">
           {expense.created_by_full_name || "N/A"}
         </Descriptions.Item>
         {/* <Descriptions.Item label="Modified By">
