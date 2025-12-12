@@ -331,31 +331,126 @@ const [isEditMode, setIsEditMode] = useState(false);
         setMapModalVisible(true);
     };
 
-    const handleGetCurrentLocation = () => {
-        if (!navigator.geolocation) {
-            notification.error({
-                message: 'Geolocation Not Supported',
-                description: 'Your browser does not support geolocation.',
-                // duration: 5,
-            });
-            return;
-        }
+   // Replace the handleGetCurrentLocation function with this improved version:
 
-        notification.info({
-            message: 'Getting Location',
-            description: 'Please allow location access and wait...',
-            duration: 4,
+const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+        notification.error({
+            message: 'Geolocation Not Supported',
+            description: 'Your browser does not support geolocation.',
         });
+        return;
+    }
 
-        // OPTIMIZED: Get high-accuracy position
-        const watchId = navigator.geolocation.watchPosition(
-            (position) => {
-                const { latitude, longitude, accuracy } = position.coords;
+    notification.info({
+        message: 'Getting Location',
+        description: 'Please allow location access and wait...',
+        duration: 4,
+    });
 
-                console.log("Live Accuracy:", accuracy);
+    let watchId = null;
+    let bestAccuracy = Infinity;
+    let bestPosition = null;
+    let attempts = 0;
+    const maxAttempts = 10; // Try for ~10 seconds
+    const acceptableAccuracy = 2; // Accept if accuracy is 20m or better
 
-                // ✅ Only accept when accuracy is GOOD (≤ 5 meters)
-                if (accuracy <= 5) {
+    // Clear any existing watch
+    if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+    }
+
+    watchId = navigator.geolocation.watchPosition(
+        (position) => {
+            const { latitude, longitude, accuracy } = position.coords;
+            attempts++;
+
+            console.log(`Attempt ${attempts}: Accuracy = ${accuracy.toFixed(1)}m`);
+
+            // Update if this is the best accuracy we've seen
+            if (accuracy < bestAccuracy) {
+                bestAccuracy = accuracy;
+                bestPosition = position;
+
+                // Always update the map with the latest position
+                const lat = latitude.toFixed(6);
+                const lng = longitude.toFixed(6);
+
+                setSelectedLocation({
+                    lat,
+                    lng,
+                    address: `${lat}, ${lng}`,
+                });
+
+                setMapCenter({ lat: latitude, lng: longitude });
+                setCurrentAccuracy(accuracy);
+            }
+
+            // Stop if we get acceptable accuracy OR max attempts reached
+            if (accuracy <= acceptableAccuracy || attempts >= maxAttempts) {
+                if (watchId) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null;
+                }
+
+                notification.success({
+                    message: accuracy <= acceptableAccuracy 
+                        ? "High Accuracy Location Locked ✅" 
+                        : "Location Set",
+                    description: `Accuracy: ${bestAccuracy.toFixed(1)} meters`,
+                    duration: 3,
+                });
+
+                console.log("Final position locked:", bestPosition);
+            }
+        },
+        (error) => {
+            // Clear watch on error
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+
+            let errorMessage = "Unable to get location";
+            
+            switch(error.code) {
+                case 1: // PERMISSION_DENIED
+                    errorMessage = "Location permission denied. Please enable location in your browser settings.";
+                    break;
+                case 2: // POSITION_UNAVAILABLE
+                    errorMessage = "Location information unavailable. Please check your GPS/network connection.";
+                    break;
+                case 3: // TIMEOUT
+                    errorMessage = "Location request timed out. Please try again.";
+                    break;
+                default:
+                    errorMessage = error.message || "Unknown error occurred";
+            }
+
+            notification.error({
+                message: "GPS Error",
+                description: errorMessage,
+                duration: 5,
+            });
+
+            console.error("Geolocation error:", error);
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 30000, // Increased timeout for Firefox
+            maximumAge: 0,
+        }
+    );
+
+    // Fallback: If watchPosition doesn't work well, try getCurrentPosition
+    setTimeout(() => {
+        if (watchId && attempts === 0) {
+            console.log("watchPosition not responding, trying getCurrentPosition...");
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    
                     const lat = latitude.toFixed(6);
                     const lng = longitude.toFixed(6);
 
@@ -366,47 +461,31 @@ const [isEditMode, setIsEditMode] = useState(false);
                     });
 
                     setMapCenter({ lat: latitude, lng: longitude });
+                    setCurrentAccuracy(accuracy);
 
                     notification.success({
-                        message: "High Accuracy Location Locked ✅",
+                        message: "Location Found",
                         description: `Accuracy: ${accuracy.toFixed(1)} meters`,
                         duration: 3,
                     });
 
-                    // ✅ Stop tracking once good accuracy is achieved
-                    navigator.geolocation.clearWatch(watchId);
-                } else {
-                    // Keep updating marker live while accuracy improves
-                    setSelectedLocation({
-                        lat: latitude.toFixed(6),
-                        lng: longitude.toFixed(6),
-                        address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
-                    });
-
-                    setMapCenter({ lat: latitude, lng: longitude });
-                    setCurrentAccuracy(accuracy);
-
+                    if (watchId) {
+                        navigator.geolocation.clearWatch(watchId);
+                        watchId = null;
+                    }
+                },
+                (error) => {
+                    console.error("getCurrentPosition also failed:", error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
                 }
-            },
-            (error) => {
-                let errorMessage = "Unable to get location";
-                if (error.code === 1) errorMessage = "Location permission denied";
-                if (error.code === 2) errorMessage = "Location unavailable";
-                if (error.code === 3) errorMessage = "Location request timeout";
-
-                notification.error({
-                    message: "GPS Error",
-                    description: errorMessage,
-                });
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 20000,
-                maximumAge: 0,
-            }
-        );
-    };
-
+            );
+        }
+    }, 5000); // Wait 5 seconds before trying fallback
+};
 
 
     const handleMapClick = (e) => {
