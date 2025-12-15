@@ -110,6 +110,7 @@ const SwipeablePanel = ({
         transition: isDragging ? 'none' : 'background 0.25s ease-out',
         marginBottom: 4,
         borderRadius: 8,
+        padding: 0
       }}
     >
       {/* Left (Edit) button */}
@@ -199,12 +200,13 @@ const SwipeablePanel = ({
       >
         {/* Header */}
         <div
-          className="px-4 py-3"
+          className="px-1 py-3"
           style={{
             cursor: 'pointer',
             display: 'flex',
-            justifyContent: 'space-between',
+            justifyContent: 'space-evenly',
             alignItems: 'center',
+             
             
           }}
           onTouchStart={isExpanded ? null : handleTouchStart}
@@ -224,9 +226,8 @@ const SwipeablePanel = ({
               transition: isDragging ? 'none' : 'margin-right 0.25s ease-out'
             }}
           >
-           
-            <Avatar src={avatarSrc} size={40} style={{ flexShrink: 0 }} />
-             <div
+            {item.lineIndex >=1&& (
+                <div
              style={{
   display: "inline-flex",
   alignItems: "center",
@@ -239,7 +240,7 @@ const SwipeablePanel = ({
   backgroundColor: "#fff",
   color: "rgba(0, 0, 0, 0.88)",
   fontWeight: 600,
-  fontSize: "14px",
+  fontSize: "20px",
   boxShadow: "0 2px 0 rgba(0, 0, 0, 0.02)",
   transition: "all 0.2s"
 }}
@@ -247,10 +248,15 @@ const SwipeablePanel = ({
             >
               {item.lineIndex}
             </div>
+   ) }
+           
+            {/* <Avatar src={avatarSrc} size={30} style={{ flexShrink: 0 }} /> */}
+           
             <h5 
               style={{ 
                 margin: 0, 
-                fontWeight: 600,
+                fontSize: "20px",
+                // fontWeight: 600,
                 wordBreak: 'break-word',
                 flex: 1,
                 minWidth: 0,
@@ -259,6 +265,7 @@ const SwipeablePanel = ({
             >
               {item[titleKey]}
             </h5>
+            
           </div>
           <span
             className={`mdi mdi-chevron-${isExpanded ? 'up' : 'down'}`}

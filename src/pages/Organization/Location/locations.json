@@ -1,0 +1,362 @@
+[
+  {
+    "seq.id": 1,
+    "location_name": "Hotel Kings Palace",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.96877, 77.30253],
+    "commencement_year": null,
+    "created_by": ["WorldPlaces"]
+  },
+  {
+    "seq.id": 2,
+    "location_name": "Krishna Tourist Home",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9592, 77.3130],
+    "commencement_year": null,
+    "created_by": ["General Listing"]
+  },
+  {
+    "seq.id": 3,
+    "location_name": "Akshaya Hotel",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9590, 77.3129],
+    "commencement_year": null,
+    "created_by": ["Approx Center"]
+  },
+  {
+    "seq.id": 4,
+    "location_name": "Hotel Arun Venkatesh",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9590, 77.3129],
+    "commencement_year": null,
+    "created_by": ["Approx Center"]
+  },
+  {
+    "seq.id": 5,
+    "location_name": "Green Garden Resort",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9575, 77.3100],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 6,
+    "location_name": "The Pothigai Palace",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9570, 77.3095],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 7,
+    "location_name": "Zamin Resort",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9520, 77.2950],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 8,
+    "location_name": "WESTN Resorts",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9500, 77.3000],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 9,
+    "location_name": "Laughing Waters Fine Stay",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9400, 77.2900],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 10,
+    "location_name": "Hotel Palmyra Grand Inn",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9590, 77.3135],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 11,
+    "location_name": "Hotel Applettree",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9590, 77.3120],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 12,
+    "location_name": "Hotel Sountharyaa",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9585, 77.3105],
+    "commencement_year": null,
+    "created_by": ["Onefivenine"]
+  },
+  {
+    "seq.id": 13,
+    "location_name": "Janatha Hotel",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9580, 77.3110],
+    "commencement_year": null,
+    "created_by": ["Onefivenine"]
+  },
+  {
+    "seq.id": 14,
+    "location_name": "Thangam Residency",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9572, 77.3098],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 15,
+    "location_name": "Trivam Hotel",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9568, 77.3093],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 16,
+    "location_name": "Hotel Gowri Sankar",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9600, 77.3150],
+    "commencement_year": null,
+    "created_by": ["Onefivenine"]
+  },
+  {
+    "seq.id": 17,
+    "location_name": "Sravan Hotel",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9595, 77.3140],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 18,
+    "location_name": "Mohan Hotel",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9588, 77.3118],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 19,
+    "location_name": "Banu Hotel",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9583, 77.3115],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 20,
+    "location_name": "VEL Tourist Home",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9577, 77.3107],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 21,
+    "location_name": "Hotel New Ruchi",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9570, 77.3124],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 22,
+    "location_name": "Hotel Ramprasad",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9565, 77.3112],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 23,
+    "location_name": "Sri Ram",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9558, 77.3105],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 24,
+    "location_name": "Ezhilagam Cottage",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9540, 77.3080],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 25,
+    "location_name": "Esakki Tiger Resorts",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9530, 77.3070],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 26,
+    "location_name": "SARAA GRAND",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9525, 77.3065],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 27,
+    "location_name": "Funland Golden Resorts",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9515, 77.3055],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 28,
+    "location_name": "Aathi Sri Cottage",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9505, 77.3045],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 29,
+    "location_name": "Monsoon Magic Home Stay",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9495, 77.3035],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 30,
+    "location_name": "King's Cottage",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9485, 77.3025],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 31,
+    "location_name": "Sr Tea Tiffin Centre",
+    "location_type": "tiffin",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9590, 77.3129],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 32,
+    "location_name": "Gomathi Sankar Tiffen Center",
+    "location_type": "tiffin",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9580, 77.3115],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 33,
+    "location_name": "Satya Tiffen Centre",
+    "location_type": "tiffin",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9565, 77.3100],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 34,
+    "location_name": "Royal Events Raju (tiffin / catering)",
+    "location_type": "tiffin",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9550, 77.3090],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 35,
+    "location_name": "Guna Tiffin Centre",
+    "location_type": "tiffin",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9540, 77.3085],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 36,
+    "location_name": "Babus Hotel & Restaurant",
+    "location_type": "dinner",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9560, 77.3095],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 37,
+    "location_name": "Shri Amurtham Paramparya Unavagam",
+    "location_type": "lunch",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9570, 77.3110],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  },
+  {
+    "seq.id": 38,
+    "location_name": "Five Falls Resort Courtallam",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.93419, 77.27804],
+    "commencement_year": null,
+    "created_by": ["Courtallam Area"]
+  },
+  {
+    "seq.id": 39,
+    "location_name": "Kuttralam Resorts",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9342, 77.2780],
+    "commencement_year": null,
+    "created_by": ["Approx Courtallam"]
+  },
+  {
+    "seq.id": 40,
+    "location_name": "Srishty Garden Resorts",
+    "location_type": "all",
+    "District": "Tenkasi",
+    "loc_coordinates": [8.9530, 77.3050],
+    "commencement_year": null,
+    "created_by": ["Approx"]
+  }
+]

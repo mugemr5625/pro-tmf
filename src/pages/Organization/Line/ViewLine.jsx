@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, notification, Grid, List, Avatar, Dropdown, Menu, Modal, Collapse, Tag, Divider, Skeleton, Popconfirm } from "antd";
+import { Button, notification, Grid, List, Avatar,Image, Dropdown, Menu, Modal, Collapse, Tag, Divider, Skeleton, Popconfirm } from "antd";
 import Table from "../../../components/Common/Table";
 import { GET, DELETE, POST } from "helpers/api_helper";
 import { LINE, COLUMNCHANGE, SELECTEDCOLUMN } from "helpers/url_helper";
@@ -701,9 +701,12 @@ const ViewLine = () => {
               >
                <div className="view-line-branch-header">
   <div className="view-line-branch-title-container">
-    <Avatar src={branchIcon}>
+    {/* <Avatar src={branchIcon}>
       {branchName?.charAt(0)?.toUpperCase()}
-    </Avatar>
+    </Avatar> */}
+    <Image src={branchIcon}  width={32}
+  height={32}
+    />                         
     <span className="view-line-branch-title">
       {branchName}
     </span>
@@ -794,7 +797,7 @@ const ViewLine = () => {
                                           alt="line-icon"
                                           className="view-line-avatar-icon"
                                         /> */}
-                                        <Avatar src={branchIcon} />
+                                        {/* <Avatar src={branchIcon} /> */}
                                         <span className="view-line-index-badge">{lineIndex}</span>
                                       </div>
                                     }

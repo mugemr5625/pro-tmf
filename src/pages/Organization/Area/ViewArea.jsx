@@ -909,11 +909,11 @@ const ViewArea = () => {
                                   <List.Item.Meta
                                     avatar={
                                       <div className="view-area-avatar-container">
-                                        <img
+                                        {/* <img
                                           src={areaIcon}
                                           alt="area-icon"
                                           className="view-area-avatar-icon"
-                                        />
+                                        /> */}
                                         <span className="view-area-index-badge">{lineIndex}</span>
                                       </div>
                                     }

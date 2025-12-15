@@ -87,6 +87,9 @@ const ViewCustomer = () => {
 
   useEffect(() => {
     // Get branch from localStorage
+     localStorage.removeItem('selected_line_name');
+    localStorage.removeItem('selected_area_id');
+    localStorage.removeItem('selected_area_name');
     const branchData = localStorage.getItem('selected_branch_name');
     if (branchData) {
       try {
@@ -351,12 +354,13 @@ const ViewCustomer = () => {
         message: "No Customers Found",
         description: `No customers found for the selected Line and Area.`,
       });
-    } else {
-      notification.success({
-        message: "Filter Applied",
-        description: `${filtered.length} customer(s) found.`,
-      });
     }
+    // } else {
+    //   notification.success({
+    //     message: "Filter Applied",
+    //     description: `${filtered.length} customer(s) found.`,
+    //   });
+    // }
   };
 
  const handleReset = () => {

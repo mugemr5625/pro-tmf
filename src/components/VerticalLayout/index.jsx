@@ -101,6 +101,7 @@ const VerticalLayout = (props) => {
         { key: '/investment', icon: <DollarOutlined />, label: 'Investments' },
         { key: '/expense-transaction', icon: <FileOutlined />, label: 'Expense Transactions' },
         { key: '/user/list', icon: <UserOutlined />, label: 'Users' },
+        {key: '/location-list', icon: <UserOutlined />, label: 'Location' }
       ],
     },
     {
@@ -461,31 +462,9 @@ const mobileDrawerContent = (
             }}
           />
           
-          <div style={{ 
-            flex: 1, 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-          }}>
-            {/* Branch Name Display using Tag - Centered */}
-            {branchName && (
-              <Tag 
-                icon={<BankOutlined />}
-                color="blue"
-                style={{ 
-                  fontSize: '14px',
-                  padding: '4px 12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
-              >
-                <span style={{ display: isMobile ? 'none' : 'inline' }}>Branch:</span>
-                <span>{branchName}</span>
-              </Tag>
-            )}
-          </div>
-
+        
+<NotificationDropdown />
+<ProfileMenu />
           <div style={{ 
             display: 'flex', 
             justifyContent: 'flex-end', 
@@ -498,21 +477,23 @@ const mobileDrawerContent = (
               alignItems: 'center',
               gap: '0px'
             }}>
-              <NotificationDropdown />
+               
               {/* Branch name below notification icon */}
               {branchName && (
                 <div style={{
                   fontSize: '11px',
-                  color: '#5f6368',
+                  // color: '#5f6368',
                   whiteSpace: 'nowrap',
-                  marginTop: '-50px',
+                  // marginTop: '-50px',
+                  marginTop:'40px' ,
+                  marginRight: '50px',
                   fontWeight: 400,
                 }}>
                   {branchName}
                 </div>
               )}
             </div>
-            <ProfileMenu />
+           
           </div>
         </Header>
         <Content

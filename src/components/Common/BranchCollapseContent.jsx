@@ -425,6 +425,7 @@ const BranchCollapseContent = ({ branch, details }) => {
           size="small"
           column={{ xs: 1, sm: 2, md: 3 }}
           labelStyle={{
+            fontSize: "18px",
             fontWeight: 700,
             backgroundColor: "#e5e4e4",
             width: "140px",
@@ -432,6 +433,7 @@ const BranchCollapseContent = ({ branch, details }) => {
           }}
           contentStyle={{
             backgroundColor: "#ffffff",
+            fontSize: "18px",
             width: "200px",
             minWidth: "130px",
             overflow: "hidden",

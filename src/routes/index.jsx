@@ -25,6 +25,7 @@ import ExpenseTransactionList from 'pages/Organization/ExpenseTransaction/Expens
 import ExpenseTransactionForm from 'pages/Organization/ExpenseTransaction/ExpenseTransactionForm';
 import DisburseLoanForm from 'pages/Organization/DisburseLoan/DisburseLoanForm';
 import DisburseLoanList from 'pages/Organization/DisburseLoan/DisburseLoanList';
+import Location from 'pages/Organization/Location/Location'
 
 //User Module
 
@@ -81,6 +82,7 @@ const authProtectedRoutes = [
   { path: '/disburse-loan', component: <DisburseLoanList /> },
   { path: '/new-loan-disbursement', component: <DisburseLoanForm /> },
   { path: '/new-loan-disbursement/:id', component: <DisburseLoanForm /> },
+  {path: '/location-list',component: <Location/>},
   {path:"/reset-password", component: <ResetPassword /> },
   {path:"/add-customer", component: <AddCustomer /> },
   {path:"/customer/edit/:id", component: <AddCustomer /> },

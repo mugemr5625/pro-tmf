@@ -22,6 +22,7 @@ const orgMenuItems = [
   { key: "/investment", label: "Investments" },
   { key: "/expense-transaction", label: "Expense Transactions" },
   { key: "/user/list", label: "All Users" },
+  {key: "location-list",label: "Location"}
 ];
 
 // const userMenuItems = [

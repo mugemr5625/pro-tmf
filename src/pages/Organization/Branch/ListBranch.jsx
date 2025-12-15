@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useCallback } from "react";
-import { Button, notification, FloatButton, Form, Input, Modal, Avatar, List, Skeleton, Divider, Menu, Dropdown, Popconfirm, Tag } from "antd";
+import { Button, notification, FloatButton, Form, Input, Modal, Image, List, Skeleton, Divider, Menu, Dropdown, Popconfirm, Tag } from "antd";
 import { PlusOutlined, ReloadOutlined, SearchOutlined, ExclamationCircleOutlined, DeleteFilled, EllipsisOutlined } from "@ant-design/icons";
 import { GET_BRANCHES, DELETE, GET } from "helpers/api_helper";
 import { ADD_BRANCH } from "helpers/url_helper";
@@ -9,7 +9,7 @@ import BranchCollapseContent from "components/Common/BranchCollapseContent";
 import "./ListBranch.css";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useNavigate } from "react-router-dom";
-import branchIcon from "assets/images/location.png";
+import branchIcon from "../../../assets/icons/bank.png";
 import SwipeablePanel from "components/Common/SwipeablePanel";
 import BranchNameModal from "components/Common/BranchNameModal";
 
@@ -377,7 +377,8 @@ const ListBranch = () => {
             onClick={showSearchModal}
             className="search-button"
           >
-            <span className="search-text">Search</span>
+             {!isMobile && "Search"}
+            {/* <span className="search-text">Search</span> */}
           </Button>
 
           {searchTerm && (
@@ -390,29 +391,7 @@ const ListBranch = () => {
         </div>
       </div>
 
-      {/* Display Selected Branch Name at Top */}
-      {selectedBranchName && (
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          marginBottom: "10px"
-        }}>
-          <span style={{ 
-            fontWeight: "600", 
-            fontSize: "15px",
-          }}>
-            Branch:
-          </span>
-          <Tag color="blue" style={{ 
-            fontSize: "14px", 
-            padding: "4px 12px",
-            margin: 0
-          }}>
-            {selectedBranchName}
-          </Tag>
-        </div>
-      )}
+  
 
       <div
         id="scrollableDiv"
@@ -476,7 +455,7 @@ const ListBranch = () => {
                   >
                     {isMobile ? (
                       <SwipeablePanel
-                        item={{ ...branch, lineIndex }}
+                        item={branch }
                         index={index}
                         titleKey="branch_name"
                         name="branch"
@@ -499,7 +478,10 @@ const ListBranch = () => {
                           className="list-branch-item list-branch-item-expanded"
                         >
                           <List.Item.Meta
-                            avatar={<Avatar src={branchIcon} />}
+                            // avatar={<Avatar src={branchIcon} shape="square" />}
+                            avatar ={
+                              <Image src={branchIcon}  />                         }
+                            
                             title={
                               <div className="list-branch-item-title-container">
                                 <span className="list-branch-item-title">
@@ -511,6 +493,7 @@ const ListBranch = () => {
                                     onClick={(e) => e.stopPropagation()}
                                   />
                                 </Dropdown>
+                                
                               </div>
                             }
                           />

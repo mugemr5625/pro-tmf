@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { notification, Form, Input, Button, Upload, message, Divider, Space, Card, Spin, Modal, Alert } from "antd";
 // Added CloseCircleOutlined
-import { UploadOutlined, CloudUploadOutlined, FileOutlined, DeleteOutlined, EyeOutlined, PlusOutlined, MinusOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { UploadOutlined, CloudUploadOutlined, FileOutlined, DeleteOutlined, EyeOutlined, PlusOutlined, MinusOutlined, CloseCircleOutlined,CameraOutlined} from '@ant-design/icons';
 // Added DELETE helper
 import { UPLOAD, GET, DELETE } from "helpers/api_helper";
 import { useNavigate } from "react-router-dom";
+import CameraCapture from '../../../components/Common/CameraCapture'
 const AddCustomerDocument = ({ customerId, onPrevious, onCancel }) => {
   const [form] = Form.useForm();
 
@@ -14,6 +15,10 @@ const AddCustomerDocument = ({ customerId, onPrevious, onCancel }) => {
   const [locationFields, setLocationFields] = useState([{ id: 0, file: null, loading: false }]);
   const [otherFields, setOtherFields] = useState([{ id: 0, file: null, loading: false }]);
 
+  const [cameraVisible, setCameraVisible] = useState(false);
+const [currentCameraField, setCurrentCameraField] = useState(null);
+const [currentCameraFieldType, setCurrentCameraFieldType] = useState(null);
+const cameraFieldRef = useRef({ fieldId: null, fieldType: null });
   // State for existing documents
   const [existingDocuments, setExistingDocuments] = useState([]);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
@@ -26,6 +31,87 @@ const AddCustomerDocument = ({ customerId, onPrevious, onCancel }) => {
       fetchExistingDocuments();
     }
   }, [customerId, form]);
+
+ const openCamera = (fieldId, fieldType) => {
+    console.log('=== Opening Camera ===');
+    console.log('Field ID:', fieldId);
+    console.log('Field Type:', fieldType);
+    
+    cameraFieldRef.current = { fieldId, fieldType };
+    setCameraVisible(true);
+  };
+
+  // Handle camera capture
+  const handleCameraCapture = (file) => {
+    console.log('=== Camera Capture Received ===');
+    console.log('File:', file);
+    console.log('Ref values:', cameraFieldRef.current);
+    
+    const { fieldId, fieldType } = cameraFieldRef.current;
+    
+    console.log('Field ID from ref:', fieldId);
+    console.log('Field Type from ref:', fieldType);
+    
+    if (fieldId === null || fieldId === undefined) {
+      console.error('Missing field ID');
+      message.error('Camera field info missing. Please try again.');
+      return;
+    }
+    
+    if (!fieldType) {
+      console.error('Missing field type');
+      message.error('Camera field type missing. Please try again.');
+      return;
+    }
+    
+    if (!(file instanceof File)) {
+      console.error('Not a valid File object:', file);
+      message.error('Invalid file received from camera');
+      return;
+    }
+    
+    let setFieldsState, fields;
+    
+    switch(fieldType) {
+      case 'aadhaar':
+        setFieldsState = setAadhaarFields;
+        fields = aadhaarFields;
+        break;
+      case 'pan':
+        setFieldsState = setPanFields;
+        fields = panFields;
+        break;
+      case 'location_photo':
+        setFieldsState = setLocationFields;
+        fields = locationFields;
+        break;
+      case 'other':
+        setFieldsState = setOtherFields;
+        fields = otherFields;
+        break;
+      default:
+        console.error('Unknown field type:', fieldType);
+        message.error('Unknown document type. Please try again.');
+        return;
+    }
+    
+    console.log('Current fields:', fields);
+    
+    const updatedFields = fields.map(field => {
+      if (field.id === fieldId) {
+        console.log('Updating field:', field.id, 'with file:', file.name);
+        return { ...field, file: file };
+      }
+      return field;
+    });
+    
+    console.log('Updated fields:', updatedFields);
+    
+    setFieldsState(updatedFields);
+    console.log('File set successfully!');
+    
+    cameraFieldRef.current = { fieldId: null, fieldType: null };
+  };
 
   // Fetch existing documents
   const fetchExistingDocuments = async () => {
@@ -529,7 +615,6 @@ const AddCustomerDocument = ({ customerId, onPrevious, onCancel }) => {
   return (
     <>
       {fields.map((field, index) => {
-        // Truncate file name to 15 characters
         const fileName = field.file?.name || '';
         const truncatedFileName = fileName.length > 30
           ? fileName.substring(0, 30) + '...' 
@@ -541,7 +626,7 @@ const AddCustomerDocument = ({ customerId, onPrevious, onCancel }) => {
               
               <Form.Item label="File Upload" style={{ flexGrow: 1, marginBottom: 0 }}>
                 
-                {/* 1. Buttons (Browse & Upload) */}
+                {/* Buttons (Browse, Camera & Upload) */}
                 <Space.Compact style={{ width: '100%', marginBottom: field.file ? '8px' : '0' }}>
                   <Upload
                     maxCount={1}
@@ -568,20 +653,28 @@ const AddCustomerDocument = ({ customerId, onPrevious, onCancel }) => {
                     </Button>
                   </Upload>
                   
-                  {/* The Upload button for starting the API call */}
+                  {/* NEW: Camera Button */}
+                  <Button 
+                    icon={<CameraOutlined />}
+                    onClick={() => openCamera(field.id, type)}
+                    title="Capture with Camera"
+                  >
+                    Camera
+                  </Button>
+                  
+                  {/* Upload button */}
                   <Button 
                     type="primary" 
                     icon={<CloudUploadOutlined />}
                     onClick={() => uploadDocument(field.id, field.file, type, descriptionFieldPrefix, setFieldsState, fields)}
                     loading={field.loading}
                     disabled={!field.file}
-                    style={{ marginLeft: '0px' }} 
                   >
                     Upload
                   </Button>
                 </Space.Compact>
                 
-                {/* 2. Selected File Name and Clear Button */}
+                {/* Selected File Name and Clear Button */}
                 {field.file && (
                   <div style={{ 
                     display: 'flex', 
@@ -602,7 +695,7 @@ const AddCustomerDocument = ({ customerId, onPrevious, onCancel }) => {
                         whiteSpace: 'nowrap',
                         maxWidth: 'calc(100% - 30px)'
                       }}
-                      title={fileName} // Show full name on hover
+                      title={fileName}
                     >
                       <FileOutlined style={{ marginRight: '5px' }} />
                       {truncatedFileName}
@@ -624,7 +717,7 @@ const AddCustomerDocument = ({ customerId, onPrevious, onCancel }) => {
                 )}
               </Form.Item>
               
-              {/* The removal button */}
+              {/* Removal button */}
               {fields.length > 1 && (
                 <Button
                   type="primary"
@@ -869,7 +962,18 @@ const AddCustomerDocument = ({ customerId, onPrevious, onCancel }) => {
           </div>
         </div>
       </div>
+        <CameraCapture
+      visible={cameraVisible}
+      onClose={() => {
+        console.log('Camera modal closing');
+        setCameraVisible(false);
+        // Reset ref when canceling
+        cameraFieldRef.current = { fieldId: null, fieldType: null };
+      }}
+      onCapture={handleCameraCapture}
+    />
     </div>
+    
   );
 };
 

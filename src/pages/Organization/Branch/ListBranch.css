@@ -146,7 +146,7 @@
 .list-branch-item-title {
   font-weight: 600;
   color: black;
-  font-size: 14px;
+  font-size: 22px;
 }
 
 /* Center align avatar icon with content - matching Line module */
@@ -154,6 +154,7 @@
   display: flex;
   padding: 5px 5px;
   gap: 5px !important;
+  margin-left: 10px;
 }
 
 .list-branch-item .ant-list-item-meta-avatar {
@@ -169,19 +170,26 @@
 .list-branch-item .ant-list-item-meta-avatar {
   display: flex;
   align-items: center;
-  margin-left: 10px;
-  /* margin-right: 5px; */
-  width: 40px;
-  height: 40px;
+  justify-content: center;
+ 
+  margin-top: 5px !important;
+   margin-right: 8px !important;
+  width: 30px;
+  height: 30px;
 }
 
 .list-branch-item .ant-list-item-meta-avatar .ant-avatar {
-  width: 40px;
-  height: 40px;
+  width: 30x;
+  height: 30px;
+  object-fit: contain;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+/* .avatar-image{
+  width: 20px;
+  height: 20px;
+} */
 
 .list-branch-ellipsis-icon {
   font-size: 22px;
@@ -190,6 +198,7 @@
   padding: 4px;
   border-radius: 4px;
   transition: all 0.2s ease;
+  margin-right: 15px;
 }
 
 .list-branch-ellipsis-icon:hover {
@@ -199,7 +208,7 @@
 
 .list-branch-collapse-content {
   margin-top: 0;
-  padding: 16px;
+  padding: 5px;
   background: #fff;
   border-radius: 0 0 6px 6px;
 }
@@ -292,4 +301,8 @@
   border-radius: 6px;
   border: 1px solid #e8e8e8;
   margin-bottom: 12px;
+}
+
+.ant-list .ant-list-item .ant-list-item-meta{
+  margin-left: 10px !important;
 }

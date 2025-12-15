@@ -600,17 +600,17 @@ const [isEditMode, setIsEditMode] = useState(false);
     };
 
     const handleTabChange = (key) => {
-        if (key === "2") {
-            // In add mode: only allow if personal info is submitted
-            if (!params.id && !isPersonalInfoSubmitted) {
-                notification.warning({
-                    message: 'Complete Personal Information',
-                    description: 'Please submit the personal information form before uploading documents.',
-                    duration: 3,
-                });
-                return;
-            }
-        }
+        // if (key === "2") {
+        //     // In add mode: only allow if personal info is submitted
+        //     if (!params.id && !isPersonalInfoSubmitted) {
+        //         notification.warning({
+        //             message: 'Complete Personal Information',
+        //             description: 'Please submit the personal information form before uploading documents.',
+        //             duration: 3,
+        //         });
+        //         return;
+        //     }
+        // }
         setActiveTab(key);
     };
 
