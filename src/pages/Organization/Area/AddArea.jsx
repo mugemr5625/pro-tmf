@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import { Form, Input, Button, Select, notification, Divider, Space } from "antd";
+import { 
+  BankOutlined, 
+  ApartmentOutlined, 
+  EnvironmentOutlined 
+} from '@ant-design/icons';
 import { ToastContainer } from "react-toastify";
 import Loader from "components/Common/Loader";
 import { LINE, ADD_BRANCH, AREA } from "helpers/url_helper";
 import { POST, GET } from "helpers/api_helper";
 import { useParams, useNavigate } from "react-router-dom";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES, NOTIFICATION_TITLES } from "helpers/errorMessages";
+import InputWithAddon from "components/Common/InputWithAddon";
+import SelectWithAddon from "components/Common/SelectWithAddon";
 import "./AddArea.css";
 
 const { Option } = Select;
@@ -218,78 +225,93 @@ const AddArea = () => {
                 <div className="container add-area-form-container">
                   {/* Branch and Line */}
                   <div className="row mb-2">
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Branch"
-                        name="branch_id"
-                        rules={[
-                          {
-                            required: true,
-                            message: ERROR_MESSAGES.AREA.BRANCH_REQUIRED,
-                          },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Select Branch"
-                          allowClear={false}
-                          showSearch
-                          size="large"
-                          loading={branchLoader}
-                          disabled={true}
-                        >
-                          {branchList?.map((branch) => (
-                            <Option key={branch?.id} value={branch?.id}>
-                              {branch?.branch_name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </div>
+                <div className="col-md-6">
+  <Form.Item
+    label="Branch"
+    name="branch_id"
+    rules={[
+      {
+        required: true,
+        message: ERROR_MESSAGES.AREA.BRANCH_REQUIRED,
+      },
+    ]}
+  >
+    <SelectWithAddon
+      icon={<BankOutlined />}
+      placeholder="Select Branch"
+      allowClear={false}
+      showSearch
+      size="large"
+      loading={branchLoader}
+      disabled={true}
+    >
+      {branchList?.map((branch) => (
+        <Option key={branch?.id} value={branch?.id}>
+          {branch?.branch_name}
+        </Option>
+      ))}
+    </SelectWithAddon>
+  </Form.Item>
+</div>
 
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Line"
-                        name="line_id"
-                        rules={[
-                          {
-                            required: true,
-                            message: ERROR_MESSAGES.AREA.LINE_REQUIRED,
-                          },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Select Line"
-                          allowClear={!params.id}
-                          showSearch
-                          size="large"
-                          loading={lineLoader}
-                          disabled={!formData?.branch_id}
-                        >
-                          {lineList?.map((line) => (
-                            <Option key={line?.id} value={line?.id}>
-                              {line?.lineName}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </div>
+                   <div className="col-md-6">
+  <Form.Item
+    label="Line"
+    name="line_id"
+    rules={[
+      {
+        required: true,
+        message: ERROR_MESSAGES.AREA.LINE_REQUIRED,
+      },
+    ]}
+  >
+    <SelectWithAddon
+      icon={<ApartmentOutlined />}
+      placeholder="Select Line"
+      allowClear={!params.id}
+      showSearch
+      size="large"
+      loading={lineLoader}
+      disabled={!formData?.branch_id}
+    >
+      {lineList?.map((line) => (
+        <Option key={line?.id} value={line?.id}>
+          {line?.lineName}
+        </Option>
+      ))}
+    </SelectWithAddon>
+  </Form.Item>
+</div>
                   </div>
 
                   {/* Area Name */}
                   <div className="row mb-2">
                     <div className="col-md-6">
                       <Form.Item
-                        label="Area Name"
-                        name="areaName"
-                        rules={[
-                          {
-                            required: true,
-                            message: ERROR_MESSAGES.AREA.AREA_NAME_REQUIRED,
-                          },
-                        ]}
-                      >
-                        <Input placeholder="Enter area name" size="large" />
-                      </Form.Item>
+      label="Area Name"
+      name="areaName"
+      rules={[
+        {
+          required: true,
+          message: ERROR_MESSAGES.AREA.AREA_NAME_REQUIRED,
+        },
+        { 
+          pattern: /^[A-Za-z\s]+$/, 
+          message: 'Area name must contain only alphabets' 
+        }
+      ]}
+    >
+      <InputWithAddon
+        icon={<EnvironmentOutlined />}
+        placeholder="Enter area name"
+        onKeyPress={(e) => {
+          // Prevent numbers and special characters
+          if (!/[A-Za-z\s]/.test(e.key)) {
+            e.preventDefault();
+          }
+        }}
+      />
+    </Form.Item>
                     </div>
                   </div>
 

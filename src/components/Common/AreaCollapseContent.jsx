@@ -5,16 +5,23 @@ const AreaCollapseContent = ({ area }) => {
   if (!area) return null;
 
   return (
-    <div style={{ background: "#fff", padding: "0px 0px" }}>
+    <div style={{ background: "#fff", padding: "0px" }}>
       <Descriptions
         bordered
         size="small"
         column={{ xs: 1, sm: 2, md: 3 }}
         labelStyle={{
-          fontWeight: 700,
+          fontWeight: 600,
           background: "#e5e4e4ff",
           width: "140px",
+          fontSize: "18px"
         }}
+        contentStyle={{
+          fontSize: "18px",
+          fontWeight: 600
+         
+        }
+      }
       >
         <Descriptions.Item label="Area Code:">
           {area.id || "N/A"}

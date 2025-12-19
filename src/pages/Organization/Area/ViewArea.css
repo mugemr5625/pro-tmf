@@ -11,8 +11,8 @@
   align-items: center;
   margin-top: 0;
   margin-left: 0;
-  padding: 0px 0px 16px 0px;
-  margin-bottom: 10px;
+  padding: 0px;
+  
 }
 
 .view-area-title {
@@ -53,7 +53,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  width: 32px;
+  /* width: 32px; */
 }
 
 .view-area-table-actions {
@@ -111,7 +111,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding:  5px  ;
+  padding:  10px  5px 10px 10px;
   background-color: #f5f5f5;
   border-bottom: 1px solid #e8e8e8;
 
@@ -120,8 +120,8 @@
 .view-area-line-title-container {
   display: flex;
   align-items: center;
-  gap: px;
-  margin-left: 10px;
+  gap: 8px;
+  /* margin-left: 10px; */
 }
 
 .view-area-line-title {
@@ -200,7 +200,7 @@ display: inline-flex;
 .view-area-list-container {
   max-height: 400px;
   overflow: auto;
-  padding: 0px 5px;
+  padding: 0px; 
   margin: 0;
 }
 
@@ -231,8 +231,6 @@ display: inline-flex;
 }
 
 .view-area-avatar-container {
-  width: 40px;
-  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -245,14 +243,21 @@ display: inline-flex;
   height: 40px;
   object-fit: contain;
 }
+.ant-list .ant-list-item .ant-list-item-meta .ant-list-item-meta-avatar {
+    margin-inline-end: 0;
+}
+/* .ant-list .ant-list-item{
+  padding: 5px;
+} */
 
 .view-area-item-title-container {
+  margin-left: 8px;
+  margin-right: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
   cursor: pointer;
-  padding: 0;
+ 
 }
 
 .view-area-item-content {
@@ -346,16 +351,20 @@ display: inline-flex;
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
   .view-area-line-header {
-    padding: 12px 16px;
+    padding: 10px 5px 10px 5px;
   }
+   .view-area-title{
+    font-size: 22px;
+   }
 
   .view-area-line-title {
-    font-size: 14px;
+    font-size: 22px;
   }
 
   .view-area-list-item {
     padding: 10px 12px;
   }
+  
 
   .view-area-avatar-container {
     width: 35px;
@@ -375,5 +384,11 @@ display: inline-flex;
    .view-area-scrollable-div {
     height: calc(100vh - 250px);
   
+}
+.view-area-badge {
+  margin-right: 5px;
+  font-size: 20px;
+  height: 35px;
+  min-width: 35px;
 }
 }

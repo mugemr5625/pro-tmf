@@ -8,8 +8,11 @@ import {
   PlusOutlined,
   MinusOutlined,
   UserOutlined, PhoneOutlined, MailOutlined,
+  LockOutlined,
+  EnvironmentOutlined
   
 } from "@ant-design/icons";
+
 import {
   USERS,
   EXPANSE_AUTOCOMPLETE,
@@ -19,6 +22,7 @@ import {
 import { GET, POST, PUT } from "helpers/api_helper";
 import Loader from "components/Common/Loader";
 import InputWithAddon from "components/Common/InputWithAddon";
+import SelectWithAddon from "components/Common/SelectWithAddon";
 // import { debounce } from "lodash";
 
 const { Option } = Select;
@@ -673,516 +677,556 @@ const AddUser = () => {
                 </h2>
               </div>
 
-              <Form
-                layout="vertical"
-                onFinish={onFinish}
-                form={form}
-                initialValues={initialValues}
-                className="add-user-form"
-              >
-                <div className="container add-user-form-container">
-                  {/* Full Name and User Name */}
-                  <div className="row mb-2">
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Full Name"
-                        name="full_name"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter the full name",
-                          },
-                        ]}
-                      >
-                        <InputWithAddon
-  icon={<UserOutlined />}
-  placeholder="Enter full name"
-/>
-
-                      </Form.Item>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="User Name"
-                        name="username"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter the user name",
-                          },
-                        ]}
-                      >
-                       <InputWithAddon
-  icon={<UserOutlined />}
-  placeholder="Enter user name"
-/>
-
-                      </Form.Item>
-                    </div>
-                  </div>
-                       
-                  {/* Password and Confirm Password */}
-                   {!isEditMode &&(
-                  <div className="row mb-2">
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Password"
-                        name="password"
-                        rules={[
-                          {
-                            required: !isEditMode,
-                            message: "Please enter the password",
-                          },
-                        ]}
-                      >
-                        <Input.Password
-                          placeholder="Enter password"
-                          size="large"
-                        />
-                      </Form.Item>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Confirm Password"
-                        name="confirmPassword"
-                        dependencies={["password"]}
-                        rules={[
-                          {
-                            required: !isEditMode,
-                            message: "Please confirm the password",
-                          },
-                          ({ getFieldValue }) => ({
-                            validator(_, value) {
-                              return !value ||
-                                getFieldValue("password") === value
-                                ? Promise.resolve()
-                                : Promise.reject(
-                                    new Error("Passwords do not match!")
-                                  );
-                            },
-                          }),
-                        ]}
-                      >
-                        <Input.Password
-                          placeholder="Confirm password"
-                          size="large"
-                        />
-                      </Form.Item>
-                    </div>
-                  </div>
-                        )}
-
-                  {/* Mobile Number and Email */}
-                  <div className="row mb-2">
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Mobile Number"
-                        name="mobile_number"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Please enter the mobile number",
-                          },
-                          {
-                            pattern: /^\d{10}$/,
-                            message: "Mobile number must be 10 digits!",
-                          },
-                        ]}
-                      >
-                       <InputWithAddon
-  icon={<PhoneOutlined />}
-  placeholder="Enter mobile number"
-/>
-
-                      </Form.Item>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Email ID"
-                        name="email"
-                        rules={[
-                          {
-                            type: "email",
-                            message: "Please enter a valid email",
-                          },
-                        ]}
-                      >
-                      <InputWithAddon
-  icon={<MailOutlined />}
-  placeholder="Enter email ID"
-/>
-
-                      </Form.Item>
-                    </div>
-                  </div>
-
-                  {/* Address and Pincode */}
-                  <div className="row mb-2">
-                    <div className="col-md-6">
-                      <Form.Item label="Address" name="address">
-                        <Input.TextArea
-                          autoSize={{ minRows: 2, maxRows: 6 }}
-                          placeholder="Enter the address"
-                          size="large"
-                          allowClear
-                        />
-                      </Form.Item>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Pincode"
-                        name="pin_code"
-                        rules={[
-                          {
-                            pattern: /^\d{6}$/,
-                            message: "Pincode must be 6 digits!",
-                          },
-                        ]}
-                      >
-                        <Input placeholder="Enter the pincode" size="large"  />
-                      </Form.Item>
-                    </div>
-                  </div>
-
-                  <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
-
-                  {/* Base Branch and Base Line Section */}
-                  <Divider orientation="center">Base Assignment</Divider>
-                  
-                  <div className="row mb-2">
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Base Branch"
-                        name="baseBranchId"
-                        rules={[
-                          { required: true, message: "Please select a base branch" },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Select base branch"
-                          showSearch
-                          size="large"
-                          loading={branchLoader}
-                          prefix={<BankOutlined />}
-                          onChange={handleBaseBranchChange}
-                        >
-                          {branchList?.map((branch) => (
-                            <Option key={branch.id} value={branch.id}>
-                              {branch.branch_name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Base Line"
-                        name="baseLineId"
-                        rules={[
-                          { required: true, message: "Please select a base line" },
-                        ]}
-                      >
-                        <Select
-                          placeholder={selectedBaseBranch ? "Select base line" : "Select base branch first"}
-                          showSearch
-                          size="large"
-                          loading={lineLoader}
-                          prefix={<ApartmentOutlined />}
-                         disabled={selectedBaseBranch === null || selectedBaseBranch === undefined}
-                        >
-                          {baseLineList.map((option) => (
-                            <Option key={option.id} value={option.id}>
-                              {option.lineName}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </div>
-                  </div>
-
-                  <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
-
-                  {/* User Role & Assignment Section */}
-                  <Divider orientation="center">User Role & Assignment</Divider>
-                  
-                  <div className="row mb-2">
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Role"
-                        name="role"
-                        rules={[
-                          { required: true, message: "Please select a role" },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Choose User Role"
-                          showSearch
-                          size="large"
-                          onChange={handleRoleChange}
-                          prefix={<UserOutlined/>}
-                        
-                        >
-                          <Option value="owner">Owner</Option>
-                          <Option value="manager">Manager</Option>
-                          <Option value="agent">Agent</Option>
-                        </Select>
-                      </Form.Item>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Item
-                        label="Branch"
-                        name="branchId"
-                        rules={[
-                          { required: true, message: "Please select a branch" },
-                        ]}
-                      >
-                        <Select
-                          placeholder="Select branch"
-                          showSearch
-                          size="large"
-                          loading={branchLoader}
-                          mode="multiple"
-                          prefix={<BankOutlined />}
-                          allowClear
-                          onChange={handleBranchChange} 
-                        >
-                          {branchList?.map((branch) => (
-                            <Option key={branch.id} value={branch.id}>
-                              {branch.branch_name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </div>
-                  </div>
-
-                  {selectedRole && selectedRole === "agent" && (
-                    <div className="row mb-2">
-                      <div className="col-md-6">
-                        <Form.Item
-                          label="Line"
-                          name="lineId"
-                          rules={[
-                            { required: true, message: "Please select a line" },
-                          ]}
-                        >
-                          <Select
-                            placeholder={selectedBranches.length > 0 ? "Select Line" : "Select branches first"}
-                            showSearch
-                            size="large"
-                            loading={lineLoader}
-                            mode="multiple"
-                            prefix={<ApartmentOutlined />}
-                            disabled={!selectedBranches || selectedBranches.length === 0}
-                          >
-                            {filteredLineList.map((option) => (
-                              <Option key={option.id} value={option.id}>
-                                {option.lineName}
-                              </Option>
-                            ))}
-                          </Select>
-                        </Form.Item>
-                      </div>
-                      <div className="col-md-6">
-                        <Form.Item
-                          label="Allow to see old Transaction?"
-                          name="allowTransaction"
-                          valuePropName="checked"
-                        >
-                          <Switch
-                            checkedChildren="Yes"
-                            unCheckedChildren="No"
-                            defaultChecked
-                          />
-                        </Form.Item>
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedRole && (selectedRole === "owner" || selectedRole === "manager") && (
-                    <div className="row mb-2">
-                      <div className="col-md-6">
-                        <Form.Item
-                          label="Allow to see old Transaction?"
-                          name="allowTransaction"
-                          valuePropName="checked"
-                        >
-                          <Switch
-                            checkedChildren="Yes"
-                            unCheckedChildren="No"
-                            defaultChecked
-                          />
-                        </Form.Item>
-                      </div>
-                    </div>
-                  )}
-
-                  <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
-
-                  {/* User Expense Mapping Section */}
-                  {isEditMode &&(
-                    <>
-                  <Divider orientation="center">User Expense Mapping</Divider>
-                  
-                  {expenseMappings.map((mapping, index) => (
-                    <div key={mapping.id} className="row mb-4">
-                      {expenseMappings.length > 1 && (
-                        <Divider orientation="center">
-                          {`Expense Mapping ${index + 1}`}
-                        </Divider>
-                      )}
-                      
-                      {/* Line Name field */}
-                      <div className="col-md-6">
-                        <Form.Item
-                          label="Line Name"
-                          // We enforce that expenses must be selected, so making line optional only for Owner/Manager when global mapping is available.
-                          rules={
-                            (selectedRole === 'agent' || mapping.lineId !== null)
-                            ? [{ required: true, message: "Please select a line" }]
-                            : []
-                          }
-                        > 
-                          <Select
-                            placeholder={
-                              (selectedBranches.length > 0)
-                                ? "Select Line (Filtered by Branch)"
-                                : "Select branches first"
-                            }
-                            showSearch
-                            size="large"
-                            loading={lineLoader}
-                            value={mapping.lineId}
-                            onChange={(value) => updateExpenseMapping(mapping.id, 'lineId', value)}
-                            prefix={<ApartmentOutlined />}
-                            // The select is disabled if no branches are selected
-                            disabled={!selectedBranches || selectedBranches.length === 0}
-                          >
-                             {/* Option for global mapping (only for Owner/Manager) */}
-                            {(selectedRole === "owner" || selectedRole === "manager") && (
-                              <Option key="global" value={null}>
-                                Global (Applies to all assigned lines)
-                              </Option>
-                            )}
-                            
-                            {/* Show lines filtered by selected branches for ALL roles */}
-                            {filteredLineList.map((option) => (
-                              <Option key={option.id} value={option.id}>
-                                {option.lineName}
-                              </Option>
-                            ))}
-                          </Select>
-                        </Form.Item>
-                      </div>
-                      
-                      {/* User Expense Type field [MODIFIED: Uses filtering function & Disabled logic] */}
-                      <div className="col-md-6">
-                        <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
-                          <Form.Item
-                            label="User Expense Type"
-                            required
-                            style={{ flexGrow: 1 }}
-                          >
-                           <Select
-  mode="multiple"
-  placeholder="Search and select expenses"
-  value={mapping.expanses}
-  onChange={(value) =>{
-    console.log("Selected value:", value);
-    console.log("Current mapping.expanses:", mapping.expanses);
-     updateExpenseMapping(mapping.id, 'expanses', value)}}
-  // [FIXED] Improved filterOption to handle all cases properly
-  filterOption={(input, option) => {
-    // If no search input, show all options
-    if (!input) return true;
-    
-    // Get the searchable text from option.name prop or children
-    const searchText = option.name || (typeof option.children === 'string' ? option.children : '');
-    return searchText.toLowerCase().includes(input.toLowerCase());
-  }}
-  loading={expenseLoading}
-  showSearch
-  allowClear
-  size="large"
-  prefix={<DollarOutlined />}
-  notFoundContent={
-    expenseLoading ? "Loading..." : "No expenses found"
-  }
+             <Form
+  layout="vertical"
+  onFinish={onFinish}
+  form={form}
+  initialValues={initialValues}
+  className="add-user-form"
 >
-  {getFilteredExpenseOptions(mapping.lineId).map((option) => (
-    <Option key={option.value} value={option.value} name={option.name}>
-      {option.label}
-    </Option>
-  ))}
-</Select>
-                          </Form.Item>
+  <div className="container add-user-form-container">
+    {/* Full Name and User Name */}
+    <div className="row mb-2">
+      <div className="col-md-6">
+        <Form.Item
+      label="Full Name"
+      name="full_name"
+      rules={[
+        {
+          required: true,
+          message: "Please enter the full name",
+        },
+        {
+          pattern: /^[A-Za-z\s]+$/,
+          message: "Full name must contain only alphabets and spaces",
+        },
+      ]}
+    >
+      <InputWithAddon
+        icon={<UserOutlined />}
+        placeholder="Enter full name"
+        size="large"
+        onKeyPress={(e) => {
+          // Allow only alphabets and spaces
+          if (!/[A-Za-z\s]/.test(e.key)) {
+            e.preventDefault();
+          }
+        }}
+      />
+    </Form.Item>
+      </div>
+      <div className="col-md-6">
+        <Form.Item
+      label="User Name"
+      name="username"
+      rules={[
+        {
+          required: true,
+          message: "Please enter the user name",
+        },
+        {
+          pattern: /^[A-Za-z][A-Za-z0-9]*$/,
+          message: "User name must start with an alphabet and can contain only alphabets and numbers",
+        },
+      ]}
+    >
+      <InputWithAddon
+        icon={<UserOutlined />}
+        placeholder="Enter user name"
+        size="large"
+        onKeyPress={(e) => {
+          const currentValue = e.target.value;
+          // If empty, only allow alphabets
+          if (currentValue.length === 0) {
+            if (!/[A-Za-z]/.test(e.key)) {
+              e.preventDefault();
+            }
+          } else {
+            // After first character, allow alphabets and numbers
+            if (!/[A-Za-z0-9]/.test(e.key)) {
+              e.preventDefault();
+            }
+          }
+        }}
+      />
+    </Form.Item>
+      </div>
+    </div>
+         
+    {/* Password and Confirm Password */}
+    {!isEditMode && (
+      <div className="row mb-2">
+        <div className="col-md-6">
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              {
+                required: !isEditMode,
+                message: "Please enter the password",
+              },
+            ]}
+          >
+            <Input.Password
+              placeholder="Enter password"
+              size="large"
+              prefix={<LockOutlined />}
+            />
+          </Form.Item>
+        </div>
+        <div className="col-md-6">
+          <Form.Item
+            label="Confirm Password"
+            name="confirmPassword"
+            dependencies={["password"]}
+            rules={[
+              {
+                required: !isEditMode,
+                message: "Please confirm the password",
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  return !value ||
+                    getFieldValue("password") === value
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error("Passwords do not match!")
+                      );
+                },
+              }),
+            ]}
+          >
+            <Input.Password
+              placeholder="Confirm password"
+              size="large"
+              prefix={<LockOutlined />}
+            />
+          </Form.Item>
+        </div>
+      </div>
+    )}
 
-                          {/* Minus Button (remains unchanged) */}
-                          {expenseMappings.length > 1 && (
-                            <Button
-                              type="primary"
-                              danger
-                              shape="circle"
-                              icon={<MinusOutlined />}
-                              onClick={() => removeExpenseMapping(index)}
-                              style={{
-                                width: 33,
-                                height: 33,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                backgroundColor: "#ff4d4f",
-                                borderColor: "#ff4d4f",
-                                color: "#fff",
-                                marginTop: "30px",
-                                flexShrink: 0
-                              }}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                 
-                  {/* Add button at the bottom */}
-                  <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "-15px" }}>
-                    <Button
-                      type="primary"
-                      shape="circle"
-                      icon={<PlusOutlined />}
-                      onClick={addExpenseMapping}
-                      style={{
-                        width: 35,
-                        height: 35,
-                        backgroundColor: "#28a745",
-                        borderColor: "#28a745",
-                        color: "#fff",
-                      }}
-                    />
-                  </div>
+    {/* Mobile Number and Email */}
+    <div className="row mb-2">
+      <div className="col-md-6">
+        <Form.Item
+          label="Mobile Number"
+          name="mobile_number"
+          rules={[
+            {
+              required: true,
+              message: "Please enter the mobile number",
+            },
+            {
+              pattern: /^\d{10}$/,
+              message: "Mobile number must be 10 digits!",
+            },
+          ]}
+        >
+          <InputWithAddon
+            icon={<PhoneOutlined />}
+            placeholder="Enter mobile number"
+            size="large"
+            onKeyPress={(e) => {
+              // Allow only digits
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
+            maxLength={10}
+          />
+        </Form.Item>
+      </div>
+      <div className="col-md-6">
+        <Form.Item
+          label="Email ID"
+          name="email"
+          rules={[
+            {
+              type: "email",
+              message: "Please enter a valid email",
+            },
+          ]}
+        >
+          <InputWithAddon
+            icon={<MailOutlined />}
+            placeholder="Enter email ID"
+            size="large"
+          />
+        </Form.Item>
+      </div>
+    </div>
+
+    {/* Address and Pincode */}
+    <div className="row mb-2">
+      <div className="col-md-6">
+        <Form.Item label="Address" name="address">
+          <Input.TextArea
+            autoSize={{ minRows: 2, maxRows: 6 }}
+            placeholder="Enter the address"
+            size="large"
+            allowClear
+          />
+        </Form.Item>
+      </div>
+      <div className="col-md-6">
+        <Form.Item
+          label="Pincode"
+          name="pin_code"
+          rules={[
+            {
+              pattern: /^\d{6}$/,
+              message: "Pincode must be 6 digits!",
+            },
+          ]}
+        >
+          <InputWithAddon
+            icon={<EnvironmentOutlined />}
+            placeholder="Enter the pincode"
+            size="large"
+            onKeyPress={(e) => {
+              // Allow only digits
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
+            maxLength={6}
+          />
+        </Form.Item>
+      </div>
+    </div>
+
+    <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
+
+    {/* Base Branch and Base Line Section */}
+    <Divider orientation="center">Base Assignment</Divider>
+    
+    <div className="row mb-2">
+      <div className="col-md-6">
+        <Form.Item
+          label="Base Branch"
+          name="baseBranchId"
+          rules={[
+            { required: true, message: "Please select a base branch" },
+          ]}
+        >
+          <SelectWithAddon
+            icon={<BankOutlined />}
+            placeholder="Select base branch"
+            showSearch
+            size="large"
+            loading={branchLoader}
+            onChange={handleBaseBranchChange}
+          >
+            {branchList?.map((branch) => (
+              <Option key={branch.id} value={branch.id}>
+                {branch.branch_name}
+              </Option>
+            ))}
+          </SelectWithAddon>
+        </Form.Item>
+      </div>
+      <div className="col-md-6">
+        <Form.Item
+          label="Base Line"
+          name="baseLineId"
+          rules={[
+            { required: true, message: "Please select a base line" },
+          ]}
+        >
+          <SelectWithAddon
+            icon={<ApartmentOutlined />}
+            placeholder={selectedBaseBranch ? "Select base line" : "Select base branch first"}
+            showSearch
+            size="large"
+            loading={lineLoader}
+            disabled={selectedBaseBranch === null || selectedBaseBranch === undefined}
+          >
+            {baseLineList.map((option) => (
+              <Option key={option.id} value={option.id}>
+                {option.lineName}
+              </Option>
+            ))}
+          </SelectWithAddon>
+        </Form.Item>
+      </div>
+    </div>
+
+    <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
+
+    {/* User Role & Assignment Section */}
+    <Divider orientation="center">User Role & Assignment</Divider>
+    
+    <div className="row mb-2">
+      <div className="col-md-6">
+        <Form.Item
+          label="Role"
+          name="role"
+          rules={[
+            { required: true, message: "Please select a role" },
+          ]}
+        >
+          <SelectWithAddon
+            icon={<UserOutlined />}
+            placeholder="Choose User Role"
+            showSearch
+            size="large"
+            onChange={handleRoleChange}
+          >
+            <Option value="owner">Owner</Option>
+            <Option value="manager">Manager</Option>
+            <Option value="agent">Agent</Option>
+          </SelectWithAddon>
+        </Form.Item>
+      </div>
+      <div className="col-md-6">
+        <Form.Item
+          label="Branch"
+          name="branchId"
+          rules={[
+            { required: true, message: "Please select a branch" },
+          ]}
+        >
+          <SelectWithAddon
+            icon={<BankOutlined />}
+            placeholder="Select branch"
+            showSearch
+            size="large"
+            loading={branchLoader}
+            mode="multiple"
+            allowClear
+            onChange={handleBranchChange}
+          >
+            {branchList?.map((branch) => (
+              <Option key={branch.id} value={branch.id}>
+                {branch.branch_name}
+              </Option>
+            ))}
+          </SelectWithAddon>
+        </Form.Item>
+      </div>
+    </div>
+
+    {selectedRole && selectedRole === "agent" && (
+      <div className="row mb-2">
+        <div className="col-md-6">
+          <Form.Item
+            label="Line"
+            name="lineId"
+            rules={[
+              { required: true, message: "Please select a line" },
+            ]}
+          >
+            <SelectWithAddon
+              icon={<ApartmentOutlined />}
+              placeholder={selectedBranches.length > 0 ? "Select Line" : "Select branches first"}
+              showSearch
+              size="large"
+              loading={lineLoader}
+              mode="multiple"
+              disabled={!selectedBranches || selectedBranches.length === 0}
+            >
+              {filteredLineList.map((option) => (
+                <Option key={option.id} value={option.id}>
+                  {option.lineName}
+                </Option>
+              ))}
+            </SelectWithAddon>
+          </Form.Item>
+        </div>
+        <div className="col-md-6">
+          <Form.Item
+            label="Allow to see old Transaction?"
+            name="allowTransaction"
+            valuePropName="checked"
+          >
+            <Switch
+              checkedChildren="Yes"
+              unCheckedChildren="No"
+              defaultChecked
+            />
+          </Form.Item>
+        </div>
+      </div>
+    )}
+
+    {selectedRole && (selectedRole === "owner" || selectedRole === "manager") && (
+      <div className="row mb-2">
+        <div className="col-md-6">
+          <Form.Item
+            label="Allow to see old Transaction?"
+            name="allowTransaction"
+            valuePropName="checked"
+          >
+            <Switch
+              checkedChildren="Yes"
+              unCheckedChildren="No"
+              defaultChecked
+            />
+          </Form.Item>
+        </div>
+      </div>
+    )}
+
+    <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
+
+    {/* User Expense Mapping Section */}
+    {isEditMode && (
+      <>
+        <Divider orientation="center">User Expense Mapping</Divider>
+        
+        {expenseMappings.map((mapping, index) => (
+          <div key={mapping.id} className="row mb-4">
+            {expenseMappings.length > 1 && (
+              <Divider orientation="center">
+                {`Expense Mapping ${index + 1}`}
+              </Divider>
+            )}
+            
+            {/* Line Name field */}
+            <div className="col-md-6">
+              <Form.Item
+                label="Line Name"
+                rules={
+                  (selectedRole === 'agent' || mapping.lineId !== null)
+                  ? [{ required: true, message: "Please select a line" }]
+                  : []
+                }
+              > 
+                <SelectWithAddon
+                  icon={<ApartmentOutlined />}
+                  placeholder={
+                    (selectedBranches.length > 0)
+                      ? "Select Line (Filtered by Branch)"
+                      : "Select branches first"
+                  }
+                  showSearch
+                  size="large"
+                  loading={lineLoader}
+                  value={mapping.lineId}
+                  onChange={(value) => updateExpenseMapping(mapping.id, 'lineId', value)}
+                  disabled={!selectedBranches || selectedBranches.length === 0}
+                >
+                  {/* Option for global mapping (only for Owner/Manager) */}
+                  {(selectedRole === "owner" || selectedRole === "manager") && (
+                    <Option key="global" value={null}>
+                      Global (Applies to all assigned lines)
+                    </Option>
+                  )}
                   
+                  {/* Show lines filtered by selected branches for ALL roles */}
+                  {filteredLineList.map((option) => (
+                    <Option key={option.id} value={option.id}>
+                      {option.lineName}
+                    </Option>
+                  ))}
+                </SelectWithAddon>
+              </Form.Item>
+            </div>
+            
+            {/* User Expense Type field */}
+            <div className="col-md-6">
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                <Form.Item
+                  label="User Expense Type"
+                  required
+                  style={{ flexGrow: 1 }}
+                >
+                  <SelectWithAddon
+                    icon={<DollarOutlined />}
+                    mode="multiple"
+                    placeholder="Search and select expenses"
+                    value={mapping.expanses}
+                    onChange={(value) => {
+                      console.log("Selected value:", value);
+                      console.log("Current mapping.expanses:", mapping.expanses);
+                      updateExpenseMapping(mapping.id, 'expanses', value);
+                    }}
+                    filterOption={(input, option) => {
+                      if (!input) return true;
+                      const searchText = option.name || (typeof option.children === 'string' ? option.children : '');
+                      return searchText.toLowerCase().includes(input.toLowerCase());
+                    }}
+                    loading={expenseLoading}
+                    showSearch
+                    allowClear
+                    size="large"
+                    notFoundContent={
+                      expenseLoading ? "Loading..." : "No expenses found"
+                    }
+                  >
+                    {getFilteredExpenseOptions(mapping.lineId).map((option) => (
+                      <Option key={option.value} value={option.value} name={option.name}>
+                        {option.label}
+                      </Option>
+                    ))}
+                  </SelectWithAddon>
+                </Form.Item>
 
-                  <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
-                   </>
+                {/* Minus Button */}
+                {expenseMappings.length > 1 && (
+                  <Button
+                    type="primary"
+                    danger
+                    shape="circle"
+                    icon={<MinusOutlined />}
+                    onClick={() => removeExpenseMapping(index)}
+                    style={{
+                      width: 33,
+                      height: 33,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#ff4d4f",
+                      borderColor: "#ff4d4f",
+                      color: "#fff",
+                      marginTop: "30px",
+                      flexShrink: 0
+                    }}
+                  />
                 )}
+              </div>
+            </div>
+          </div>
+        ))}
+       
+        {/* Add button at the bottom */}
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "-15px" }}>
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<PlusOutlined />}
+            onClick={addExpenseMapping}
+            style={{
+              width: 35,
+              height: 35,
+              backgroundColor: "#28a745",
+              borderColor: "#28a745",
+              color: "#fff",
+            }}
+          />
+        </div>
 
+        <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
+      </>
+    )}
 
-                  {/* Form Actions */}
-                  <div className="text-center mt-4">
-                    <Space size="large">
-                      <Button type="primary" htmlType="submit" loading={loading} size="large">
-                        {isEditMode ? "Update User" : "Add User"}
-                      </Button>
-                      <Button
-                        size="large"
-                        onClick={handleBack}
-                      >
-                        Cancel
-                      </Button>
-                    </Space>
-                  </div>
-                </div>
-              </Form>
+    {/* Form Actions */}
+    <div className="text-center mt-4">
+      <Space size="large">
+        <Button type="primary" htmlType="submit" loading={loading} size="large">
+          {isEditMode ? "Update User" : "Add User"}
+        </Button>
+        <Button
+          size="large"
+          onClick={handleBack}
+        >
+          Cancel
+        </Button>
+      </Space>
+    </div>
+  </div>
+</Form>
             </div>
           </div>
         </div>

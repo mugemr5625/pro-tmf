@@ -1,5 +1,14 @@
 import ReloadOutlined from "@ant-design/icons/lib/icons/ReloadOutlined";
 import { Button, Form, Input, Select, notification, Divider, Space } from "antd";
+import { 
+  BankOutlined, 
+  ApartmentOutlined, 
+  FileTextOutlined,
+  CalendarOutlined,
+  DollarOutlined,
+  CreditCardOutlined,
+  CommentOutlined
+} from '@ant-design/icons';
 import Loader from "components/Common/Loader";
 import PAYMENT_MODES_OPTIONS from "constants/payment_modes";
 import { POST, PUT, GET } from "helpers/api_helper";
@@ -12,6 +21,8 @@ import {
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import InputWithAddon from "components/Common/InputWithAddon";
+import SelectWithAddon from "components/Common/SelectWithAddon";
 import "./ExpenseTransactionForm.css";
 
 const { Option } = Select;
@@ -233,7 +244,8 @@ const ExpenseTransactionForm = () => {
                           { required: true, message: "Please select a branch" },
                         ]}
                       >
-                        <Select
+                        <SelectWithAddon
+                          icon={<BankOutlined />}
                           placeholder="Select Branch"
                           allowClear
                           showSearch
@@ -246,7 +258,7 @@ const ExpenseTransactionForm = () => {
                               {branch.branch_name}
                             </Option>
                           ))}
-                        </Select>
+                        </SelectWithAddon>
                       </Form.Item>
                     </div>
 
@@ -258,7 +270,8 @@ const ExpenseTransactionForm = () => {
                           { required: true, message: "Please select a line" },
                         ]}
                       >
-                        <Select
+                        <SelectWithAddon
+                          icon={<ApartmentOutlined />}
                           placeholder="Select Line"
                           allowClear
                           showSearch
@@ -271,7 +284,7 @@ const ExpenseTransactionForm = () => {
                               {line.lineName}
                             </Option>
                           ))}
-                        </Select>
+                        </SelectWithAddon>
                       </Form.Item>
                     </div>
                   </div>
@@ -289,7 +302,8 @@ const ExpenseTransactionForm = () => {
                           },
                         ]}
                       >
-                        <Select
+                        <SelectWithAddon
+                          icon={<FileTextOutlined />}
                           placeholder="Select Expense Type"
                           allowClear
                           showSearch
@@ -302,7 +316,7 @@ const ExpenseTransactionForm = () => {
                               {type.name}
                             </Option>
                           ))}
-                        </Select>
+                        </SelectWithAddon>
                       </Form.Item>
                     </div>
 
@@ -314,7 +328,11 @@ const ExpenseTransactionForm = () => {
                           { required: true, message: "Please select a date" },
                         ]}
                       >
-                        <Input type="date" size="large" />
+                        <InputWithAddon
+                          icon={<CalendarOutlined />}
+                          type="date" 
+                          size="large" 
+                        />
                       </Form.Item>
                     </div>
                   </div>
@@ -329,16 +347,27 @@ const ExpenseTransactionForm = () => {
                           { required: true, message: "Please enter an amount" },
                           {
                             pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
-                            message: "Enter a valid amount",
+                            message: "Enter a valid amount (digits only, up to 2 decimal places)",
                           },
                         ]}
                       >
-                        <Input
+                        <InputWithAddon
+                          icon={<DollarOutlined />}
                           placeholder="Enter Expense Amount"
                           type="text"
                           inputMode="decimal"
                           size="large"
                           autoComplete="off"
+                          onKeyPress={(e) => {
+                            // Allow only digits and decimal point
+                            if (!/[0-9.]/.test(e.key)) {
+                              e.preventDefault();
+                            }
+                            // Prevent multiple decimal points
+                            if (e.key === '.' && e.target.value.includes('.')) {
+                              e.preventDefault();
+                            }
+                          }}
                         />
                       </Form.Item>
                     </div>
@@ -354,7 +383,8 @@ const ExpenseTransactionForm = () => {
                           },
                         ]}
                       >
-                        <Select 
+                        <SelectWithAddon
+                          icon={<CreditCardOutlined />}
                           placeholder="Select Payment Mode" 
                           allowClear
                           size="large"
@@ -364,7 +394,7 @@ const ExpenseTransactionForm = () => {
                               {mode.label}
                             </Option>
                           ))}
-                        </Select>
+                        </SelectWithAddon>
                       </Form.Item>
                     </div>
                   </div>
@@ -378,14 +408,13 @@ const ExpenseTransactionForm = () => {
                       >
                         <Input.TextArea 
                           placeholder="Enter remarks or comments" 
-                          rows={4}
+                          autoSize={{ minRows: 2, maxRows: 6 }}
                           size="large"
+                          allowClear
                         />
                       </Form.Item>
                     </div>
                   </div>
-
-                  {/* <Divider className="expense-transaction-divider" /> */}
 
                   {/* Buttons */}
                   <div className="text-center mt-4">
@@ -393,20 +422,6 @@ const ExpenseTransactionForm = () => {
                       <Button type="primary" htmlType="submit" size="large">
                         {params.id ? "Update Transaction" : "Add Transaction"}
                       </Button>
-
-                      {/* {!params.id && (
-                        <Button
-                          size="large"
-                          onClick={() => {
-                            form.resetFields();
-                            setSelectedBranchName(null);
-                            setSelectedBranchId(null);
-                          }}
-                          icon={<ReloadOutlined />}
-                        >
-                          Reset
-                        </Button>
-                      )} */}
 
                       <Button
                         size="large"

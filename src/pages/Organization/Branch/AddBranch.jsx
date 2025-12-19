@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { notification, Form, Input, Button, Upload, message, Divider, Space } from "antd";
-import { UploadOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
+import { UploadOutlined, PlusOutlined, MinusOutlined,BankOutlined,FileTextOutlined } from '@ant-design/icons';
 import { ToastContainer } from "react-toastify";
 import Loader from "components/Common/Loader";
 import { ADD_BRANCH, BRANCH_FILE } from "helpers/url_helper";
 import { UPLOAD_CERTIFCATE, GET_BRANCHES, CREATE_BRANCH } from "helpers/api_helper";
 import { useParams, useNavigate } from "react-router-dom";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES, NOTIFICATION_TITLES, FILE_MESSAGES } from "helpers/errorMessages";
+import InputWithAddon from "components/Common/InputWithAddon";
 
 const AddBranch = () => {
   const [loader, setLoader] = useState(false);
@@ -177,12 +178,24 @@ const AddBranch = () => {
                   <div className="row mb-1 mt-2">
                     <div className="col-md-6">
                       <Form.Item
-                        label="Branch Name"
-                        name="branch_name"
-                        rules={[{ required: true, message: ERROR_MESSAGES.BRANCH.BRANCH_NAME_REQUIRED }]}
-                      >
-                        <Input placeholder="Enter branch name" size="large" />
-                      </Form.Item>
+    label="Branch Name"
+    name="branch_name"
+    rules={[
+      { required: true, message: ERROR_MESSAGES.BRANCH.BRANCH_NAME_REQUIRED },
+      { pattern: /^[A-Za-z\s]+$/, message: 'Branch name must contain only alphabets' }
+    ]}
+  >
+    <InputWithAddon
+      icon={<BankOutlined />}
+      placeholder="Enter branch name"
+      onKeyPress={(e) => {
+        // Prevent numbers and special characters
+        if (!/[A-Za-z\s]/.test(e.key)) {
+          e.preventDefault();
+        }
+      }}
+    />
+  </Form.Item>
                     </div>
                     <div className="col-md-6">
                       <Form.Item
@@ -228,17 +241,39 @@ const AddBranch = () => {
                       </Form.Item>
                     </div>
                     <div className="col-md-6">
-                      <Form.Item
-                        label="File Description"
-                        name="agreement_description"
-                        rules={[{ required: true, message: ERROR_MESSAGES.BRANCH.AGREEMENT_DESCRIPTION_REQUIRED }]}
-                      >
-                        <Input.TextArea
-                          placeholder="Enter file description"
-                          autoSize={{ minRows: 1, maxRows: 6 }}
-                          allowClear
-                        />
-                      </Form.Item>
+                     <Form.Item
+    label="File Description"
+    name="agreement_description"
+    rules={[
+      { required: true, message: ERROR_MESSAGES.BRANCH.AGREEMENT_DESCRIPTION_REQUIRED },
+      { 
+        pattern: /^[A-Za-z][A-Za-z0-9\s]*$/, 
+        message: 'Description must start with an alphabet and contain only alphabets and numbers' 
+      }
+    ]}
+  >
+    <InputWithAddon
+      icon={<FileTextOutlined />}
+      placeholder="Enter file description"
+      onKeyPress={(e) => {
+        const value = e.target.value || '';
+        const key = e.key;
+        
+        // First character must be alphabet
+        if (value.length === 0) {
+          if (!/[A-Za-z]/.test(key)) {
+            e.preventDefault();
+          }
+        }
+        // After first character, allow alphabets, numbers, and spaces
+        else {
+          if (!/[A-Za-z0-9\s]/.test(key)) {
+            e.preventDefault();
+          }
+        }
+      }}
+    />
+  </Form.Item>
                     </div>
                   </div>
                   <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
@@ -288,19 +323,40 @@ const AddBranch = () => {
                             <div className="col-md-6">
                               <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
                                 <Form.Item
-                                  {...restField}
-                                  name={[name, "additional_certifi_description"]}
-                                  rules={[{ required: true, message: ERROR_MESSAGES.BRANCH.FILE_DESCRIPTION_REQUIRED }]}
-                                  label="File Description"
-                                  style={{ flexGrow: 1 }}
-                                >
-                                  <Input.TextArea
-                                    placeholder="Enter file description"
-                                    autoSize={{ minRows: 1, maxRows: 6 }}
-                                    allowClear
-                                  />
-                                </Form.Item>
-
+  {...restField}
+  name={[name, "additional_certifi_description"]}
+  rules={[
+    { required: true, message: ERROR_MESSAGES.BRANCH.FILE_DESCRIPTION_REQUIRED },
+    { 
+      pattern: /^[A-Za-z][A-Za-z0-9\s]*$/, 
+      message: 'Description must start with an alphabet and contain only alphabets and numbers' 
+    }
+  ]}
+  label="File Description"
+  style={{ flexGrow: 1 }}
+>
+  <InputWithAddon
+    icon={<FileTextOutlined />}
+    placeholder="Enter file description"
+    onKeyPress={(e) => {
+      const value = e.target.value || '';
+      const key = e.key;
+      
+      // First character must be alphabet
+      if (value.length === 0) {
+        if (!/[A-Za-z]/.test(key)) {
+          e.preventDefault();
+        }
+      }
+      // After first character, allow alphabets, numbers, and spaces
+      else {
+        if (!/[A-Za-z0-9\s]/.test(key)) {
+          e.preventDefault();
+        }
+      }
+    }}
+  />
+</Form.Item>
                                 {/* Minus Button */}
                                 {index > 0 && (
                                   <Button

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Button, notification, Grid, List, Avatar, Dropdown, Menu, Modal,
-  Badge, Divider, Skeleton, FloatButton, Select, Radio, DatePicker, Popconfirm,Tag
+  Button, notification, Grid, List, Image, Dropdown, Menu, Modal,
+  Badge, Divider, Skeleton, FloatButton, Select, Radio, DatePicker, Popconfirm, Tag, Tooltip
 } from "antd";
 import { DELETE, GET } from "helpers/api_helper";
 import { INVESTMENT } from "helpers/url_helper";
@@ -10,8 +10,7 @@ import Loader from "components/Common/Loader";
 import SwipeablePanel from "components/Common/SwipeablePanel";
 import { EllipsisOutlined, SearchOutlined, ReloadOutlined, PlusOutlined, DeleteFilled, ExclamationCircleOutlined } from "@ant-design/icons";
 import InfiniteScroll from "react-infinite-scroll-component";
-import lineIcon from "../../../assets/images/location.png";
-import investmentIcon from "../../../assets/icons/industrial-area.png";
+import lineIcon from "../../../assets/icons/profits (1).png";
 import dayjs from 'dayjs';
 import "./InvestmentList.css";
 
@@ -105,7 +104,6 @@ const InvestmentList = () => {
     }
   };
 
-  // Validate date inputs
   const validateDateRange = (fromDate, toDate) => {
     if (!fromDate || !toDate) {
       setDateError("Please select both from and to dates");
@@ -370,35 +368,51 @@ const InvestmentList = () => {
         expandedLinesObj[lineName] = true;
       });
       setExpandedLines(expandedLinesObj);
-
-      // notification.success({
-      //   message: "Search Complete",
-      //   description: `${filtered.length} result(s) found.`,
-      // });
     }
   };
 
-  const getSearchCriteriaDisplay = () => {
-    if (!searchCriteria) return null;
-
-    const parts = [];
-
-    if (searchCriteria.lines && searchCriteria.lines.length > 0) {
-      parts.push(`Lines: ${searchCriteria.lines.join(", ")}`);
-    }
-
-    if (searchCriteria.dateType === "range" && searchCriteria.fromDate && searchCriteria.toDate) {
-      parts.push(`Date: ${searchCriteria.fromDate} to ${searchCriteria.toDate}`);
-    } else if (searchCriteria.dateType === "all") {
-      parts.push("Date: All");
-    }
-
-    if (searchCriteria.searchText) {
-      parts.push(`Pattern: "${searchCriteria.searchText}"`);
-    }
-
-    return parts.join(" | ");
-  };
+  const getLineDisplay = (lines) => {
+  if (!lines || lines.length === 0) return null;
+  
+  if (lines.includes("All Line")) {
+    return <span>All Lines</span>;
+  }
+  
+  // Show badge when more than one line is selected
+  if (lines.length > 1) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <span>{lines[0]}</span>
+        <Tooltip 
+          title={
+            <div>
+              <div style={{ marginBottom: '4px', fontWeight: 'bold' }}>
+                All Selected Lines ({lines.length}):
+              </div>
+              {lines.map((line, idx) => (
+                <div key={idx}>• {line}</div>
+              ))}
+            </div>
+          }
+          placement="bottom"
+        >
+          <Badge 
+            count={`+${lines.length - 1}`} 
+            style={{ 
+              backgroundColor: '#1890ff',
+              cursor: 'pointer',
+              fontSize: '11px',
+              boxShadow: '0 0 0 1px #fff'
+            }} 
+          />
+        </Tooltip>
+      </div>
+    );
+  }
+  
+  // Single line selected - no badge needed
+  return <span>{lines[0]}</span>;
+};
 
   const searchModal = (
     <Modal
@@ -537,21 +551,53 @@ const InvestmentList = () => {
           className="investment-list-scrollable-div"
         >
           {showReset && searchCriteria && (
-            <div className="investment-list-search-results">
-              <div className="investment-list-search-results-content">
-                <span className="investment-list-search-label">
-                  Search Result:
-                </span>
-                 <Tag color="blue">{getSearchCriteriaDisplay()}</Tag>
+            <>
+              <Divider style={{ margin: '12px 0' }} />
+              
+              <div className="investment-list-search-results">
+                <div 
+                  className="investment-list-search-results-content"
+                  style={{ 
+                    display: 'flex', 
+                    flexWrap: 'wrap', 
+                    gap: '8px',
+                    alignItems: 'center',
+                    padding: '8px 0'
+                  }}
+                >
+                  {searchCriteria.lines && searchCriteria.lines.length > 0 && (
+                    <Tag 
+                      color="blue" 
+                      style={{ 
+                        margin: 0, 
+                        padding: '4px 8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      Lines: {getLineDisplay(searchCriteria.lines)}
+                    </Tag>
+                  )}
+                  
+                  {searchCriteria.dateType === "range" && searchCriteria.fromDate && searchCriteria.toDate ? (
+                    <Tag color="green" style={{ margin: 0, padding: '4px 8px' }}>
+                      Date: {searchCriteria.fromDate} to {searchCriteria.toDate}
+                    </Tag>
+                  ) : (
+                    <Tag color="green" style={{ margin: 0, padding: '4px 8px' }}>
+                      Date: All
+                    </Tag>
+                  )}
+                  
+                  <Tag color="purple" style={{ margin: 0, padding: '4px 8px' }}>
+                    Pattern: {searchCriteria.searchText ? `"${searchCriteria.searchText}"` : "All"}
+                  </Tag>
+                </div>
               </div>
-              {/* <Badge
-                count={Object.values(groupedData).flat().length}
-                className="investment-list-results-badge"
-              >
-                 <span /> 
-                 </Badge>
-               */}
-            </div>
+              
+              <Divider style={{ margin: '12px 0 16px 0' }} />
+            </>
           )}
 
           {Object.keys(groupedData).map((lineName) => {
@@ -564,20 +610,14 @@ const InvestmentList = () => {
               >
                 <div className="investment-list-line-header">
                   <div className="investment-list-line-title-container">
-                    <Avatar src={lineIcon}>
-                      {lineName?.charAt(0)?.toUpperCase()}
-                    </Avatar>
+                    <Image src={lineIcon} width={30} height={30} />
                     <span className="investment-list-line-title">
                       {lineName}
                     </span>
                   </div>
-                  {/* <Badge
-                    count={groupedData[lineName].length}
-                    className={showReset ? "investment-list-badge-search" : "investment-list-badge"}
-                  /> */}
-                   <div className={showReset ? "investment-list-badge investment-list-badge-search" : "investment-list-badge"}>
-    {groupedData[lineName].length}
-  </div>
+                  <div className={showReset ? "investment-list-badge investment-list-badge-search" : "investment-list-badge"}>
+                    {groupedData[lineName].length}
+                  </div>
                 </div>
 
                 <div
@@ -618,9 +658,9 @@ const InvestmentList = () => {
                         )
                       }
                       className="investment-list"
-                      renderItem={(investment,index) => {
+                      renderItem={(investment, index) => {
                         const isExpanded = expandedInvestments[lineName + '-' + investment.id];
-                        const lineIndex = index+1;
+                        const lineIndex = index + 1;
 
                         return (
                           <div
@@ -630,7 +670,7 @@ const InvestmentList = () => {
                           >
                             {isMobile ? (
                               <SwipeablePanel
-                                item={{...investment,lineIndex}}
+                                item={{ ...investment, lineIndex }}
                                 index={investment.id}
                                 titleKey="investment_title"
                                 name="investment"
@@ -655,12 +695,6 @@ const InvestmentList = () => {
                                   <List.Item.Meta
                                     avatar={
                                       <div className="investment-list-avatar-container">
-                                        {/* <img
-                                          src={lineIcon}
-                                          alt="investment-icon"
-                                          className="investment-list-avatar-icon"
-                                        /> */}
-                                        <Avatar src={lineIcon}/>
                                         <span className="investment-list-index-badge">{lineIndex}</span>
                                       </div>
                                     }
@@ -689,22 +723,20 @@ const InvestmentList = () => {
                                               </Menu.Item>
                                               <Menu.Item key="delete">
                                                 <Popconfirm
-                                                  // **Customize the title for the Investment context**
                                                   title={`Delete investment ${investment.name || investment.investment_name || 'this investment'}?`}
                                                   description="Are you sure you want to delete this investment permanently?"
                                                   icon={<ExclamationCircleOutlined style={{ color: "red" }} />}
                                                   onConfirm={(e) => {
                                                     e.stopPropagation();
-                                                    handleDelete(investment); // Calls handleDelete only after user confirms
+                                                    handleDelete(investment);
                                                   }}
                                                   okText="Delete"
                                                   cancelText="Cancel"
                                                   okButtonProps={{ danger: true, type: "primary" }}
                                                   cancelButtonProps={{ type: "default" }}
-                                                  onClick={(e) => e.stopPropagation()} // Prevents the dropdown from closing early
+                                                  onClick={(e) => e.stopPropagation()}
                                                 >
                                                   <div className="d-flex align-items-center gap-1" style={{ color: "red" }}>
-                                                    {/* Assuming you have the DeleteFilled icon imported from antd/icons */}
                                                     <DeleteFilled style={{ color: "red" }} />
                                                     <span>Delete</span>
                                                   </div>

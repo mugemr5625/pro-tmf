@@ -7,6 +7,16 @@ import { POST, GET } from "helpers/api_helper";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "helpers/errorMessages";
+import InputWithAddon from "components/Common/InputWithAddon";
+import SelectWithAddon from "components/Common/SelectWithAddon";
+
+import { 
+  BankOutlined, 
+  ApartmentOutlined, 
+  ClockCircleOutlined,
+  CalendarOutlined,
+  WarningOutlined 
+} from '@ant-design/icons';
 import "./AddLine.css";
 
 const { Option } = Select;
@@ -158,7 +168,7 @@ const AddLine = () => {
                   {/* Branch and Line Name */}
                   <div className="row mb-2">
                     <div className="col-md-6">
-                      <Form.Item
+                       <Form.Item
                         label="Branch"
                         name="branch"
                         rules={[{ 
@@ -166,7 +176,8 @@ const AddLine = () => {
                           message: ERROR_MESSAGES.LINE.BRANCH_REQUIRED 
                         }]}
                       >
-                        <Select
+                        <SelectWithAddon
+                          icon={<BankOutlined />}
                           placeholder="Select Branch"
                           allowClear={!params.id}
                           showSearch
@@ -178,28 +189,42 @@ const AddLine = () => {
                               {branch.branch_name}
                             </Option>
                           ))}
-                        </Select>
+                        </SelectWithAddon>
                       </Form.Item>
                     </div>
 
                     <div className="col-md-6">
                       <Form.Item
-                        label="Line Name"
-                        name="lineName"
-                        rules={[{ 
-                          required: true, 
-                          message: ERROR_MESSAGES.LINE.LINE_NAME_REQUIRED 
-                        }]}
-                      >
-                        <Input placeholder="Enter line name" size="large" />
-                      </Form.Item>
+    label="Line Name"
+    name="lineName"
+    rules={[
+      { 
+        required: true, 
+        message: ERROR_MESSAGES.LINE.LINE_NAME_REQUIRED 
+      },
+      { 
+        pattern: /^[A-Za-z\s]+$/, 
+        message: 'Line name must contain only alphabets' 
+      }
+    ]}
+  >
+    <InputWithAddon
+      icon={<ApartmentOutlined />}
+      placeholder="Enter line name"
+      onKeyPress={(e) => {
+        if (!/[A-Za-z\s]/.test(e.key)) {
+          e.preventDefault();
+        }
+      }}
+    />
+  </Form.Item>
                     </div>
                   </div>
 
                   {/* Line Type & Installment */}
                   <div className="row mb-2">
                     <div className="col-md-6">
-                      <Form.Item
+                       <Form.Item
                         label="Line Type"
                         name="lineType"
                         rules={[{ 
@@ -207,33 +232,47 @@ const AddLine = () => {
                           message: ERROR_MESSAGES.LINE.LINE_TYPE_REQUIRED 
                         }]}
                       >
-                        <Select placeholder="Select Line Type" size="large">
+                        <SelectWithAddon
+                          icon={<ClockCircleOutlined />}
+                          placeholder="Select Line Type"
+                          size="large"
+                        >
                           {options.map((option) => (
                             <Option key={option.value} value={option.value}>
                               {option.label}
                             </Option>
                           ))}
-                        </Select>
+                        </SelectWithAddon>
                       </Form.Item>
                     </div>
 
                     <div className="col-md-6">
-                      <Form.Item
-                        label="Installment"
-                        name="installment"
-                        rules={[
-                          { 
-                            required: true, 
-                            message: ERROR_MESSAGES.LINE.INSTALLMENT_REQUIRED 
-                          },
-                        ]}
-                      >
-                        <Input
-                          type="number"
-                          placeholder="Enter number of installments"
-                          size="large"
-                        />
-                      </Form.Item>
+                     <Form.Item
+    label="Installment"
+    name="installment"
+    rules={[
+      { 
+        required: true, 
+        message: ERROR_MESSAGES.LINE.INSTALLMENT_REQUIRED 
+      },
+      {
+        pattern: /^[1-9]\d*$/,
+        message: 'Please enter a valid number (greater than 0)'
+      }
+    ]}
+  >
+    <InputWithAddon
+      icon={<CalendarOutlined />}
+      placeholder="Enter number of installments"
+      maxLength={3}
+      onKeyPress={(e) => {
+        // Allow only digits
+        if (!/\d/.test(e.key)) {
+          e.preventDefault();
+        }
+      }}
+    />
+  </Form.Item>
                     </div>
                   </div>
 
@@ -241,21 +280,31 @@ const AddLine = () => {
                   <div className="row mb-2">
                     <div className="col-md-6">
                       <Form.Item
-                        label="No. of Bad Installments"
-                        name="badinstallment"
-                        rules={[
-                          {
-                            required: true,
-                            message: ERROR_MESSAGES.LINE.BAD_INSTALLMENT_REQUIRED,
-                          },
-                        ]}
-                      >
-                        <Input
-                          type="number"
-                          placeholder="Enter bad installment count"
-                          size="large"
-                        />
-                      </Form.Item>
+    label="No. of Bad Installments"
+    name="badinstallment"
+    rules={[
+      {
+        required: true,
+        message: ERROR_MESSAGES.LINE.BAD_INSTALLMENT_REQUIRED,
+      },
+      {
+        pattern: /^[0-9]\d*$/,
+        message: 'Please enter a valid number'
+      }
+    ]}
+  >
+    <InputWithAddon
+      icon={<WarningOutlined />}
+      placeholder="Enter bad installment count"
+      maxLength={3}
+      onKeyPress={(e) => {
+        // Allow only digits
+        if (!/\d/.test(e.key)) {
+          e.preventDefault();
+        }
+      }}
+    />
+  </Form.Item>
                     </div>
                   </div>
 

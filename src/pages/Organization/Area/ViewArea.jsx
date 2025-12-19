@@ -1,19 +1,17 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 // ADDED Select to imports
-import { Button, notification, Grid, List, Avatar, Dropdown, Menu, Modal, Tag, Divider, Skeleton, Select, Popconfirm } from "antd";
+import { Button, notification, Grid, List, Image, Dropdown, Menu, Modal, Tag, Divider, Skeleton, Select, Popconfirm } from "antd";
 import Table from "../../../components/Common/Table";
 import { GET, DELETE, POST } from "helpers/api_helper";
 import { AREA, COLUMNCHANGE, SELECTEDCOLUMN } from "helpers/url_helper";
 import Loader from "components/Common/Loader";
 import SwipeablePanel from "components/Common/SwipeablePanel";
-import { EllipsisOutlined, SearchOutlined, ReloadOutlined, PlusOutlined, DeleteFilled, ExclamationCircleOutlined } from "@ant-design/icons";
+import { EllipsisOutlined, SearchOutlined, ReloadOutlined, PlusOutlined, DeleteFilled, ExclamationCircleOutlined, SwapOutlined } from "@ant-design/icons";
 import AreaCollapseContent from "components/Common/AreaCollapseContent";
 import { Switch, FloatButton } from "antd";
-import reorderIcon from "../../../assets/icons/up-and-down-arrow.png";
-import areaIcon from '../../../assets/icons/residential-area.png';
 import InfiniteScroll from "react-infinite-scroll-component";
-import lineIcon from "../../../assets/images/location.png";
+import areaIcon from "../../../assets/icons/map.png";
 import "./ViewArea.css";
 
 let header = [
@@ -137,28 +135,29 @@ const ViewArea = () => {
   };
 
   const handleReset = () => {
-    const grouped = groupAreasByLine(originalData);
-
+     const storedBranchName = localStorage.getItem("selected_branch_name");
+  
+  // Filter by branch name before resetting
+  const branchFilteredData = storedBranchName 
+    ? originalData.filter(item => item.branch_name === storedBranchName)
+    : originalData;
+  
+  const grouped = groupAreasByLine(branchFilteredData);
     const newPagination = {};
-    Object.keys(grouped).forEach(lineName => {
-      newPagination[lineName] = {
-        displayed: Math.min(AREAS_PAGE_SIZE, grouped[lineName].length),
-        total: grouped[lineName].length
-      };
-    });
+  Object.keys(grouped).forEach(lineName => {
+    newPagination[lineName] = {
+      displayed: Math.min(AREAS_PAGE_SIZE, grouped[lineName].length),
+      total: grouped[lineName].length
+    };
+  });
 
-    setTableData(originalData);
-    setGroupedData(grouped);
-    setAreasPagination(newPagination);
+  setTableData(branchFilteredData);
+  setGroupedData(grouped);
+  setAreasPagination(newPagination);
 
-    setShowReset(false);
-    setSelectedLine(null);
-    setSearchText("");
-
-    notification.success({
-      message: "Data Reset",
-      description: "Restored to the original view successfully.",
-    });
+  setShowReset(false);
+  setSelectedLine(null);
+  setSearchText("");
   };
 
   const SumbitReorder = async () => {
@@ -566,10 +565,16 @@ const ViewArea = () => {
 
   const handleSearch = () => {
     const query = searchText.trim().toLowerCase();
+    const storedBranchName = localStorage.getItem("selected_branch_name");
+
+    // Get the branch-filtered data first
+    const branchFilteredData = storedBranchName 
+      ? originalData.filter(item => item.branch_name === storedBranchName)
+      : originalData;
 
     if (!query) {
-      setTableData(originalData);
-      const grouped = groupAreasByLine(originalData);
+      setTableData(branchFilteredData);
+      const grouped = groupAreasByLine(branchFilteredData);
       setGroupedData(grouped);
 
       Object.keys(grouped).forEach(lineName => {
@@ -585,7 +590,7 @@ const ViewArea = () => {
       return;
     }
 
-    const filtered = originalData.filter((item) => {
+    const filtered =branchFilteredData.filter((item) => {
       const areaName = (item.areaName || "").toLowerCase();
       return areaName.includes(query)
     });
@@ -715,15 +720,15 @@ const ViewArea = () => {
           ) : (
             <>
               <Button
+              icon={<SwapOutlined rotate={90}/>}
                 onClick={clickReorder}
                 disabled={reOrder || tableLoader}
                 className="view-area-reorder-button"
+                type="default"
               >
-                <img
-                  src={reorderIcon}
-                  alt="Reorder Icon"
-                  className="view-area-reorder-icon"
-                />
+               
+                {!isMobile && "Reorder"}
+                
               </Button>
               {showReset && (
                 <Button
@@ -795,9 +800,9 @@ const ViewArea = () => {
           {showReset && searchText && (
             <div className="view-area-search-results">
               <span className="view-area-search-label">
-                Search Result:{" "}
+               
                 <Tag color="blue" style={{ fontSize: 14, padding: "2px 8px" }}>
-        {searchText}
+        Pattern: {searchText}
       </Tag>
               </span>
               
@@ -815,9 +820,10 @@ const ViewArea = () => {
               >
                 <div className="view-area-line-header">
                   <div className="view-area-line-title-container">
-                    <Avatar src={lineIcon}>
+                    {/* <Avatar src={lineIcon}>
                       {lineName?.charAt(0)?.toUpperCase()}
-                    </Avatar>
+                    </Avatar> */}
+                    <Image src={areaIcon} width={30} height={30} />
                     <span className="view-area-line-title">
                       {lineName}
                     </span>

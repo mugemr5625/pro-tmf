@@ -455,7 +455,8 @@ const ListBranch = () => {
                   >
                     {isMobile ? (
                       <SwipeablePanel
-                        item={branch }
+                        item={{...branch,lineIndex }}
+                        
                         index={index}
                         titleKey="branch_name"
                         name="branch"

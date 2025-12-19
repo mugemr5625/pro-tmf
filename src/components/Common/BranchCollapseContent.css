@@ -75,3 +75,9 @@
 .modal-button-link:hover {
   color: inherit;
 }
+@media (max-width: 768px) {
+  .ant-descriptions-item-label{
+    padding: 6px 2px 6px 2px !important;
+    width: 120px !important;
+  }
+}

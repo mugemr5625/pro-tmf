@@ -6,13 +6,12 @@ import { GET, DELETE, POST } from "helpers/api_helper";
 import { LINE, COLUMNCHANGE, SELECTEDCOLUMN } from "helpers/url_helper";
 import Loader from "components/Common/Loader";
 import SwipeablePanel from "components/Common/SwipeablePanel";
-import { EllipsisOutlined, SearchOutlined, ReloadOutlined, PlusOutlined, ExclamationCircleOutlined, DeleteFilled } from "@ant-design/icons";
+import { EllipsisOutlined, SearchOutlined, ReloadOutlined, PlusOutlined, ExclamationCircleOutlined, DeleteFilled, SwapOutlined } from "@ant-design/icons";
 import LineCollapseContent from "components/Common/LineCollapseContent";
 import { Switch, FloatButton } from "antd";
-import reorderIcon from "../../../assets/icons/up-and-down-arrow.png";
-import lineIcon from '../../../assets/icons/residential-area.png'
+import lineIcon from '../../../assets/icons/grow-up.png'
 import InfiniteScroll from "react-infinite-scroll-component";
-import branchIcon from "../../../assets/images/location.png"
+import branchIcon from "../../../assets/icons/grow-up.png"
 import "./ViewLine.css";
 
 let header = [
@@ -601,15 +600,12 @@ const ViewLine = () => {
           ) : (
             <>
               <Button
+              icon={<SwapOutlined rotate={90}/>}
                 onClick={clickReorder}
                 disabled={reOrder}
                 className="view-line-reorder-button"
               >
-                <img
-                  src={reorderIcon}
-                  alt="Reorder Icon"
-                  className="view-line-reorder-icon"
-                />
+               {!isMobile&&"Reorder"}
               </Button>
               {showReset && (
                 <Button
@@ -681,9 +677,9 @@ const ViewLine = () => {
           {showReset && searchText && (
             <div className="view-line-search-results">
               <span className="view-line-search-label">
-                Search Result:{" "}
+                
                <Tag color="blue" style={{ fontSize: 14, padding: "2px 8px" }}>
-        {searchText}
+        Pattern: {searchText}
       </Tag>
     </span>
 
@@ -704,8 +700,8 @@ const ViewLine = () => {
     {/* <Avatar src={branchIcon}>
       {branchName?.charAt(0)?.toUpperCase()}
     </Avatar> */}
-    <Image src={branchIcon}  width={32}
-  height={32}
+    <Image src={branchIcon}  width={30}
+  height={30}
     />                         
     <span className="view-line-branch-title">
       {branchName}

@@ -2,6 +2,7 @@ import { DeleteFilled } from '@ant-design/icons';
 import { useState, useRef, useEffect } from 'react';
 import { Avatar, Modal } from 'antd';
 
+import './Swipeable.css'
 const SwipeablePanel = ({
   item,
   titleKey,
@@ -18,6 +19,8 @@ const SwipeablePanel = ({
   const [isDragging, setIsDragging] = useState(false);
   const startX = useRef(0);
   const isScrolling = useRef(false);
+  const panelRef = useRef(null);
+
   const startY = useRef(0);
   const hasNotifiedOpen = useRef(false); // NEW: Track if we've notified parent
 
@@ -33,6 +36,17 @@ const SwipeablePanel = ({
       hasNotifiedOpen.current = false; // Reset flag when closed externally
     }
   }, [isSwipeOpen]);
+  useEffect(() => {
+    if (isExpanded && panelRef.current) {
+    
+      setTimeout(() => {
+        panelRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }, 100);
+    }
+  }, [isExpanded]);
 
   const handleTouchStart = (e) => {
     startX.current = e.touches[0].clientX;
@@ -108,7 +122,7 @@ const SwipeablePanel = ({
         overflow: 'hidden',
         background: backgroundColor,
         transition: isDragging ? 'none' : 'background 0.25s ease-out',
-        marginBottom: 4,
+       
         borderRadius: 8,
         padding: 0
       }}
@@ -199,15 +213,17 @@ const SwipeablePanel = ({
         }}
       >
         {/* Header */}
+        
         <div
-          className="px-1 py-3"
+        ref={panelRef}
+          className="px-1 py-3 custom-padding"
           style={{
             cursor: 'pointer',
             display: 'flex',
             justifyContent: 'space-evenly',
             alignItems: 'center',
-             
-            
+             fontSize: '18px',
+           
           }}
           onTouchStart={isExpanded ? null : handleTouchStart}
           onTouchMove={isExpanded ? null : handleTouchMove}
@@ -235,6 +251,7 @@ const SwipeablePanel = ({
   minWidth: "32px",
   height: "32px",
   padding: 0,
+  
   border: "1px solid #d9d9d9",
   borderRadius: "6px",
   backgroundColor: "#fff",
@@ -273,14 +290,14 @@ const SwipeablePanel = ({
               fontSize: 20, 
               color: '#8c8c8c',
               flexShrink: 0,
-              marginLeft: 8
+              marginRight: 10
             }}
           />
         </div>
 
         {/* Expanded content */}
         {isExpanded && (
-          <div style={{ marginTop: 8, padding: '0 5px' }}>
+          <div style={{ margin: 0, padding:0 }}>
             {renderContent && renderContent()}
           </div>
         )}

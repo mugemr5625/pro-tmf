@@ -8,11 +8,24 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES, NOTIFICATION_TITLES } from "helpers/e
 import { Fragment, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import { 
+  UserOutlined, 
+  BankOutlined, 
+  ApartmentOutlined, 
+  DollarOutlined,
+  CreditCardOutlined,
+  CalendarOutlined,
+  WalletOutlined
+} from '@ant-design/icons';
+import InputWithAddon from "components/Common/InputWithAddon";
+import SelectWithAddon from "components/Common/SelectWithAddon";
 import "./AddInvestment.css";
+
+const { Option } = Select;
 
 const AddInvestment = () => {
   const [form] = Form.useForm();
-
+  
   const navigate = useNavigate();
   const params = useParams();
 
@@ -140,7 +153,11 @@ const AddInvestment = () => {
                           },
                         ]}
                       >
-                        <Input placeholder="Enter Investment Title" size="large" />
+                        <InputWithAddon 
+                          icon={<DollarOutlined />}
+                          placeholder="Enter Investment Title" 
+                          size="large" 
+                        />
                       </Form.Item>
                     </div>
                     <div className="col-md-6">
@@ -154,18 +171,19 @@ const AddInvestment = () => {
                           },
                         ]}
                       >
-                        <Select 
+                        <SelectWithAddon
+                          icon={<UserOutlined />}
                           placeholder="Select User" 
                           allowClear
                           showSearch
                           size="large"
                         >
                           {userList?.map((user) => (
-                            <Select.Option key={user.id} value={user.id}>
+                            <Option key={user.id} value={user.id}>
                               {user.full_name && `${user.full_name} | `}{user.username}
-                            </Select.Option>
+                            </Option>
                           ))}
-                        </Select>
+                        </SelectWithAddon>
                       </Form.Item>
                     </div>
                   </div>
@@ -183,18 +201,19 @@ const AddInvestment = () => {
                           },
                         ]}
                       >
-                        <Select 
+                        <SelectWithAddon
+                          icon={<BankOutlined />}
                           placeholder="Select Branch" 
                           disabled
                           showSearch
                           size="large"
                         >
                           {branchList?.map((branch) => (
-                            <Select.Option key={branch.id} value={branch.id}>
+                            <Option key={branch.id} value={branch.id}>
                               {branch.branch_name}
-                            </Select.Option>
+                            </Option>
                           ))}
-                        </Select>
+                        </SelectWithAddon>
                       </Form.Item>
                     </div>
                     <div className="col-md-6">
@@ -208,7 +227,8 @@ const AddInvestment = () => {
                           },
                         ]}
                       >
-                        <Select 
+                        <SelectWithAddon
+                          icon={<ApartmentOutlined />}
                           placeholder="Select Line" 
                           allowClear
                           showSearch
@@ -218,14 +238,14 @@ const AddInvestment = () => {
                             const branchId = form.getFieldValue("branch") || selectedBranchId;
                             if (branchId === line?.branch) {
                               return (
-                                <Select.Option key={line.id} value={line.id}>
+                                <Option key={line.id} value={line.id}>
                                   {line.lineName}
-                                </Select.Option>
+                                </Option>
                               );
                             }
                             return null;
                           })}
-                        </Select>
+                        </SelectWithAddon>
                       </Form.Item>
                     </div>
                   </div>
@@ -249,7 +269,8 @@ const AddInvestment = () => {
                           },
                         ]}
                       >
-                        <Input
+                        <InputWithAddon
+                          icon={<WalletOutlined />}
                           type="number"
                           placeholder="Enter Investment Amount"
                           size="large"
@@ -267,17 +288,18 @@ const AddInvestment = () => {
                           },
                         ]}
                       >
-                        <Select 
+                        <SelectWithAddon
+                          icon={<CreditCardOutlined />}
                           placeholder="Select Payment Mode" 
                           allowClear
                           size="large"
                         >
                           {PAYMENT_MODES_OPTIONS.map((mode) => (
-                            <Select.Option key={mode.value} value={mode.value}>
+                            <Option key={mode.value} value={mode.value}>
                               {mode.label}
-                            </Select.Option>
+                            </Option>
                           ))}
-                        </Select>
+                        </SelectWithAddon>
                       </Form.Item>
                     </div>
                   </div>
@@ -295,7 +317,11 @@ const AddInvestment = () => {
                           },
                         ]}
                       >
-                        <Input type="date" size="large" />
+                        <InputWithAddon
+                          icon={<CalendarOutlined />}
+                          type="date" 
+                          size="large" 
+                        />
                       </Form.Item>
                     </div>
                     <div className="col-md-6">
@@ -303,7 +329,8 @@ const AddInvestment = () => {
                         <Input.TextArea 
                           placeholder="Enter Comment" 
                           size="large"
-                          rows={1}
+                          autoSize={{ minRows: 2, maxRows: 6 }}
+                          allowClear
                         />
                       </Form.Item>
                     </div>

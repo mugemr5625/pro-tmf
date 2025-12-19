@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Button, notification, FloatButton, Form, Input, Modal, Avatar, List, Skeleton, Menu, Dropdown, Popconfirm, Tag, Switch, Flex, Divider, Badge } from "antd";
+import { Button, notification, FloatButton, Form, Input, Modal, Image, List, Skeleton, Menu, Dropdown, Popconfirm, Tag, Switch, Flex, Divider, Badge } from "antd";
 import { PlusOutlined, ReloadOutlined, SearchOutlined, ExclamationCircleOutlined, DeleteFilled, EllipsisOutlined, CaretDownOutlined } from "@ant-design/icons";
 import { GET, DELETE } from "helpers/api_helper";
 import { EXPENSE_TYPES, EXPENSE_TYPE_DETAIL } from "helpers/url_helper";
@@ -7,7 +7,7 @@ import Loader from "components/Common/Loader";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useNavigate } from "react-router-dom";
 import expenseIcon from "assets/images/location.png";
-import lineIcon from "assets/icons/residential-area.png";
+import lineIcon from "assets/icons/clipboard-list.png"
 import ExpenseCollapseContent from "components/Common/ExpenseCollapseContent";
 import SwipeablePanel from "components/Common/SwipeablePanel";
 import "./ExpenseTypeList.css";
@@ -414,29 +414,7 @@ const ExpenseTypeList = () => {
       {searchModal}
 
       {/* Display Selected Branch Name */}
-      {selectedBranchName && (
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          marginBottom: "16px"
-        }}>
-          <span style={{ 
-            fontWeight: "600", 
-            fontSize: "15px",
-          }}>
-            Branch:
-          </span>
-          <Tag color="blue" style={{ 
-            fontSize: "14px", 
-            padding: "4px 12px",
-            margin: 0
-          }}>
-            {selectedBranchName}
-          </Tag>
-        </div>
-      )}
-
+     
       {/* Active Toggle */}
       <div style={{ marginBottom: "16px" }}>
         <Flex gap="0.5rem" align="center">
@@ -452,12 +430,12 @@ const ExpenseTypeList = () => {
         {searchTerm && (
           <div className="expense-type-list-search-results">
             <span className="expense-type-list-search-label">
-              Search Result:{" "}
+            
               {/* <span className="expense-type-list-search-query">
                 "{searchTerm}"
               </span> */}
               <Tag color="blue" style={{ fontSize: 14, padding: "2px 8px" }}>
-                      {searchTerm}
+                      Pattern: {searchTerm}
                     </Tag>
             </span>
             <span className="expense-type-list-results-count">
@@ -485,9 +463,10 @@ const ExpenseTypeList = () => {
                   onClick={() => toggleLineExpansion(lineName)}
                 >
                   <div className="expense-type-list-line-title-container">
-                    <Avatar src={lineIcon}>
+                    {/* <Avatar src={lineIcon}>
                       {lineName?.charAt(0)?.toUpperCase()}
-                    </Avatar>
+                    </Avatar> */}
+                    <Image src={lineIcon} width={30} height={30} />
                     <span className="expense-type-list-line-title">
                       {lineName}
                     </span>
@@ -498,12 +477,12 @@ const ExpenseTypeList = () => {
                       className="expense-type-list-badge"
                     /> */}
                     <div className="expense-type-list-badge">{expenses.length}</div>
-                    <CaretDownOutlined 
+                    {/* <CaretDownOutlined 
                       style={{ 
                         transition: 'transform 0.3s',
                         transform: isLineExpanded ? 'rotate(0deg)' : 'rotate(-90deg)'
                       }} 
-                    />
+                    /> */}
                   </div>
                 </div>
 
@@ -584,12 +563,7 @@ const ExpenseTypeList = () => {
                                     <List.Item.Meta
                                       avatar={
                                         <div className="expense-type-list-avatar-container">
-                                          {/* <img
-                                            src={expenseIcon}
-                                            alt="expense-icon"
-                                            className="expense-type-list-avatar-icon"
-                                          /> */}
-                                          <Avatar src={expenseIcon} />
+                                         
                                           <span className="expense-type-list-index-badge">{lineIndex}</span>
                                         </div>
                                       }

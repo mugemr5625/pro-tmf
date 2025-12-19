@@ -14,7 +14,7 @@ import {
   Select,
   Radio,
   List,
-  Avatar,
+  Image,
   Dropdown,
   Menu,
   Popconfirm,
@@ -22,6 +22,8 @@ import {
   Skeleton,
   Tag,
   Grid,
+  Tooltip,
+  Badge,
 } from "antd";
 import Loader from "components/Common/Loader";
 import dayjs from "dayjs";
@@ -31,7 +33,7 @@ import { useEffect, useState } from "react";
 import SwipeablePanel from "components/Common/SwipeablePanel";
 import InfiniteScroll from "react-infinite-scroll-component";
 import ExpenseTransactionCollapseContent from "../../../components/Common/ExpenseTransactionCollapseContent ";
-import lineIcon from "../../../assets/icons/industrial-area.png";
+import lineIcon from "../../../assets/icons/money-currency.png";
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
@@ -49,8 +51,8 @@ const ExpenseTransactionList = () => {
   const [originalData, setOriginalData] = useState([]);
   const [groupedData, setGroupedData] = useState({});
   const [expenseTypeList, setExpenseTypeList] = useState([]);
-  const [areaList, setAreaList] = useState([]); // State for area data
-  const [areaLoader, setAreaLoader] = useState(false); // State for area loading
+  const [areaList, setAreaList] = useState([]);
+  const [areaLoader, setAreaLoader] = useState(false);
   const [searchModalVisible, setSearchModalVisible] = useState(true);
   const [selectedBranchFromStorage, setSelectedBranchFromStorage] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
@@ -87,7 +89,6 @@ const ExpenseTransactionList = () => {
 
     const fetchData = async () => {
       if (storedBranchName && accessToken) {
-        // Fetch all three APIs on load
         await Promise.all([getExpenseTransactionList(), getExpenseTypesList(), getAreaList()]);
         setLoading(false);
       } else {
@@ -104,8 +105,6 @@ const ExpenseTransactionList = () => {
 
     fetchData();
   }, []);
-
-  // Removed the useEffect that automatically opens the search modal on first load.
   
   const getExpenseTransactionList = async () => {
     try {
@@ -114,7 +113,6 @@ const ExpenseTransactionList = () => {
         const storedBranchName = localStorage.getItem("selected_branch_name");
         let filteredData = response.data;
         
-        // Expense Transactions are filtered here by the stored branch name
         if (storedBranchName) {
           filteredData = response.data.filter(
             (item) => item.EXPNS_TRNSCTN_BRNCH_NM === storedBranchName
@@ -173,28 +171,20 @@ const ExpenseTransactionList = () => {
     }
   };
 
-  /**
-   * NEW FUNCTION: Filters the areaList by the selected branch name
-   * and returns unique line names for the search dropdown.
-   */
   const getLinesForSearchDropdown = () => {
     if (areaList.length === 0 || !selectedBranchFromStorage) {
-      // Fallback: If area data or branch is missing, use lines from expense data
-      const lines = [...new Set(originalData.map(exp => exp.LINE_NM || "Uncategorized"))];
+      const lines = [...new Set(originalData.map(exp => exp.EXPNS_TRNSCTN_LINE_NM || "Uncategorized"))];
       return lines.sort();
     }
 
-    // Filter areaList items that belong to the current branch
     const filteredAreaLines = areaList
       .filter(item => item.branch_name === selectedBranchFromStorage)
       .map(item => item.line_name|| "Uncategorized");
 
-    // Get unique lines
     const uniqueLines = [...new Set(filteredAreaLines)];
     
     return uniqueLines.sort();
   };
-
 
   const groupExpensesByLine = (data) => {
     const grouped = {};
@@ -216,10 +206,7 @@ const ExpenseTransactionList = () => {
     }
   };
 
-  // ... (rest of the functions remain the same)
-
   const validateDateRange = (fromDate, toDate) => {
-    // ... (same as before)
     if (!fromDate || !toDate) {
       setDateError("Please select both from and to dates");
       return false;
@@ -244,7 +231,6 @@ const ExpenseTransactionList = () => {
   };
 
   const handleDateChange = (field, value) => {
-    // ... (same as before)
     const newDateRange = { ...dateRange, [field]: value };
     setDateRange(newDateRange);
 
@@ -256,7 +242,6 @@ const ExpenseTransactionList = () => {
   };
 
   const initializeLinePagination = (lineName, totalExpenses) => {
-    // ... (same as before)
     setExpensePagination(prev => ({
       ...prev,
       [lineName]: {
@@ -267,7 +252,6 @@ const ExpenseTransactionList = () => {
   };
 
   const loadMoreExpenses = (lineName) => {
-    // ... (same as before)
     setExpensePagination(prev => {
       const current = prev[lineName] || { displayed: 0, total: 0 };
       return {
@@ -281,7 +265,6 @@ const ExpenseTransactionList = () => {
   };
 
   const handleSearch = () => {
-    // ... (same as before)
     const isAllLinesSelected = selectedLines.includes(ALL_LINES_VALUE) || selectedLines.length === 0;
     const hasLineCriteria = !isAllLinesSelected && selectedLines.length > 0;
     const hasDateCriteria = dateFilterType === "range" && dateRange.from && dateRange.to;
@@ -362,7 +345,6 @@ const ExpenseTransactionList = () => {
   };
 
   const handleReset = () => {
-    // ... (same as before)
     setExpenseTransactions([]);
     setGroupedData({});
     setExpensePagination({});
@@ -375,14 +357,17 @@ const ExpenseTransactionList = () => {
     setSearchCriteria(null);
     setHasSearched(false);
 
-   
+    notification.success({
+      message: "Data Reset",
+      description: "Please perform a new search to view expense transactions.",
+    });
+
     setTimeout(() => {
       setSearchModalVisible(true);
     }, 300);
   };
 
   const handleDelete = async (record) => {
-    // ... (same as before)
     try {
       const response = await DELETE(`${EXPENSE_TRANSACTION}${record.EXPNS_TRNSCTN_ID}/`);
       if (response?.status === 204 || response?.status === 200) {
@@ -411,7 +396,6 @@ const ExpenseTransactionList = () => {
   };
 
   const handleExpenseAction = (lineName, expenseId) => {
-    // ... (same as before)
     const key = `${lineName}-${expenseId}`;
     setOpenSwipeId(null);
     setExpandedExpenses((prev) => {
@@ -437,7 +421,6 @@ const ExpenseTransactionList = () => {
   };
 
   const handleSwipeStateChange = (expenseId, isOpen) => {
-    // ... (same as before)
     if (isOpen) {
       setOpenSwipeId(expenseId);
     } else if (openSwipeId === expenseId) {
@@ -446,31 +429,48 @@ const ExpenseTransactionList = () => {
   };
 
   const handleEditExpense = (expense) => {
-    // ... (same as before)
     window.location.href = `/expense-transaction/edit/${expense.EXPNS_TRNSCTN_ID}`;
   };
 
-  const getSearchCriteriaDisplay = () => {
-    // ... (same as before)
-    if (!searchCriteria) return null;
-
-    const parts = [];
-
-    if (searchCriteria.lines && searchCriteria.lines.length > 0) {
-      parts.push(`Lines: ${searchCriteria.lines.join(", ")}`);
+  const getLineDisplay = (lines) => {
+    if (!lines || lines.length === 0) return null;
+    
+    if (lines.includes("All Lines")) {
+      return <span>All Lines</span>;
     }
-
-    if (searchCriteria.dateType === "range" && searchCriteria.fromDate && searchCriteria.toDate) {
-      parts.push(`Date: ${searchCriteria.fromDate} to ${searchCriteria.toDate}`);
-    } else if (searchCriteria.dateType === "all") {
-      parts.push("Date: All");
+    
+    if (lines.length > 1) {
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span>{lines[0]}</span>
+          <Tooltip 
+            title={
+              <div>
+                <div style={{ marginBottom: '4px', fontWeight: 'bold' }}>
+                  All Selected Lines ({lines.length}):
+                </div>
+                {lines.map((line, idx) => (
+                  <div key={idx}>• {line}</div>
+                ))}
+              </div>
+            }
+            placement="bottom"
+          >
+            <Badge 
+              count={`+${lines.length - 1}`} 
+              style={{ 
+                backgroundColor: '#1890ff',
+                cursor: 'pointer',
+                fontSize: '11px',
+                boxShadow: '0 0 0 1px #fff'
+              }} 
+            />
+          </Tooltip>
+        </div>
+      );
     }
-
-    if (searchCriteria.searchText) {
-      parts.push(`Expense Type: "${searchCriteria.searchText}"`);
-    }
-
-    return parts.join(" | ");
+    
+    return <span>{lines[0]}</span>;
   };
 
   const searchModal = (
@@ -501,7 +501,6 @@ const ExpenseTransactionList = () => {
             <Option key={ALL_LINES_VALUE} value={ALL_LINES_VALUE}>
               All Lines
             </Option>
-            {/* UPDATED: Using getLinesForSearchDropdown() */}
             {getLinesForSearchDropdown().map(line => (
               <Option key={line} value={line}>{line}</Option>
             ))}
@@ -604,8 +603,6 @@ const ExpenseTransactionList = () => {
       </div>
 
       {searchModal}
-      
-      {/* ... (rest of the JSX remains the same for displaying data) ... */}
 
       {hasSearched && (
         <div
@@ -613,14 +610,53 @@ const ExpenseTransactionList = () => {
           className="expense-list-scrollable-div"
         >
           {showReset && searchCriteria && (
-            <div className="expense-list-search-results">
-              <div className="expense-list-search-results-content">
-                <span className="expense-list-search-label">
-                  Search Result:
-                </span>
-                <Tag color="blue">{getSearchCriteriaDisplay()}</Tag>
+            <>
+              <Divider style={{ margin: '12px 0' }} />
+              
+              <div className="expense-list-search-results">
+                <div 
+                  className="expense-list-search-results-content"
+                  style={{ 
+                    display: 'flex', 
+                    flexWrap: 'wrap', 
+                    gap: '8px',
+                    alignItems: 'center',
+                    padding: '8px 0'
+                  }}
+                >
+                  {searchCriteria.lines && searchCriteria.lines.length > 0 && (
+                    <Tag 
+                      color="blue" 
+                      style={{ 
+                        margin: 0, 
+                        padding: '4px 8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      Lines: {getLineDisplay(searchCriteria.lines)}
+                    </Tag>
+                  )}
+                  
+                  {searchCriteria.dateType === "range" && searchCriteria.fromDate && searchCriteria.toDate ? (
+                    <Tag color="green" style={{ margin: 0, padding: '4px 8px' }}>
+                      Date: {searchCriteria.fromDate} to {searchCriteria.toDate}
+                    </Tag>
+                  ) : (
+                    <Tag color="green" style={{ margin: 0, padding: '4px 8px' }}>
+                      Date: All
+                    </Tag>
+                  )}
+                  
+                  <Tag color="purple" style={{ margin: 0, padding: '4px 8px' }}>
+                    Expense Type: {searchCriteria.searchText ? `"${searchCriteria.searchText}"` : "All"}
+                  </Tag>
+                </div>
               </div>
-            </div>
+              
+              <Divider style={{ margin: '12px 0 16px 0' }} />
+            </>
           )}
 
           {Object.keys(groupedData).map((lineName) => {
@@ -631,9 +667,7 @@ const ExpenseTransactionList = () => {
               >
                 <div className="expense-list-line-header">
                   <div className="expense-list-line-title-container">
-                    <Avatar src={lineIcon}>
-                      {lineName?.charAt(0)?.toUpperCase()}
-                    </Avatar>
+                    <Image src={lineIcon} width={30} height={30} />
                     <span className="expense-list-line-title">
                       {lineName}
                     </span>
@@ -727,7 +761,6 @@ const ExpenseTransactionList = () => {
                                   <List.Item.Meta
                                     avatar={
                                       <div className="expense-list-avatar-container">
-                                        <Avatar src={lineIcon} />
                                         <span className="expense-list-index-badge">{lineIndex}</span>
                                       </div>
                                     }

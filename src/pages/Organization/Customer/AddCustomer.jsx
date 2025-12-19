@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Form, Input, Button, Select, notification, Divider, Space, InputNumber, Tabs, Modal } from "antd";
-import { UserOutlined, PhoneOutlined, MailOutlined, IdcardOutlined, EnvironmentOutlined, FileTextOutlined, UserAddOutlined, ReloadOutlined, PlusOutlined, MinusOutlined, HomeOutlined } from '@ant-design/icons';
+import { UserOutlined, PhoneOutlined, MailOutlined, IdcardOutlined, EnvironmentOutlined, FileTextOutlined, UserAddOutlined, ReloadOutlined, PlusOutlined, MinusOutlined, ApartmentOutlined,GlobalOutlined, BankFilled, BankOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from "react-router-dom";
 import Loader from "components/Common/Loader";
 import { GET, POST, PUT, DELETE } from "helpers/api_helper";
@@ -10,6 +10,7 @@ import AddCustomerDocument from "./AddCustomerDocument";
 import professionIcon from '../../../assets/icons/businessman.png'
 import { GoogleMap, LoadScript, Marker, Circle } from '@react-google-maps/api';
 import InputWithAddon from "components/Common/InputWithAddon";
+import SelectWithAddon from "components/Common/SelectWithAddon";
 import locationIcon1 from "../../../assets/icons/earth-grid.png";
 import locationIcon2 from "../../../assets/icons/location (1).png"
 
@@ -543,7 +544,9 @@ const [isEditMode, setIsEditMode] = useState(false);
 
     const handleReset = () => {
         form.resetFields();
-
+ form.setFieldsValue({
+        reference_contacts: [{ reference_number: '' }]
+    });
         // If values are from localStorage, restore them
         if (isFromLocalStorage && savedBranchName && savedLineName && savedAreaId) {
             const matchedBranch = branchList.find(
@@ -600,17 +603,17 @@ const [isEditMode, setIsEditMode] = useState(false);
     };
 
     const handleTabChange = (key) => {
-        // if (key === "2") {
-        //     // In add mode: only allow if personal info is submitted
-        //     if (!params.id && !isPersonalInfoSubmitted) {
-        //         notification.warning({
-        //             message: 'Complete Personal Information',
-        //             description: 'Please submit the personal information form before uploading documents.',
-        //             duration: 3,
-        //         });
-        //         return;
-        //     }
-        // }
+        if (key === "2") {
+            // In add mode: only allow if personal info is submitted
+            if (!params.id && !isPersonalInfoSubmitted) {
+                notification.warning({
+                    message: 'Complete Personal Information',
+                    description: 'Please submit the personal information form before uploading documents.',
+                    duration: 3,
+                });
+                return;
+            }
+        }
         setActiveTab(key);
     };
 
@@ -655,135 +658,206 @@ const [isEditMode, setIsEditMode] = useState(false);
                         <div className="row mb-2">
                             <div className="col-md-6">
                                 <Form.Item
-                                    label="Customer Name"
-                                    name="customer_name"
-                                    rules={[
-                                        { required: true, message: 'Please enter customer name' },
-                                        { min: 2, message: 'Name must be at least 2 characters' }
-                                    ]}
-                                >
-                                    <InputWithAddon
-                                        icon={<UserOutlined />}
-                                        placeholder="Enter customer name"
-                                    />
-
-                                </Form.Item>
+    label="Customer Name"
+    name="customer_name"
+    rules={[
+        { required: true, message: 'Please enter customer name' },
+        { min: 2, message: 'Name must be at least 2 characters' },
+        { pattern: /^[A-Za-z\s]+$/, message: 'Must contain only alphabets' }
+    ]}
+>
+    <InputWithAddon
+        icon={<UserOutlined />}
+        placeholder="Enter customer name"
+        onKeyPress={(e) => {
+            // Prevent numbers and special characters
+            if (!/[A-Za-z\s]/.test(e.key)) {
+                e.preventDefault();
+            }
+        }}
+    />
+</Form.Item>
                             </div>
 
                             <div className="col-md-6">
-                                <Form.Item
-                                    label="Mobile Number"
-                                    name="mobile_number"
-                                    rules={[
-                                        { required: true, message: 'Please enter mobile number' },
-                                        { pattern: /^\d{10}$/, message: 'Mobile number must be 10 digits' }
-                                    ]}
-                                >
-                                    <InputWithAddon
-                                        icon={<PhoneOutlined />}
-                                        placeholder="10 digit mobile number"
-                                        maxLength={10}
-                                    />
+                              
+<Form.Item
+    label="Mobile Number"
+    name="mobile_number"
+    rules={[
+        { required: true, message: 'Please enter mobile number' },
+        { pattern: /^\d{10}$/, message: 'Must be 10 digits' }
+    ]}
+>
+    <InputWithAddon
+        icon={<PhoneOutlined />}
+        placeholder="10 digit mobile number"
+        maxLength={10}
+        onKeyPress={(e) => {
+            // Allow only digits
+            if (!/\d/.test(e.key)) {
+                e.preventDefault();
+            }
+        }}
+    />
+</Form.Item>
+                            </div>
+                        </div>
 
-                                </Form.Item>
+                        <div className="row mb-2">
+                            <div className="col-md-6">
+                              <Form.Item
+    label="Alternate Mobile Number"
+    name="alternate_mobile_number"
+    rules={[
+        { pattern: /^\d{10}$/, message: 'Must be 10 digits' }
+    ]}
+>
+    <InputWithAddon
+        icon={<PhoneOutlined />}
+        placeholder="10 digit alternate mobile number (optional)"
+        maxLength={10}
+        onKeyPress={(e) => {
+            // Allow only digits
+            if (!/\d/.test(e.key)) {
+                e.preventDefault();
+            }
+        }}
+    />
+</Form.Item>
+                            </div>
+
+                            <div className="col-md-6">
+                               <Form.Item
+    label="Email ID"
+    name="email_id"
+    rules={[
+        { required: true, message: 'Please enter email' },
+        { type: 'email', message: 'Please enter valid email' },
+        { 
+            pattern: /^[a-z][a-z0-9._-]*@[a-z0-9.-]+\.[a-z]{2,}$/, 
+            message: 'Enter correct format' 
+        }
+    ]}
+>
+    <InputWithAddon
+        icon={<MailOutlined />}
+        placeholder="example@email.com"
+        onKeyPress={(e) => {
+            // Prevent uppercase letters
+            if (/[A-Z]/.test(e.key)) {
+                e.preventDefault();
+            }
+        }}
+        onChange={(e) => {
+            // Convert to lowercase
+            e.target.value = e.target.value.toLowerCase();
+        }}
+    />
+</Form.Item>
                             </div>
                         </div>
 
                         <div className="row mb-2">
                             <div className="col-md-6">
                                 <Form.Item
-                                    label="Alternate Mobile Number"
-                                    name="alternate_mobile_number"
-                                    rules={[
-                                        { pattern: /^\d{10}$/, message: 'Alternate mobile number must be 10 digits' }
-                                    ]}
-                                >
-                                    <InputWithAddon
-                                        icon={<PhoneOutlined />}
-                                        placeholder="10 digit alternate mobile number (optional)"
-                                        maxLength={10}
-                                    />
+    label="Profession"
+    name="profession"
+    rules={[
+        { required: true, message: 'Please enter profession' },
+        { pattern: /^[A-Za-z\s]+$/, message: 'Must contain alphabets only' }
+    ]}
+>
+    <InputWithAddon
+        icon={
+            <img
+                src={professionIcon}
+                alt="Profession"
+                style={{ width: 16, height: 16 }}
+            />
+        }
+        placeholder="Enter profession"
+        onKeyPress={(e) => {
+            // Prevent numbers and special characters
+            if (!/[A-Za-z\s]/.test(e.key)) {
+                e.preventDefault();
+            }
+        }}
+    />
+</Form.Item>
 
-                                </Form.Item>
                             </div>
 
                             <div className="col-md-6">
-                                <Form.Item
-                                    label="Email ID"
-                                    name="email_id"
-                                    rules={[
-                                        { required: true, message: 'Please enter email' },
-                                        { type: 'email', message: 'Please enter valid email' }
-                                    ]}
-                                >
-                                    <InputWithAddon
-                                        icon={<MailOutlined />}
-                                        placeholder="example@email.com"
-                                    />
-
-                                </Form.Item>
-                            </div>
-                        </div>
-
-                        <div className="row mb-2">
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Profession"
-                                    name="profession"
-                                    rules={[
-                                        { required: true, message: 'Please enter profession' }
-                                    ]}
-                                >
-                                    <InputWithAddon
-                                        icon={
-                                            <img
-                                                src={professionIcon}
-                                                alt="Profession"
-                                                style={{ width: 16, height: 16 }}
-                                            />
-                                        }
-                                        placeholder="Enter profession"
-                                    />
-
-                                </Form.Item>
-                            </div>
-
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Aadhaar ID"
-                                    name="aadhaar_id"
-                                    rules={[
-                                        { required: true, message: 'Please enter Aadhaar ID' },
-                                        { pattern: /^\d{12}$/, message: 'Aadhaar ID must be 12 digits' }
-                                    ]}
-                                >
-                                    <InputWithAddon
-                                        icon={<IdcardOutlined />}
-                                        placeholder="12 digit Aadhaar number"
-                                        maxLength={12}
-                                    />
-
-                                </Form.Item>
+                               <Form.Item
+    label="Aadhaar ID"
+    name="aadhaar_id"
+    rules={[
+        { required: true, message: 'Please enter Aadhaar ID' },
+        { pattern: /^\d{12}$/, message: 'Must be 12 digits' }
+    ]}
+>
+    <InputWithAddon
+        icon={<IdcardOutlined />}
+        placeholder="12 digit Aadhaar number"
+        maxLength={12}
+        onKeyPress={(e) => {
+            // Allow only digits
+            if (!/\d/.test(e.key)) {
+                e.preventDefault();
+            }
+        }}
+    />
+</Form.Item>
                             </div>
                         </div>
 
                         <div className="row mb-2">
                             <div className="col-md-6">
                                 <Form.Item
-                                    label="PAN Number"
-                                    name="pan_number"
-                                    rules={[
-                                        { required: true, message: 'Please enter PAN number' },
-                                    ]}
-                                >
-                                    <InputWithAddon
-                                        icon={<IdcardOutlined />}
-                                        placeholder="ABCDE1234F"
-                                        style={{ textTransform: "uppercase" }}
-                                        maxLength={10}
-                                    />
-
-                                </Form.Item>
+    label="PAN Number"
+    name="pan_number"
+    normalize={(value) => value ? value.toUpperCase() : value}
+    rules={[
+        { required: true, message: 'Please enter PAN number' },
+        { 
+            pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 
+            message: 'Format:(e.g., ABCDE1234F)' 
+        }
+    ]}
+>
+    <InputWithAddon
+        icon={<IdcardOutlined />}
+        placeholder="ABCDE1234F"
+        maxLength={10}
+       
+        onKeyPress={(e) => {
+            const value = e.target.value || '';
+            const key = e.key;
+            
+            // First 5 characters must be letters
+            if (value.length < 5) {
+                if (!/[A-Za-z]/.test(key)) {
+                    e.preventDefault();
+                }
+            }
+            // Next 4 characters (positions 5-8) must be digits
+            else if (value.length >= 5 && value.length < 9) {
+                if (!/\d/.test(key)) {
+                    e.preventDefault();
+                }
+            }
+            // Last character (position 9) must be a letter
+            else if (value.length === 9) {
+                if (!/[A-Za-z]/.test(key)) {
+                    e.preventDefault();
+                }
+            }
+        }}
+       
+        style={{ textTransform: "uppercase" }}
+    />
+</Form.Item>
                             </div>
 
                             <div className="col-md-6">
@@ -796,7 +870,7 @@ const [isEditMode, setIsEditMode] = useState(false);
                                 >
                                     <Input.TextArea
                                         prefix={<IdcardOutlined />}
-                                        placeholder="Enter complete address"
+                                        placeholder="Enter address"
                                         autoSize={{ minRows: 2, maxRows: 6 }}
                                         size="large"
 
@@ -837,168 +911,157 @@ const [isEditMode, setIsEditMode] = useState(false);
                             </div>
                         )}
 
-                        <div className="row mb-2">
-                            <div className="col-md-4">
-                                {(isFromLocalStorage && !params.id) || params.id ? (
-                                    <>
-                                        <Form.Item
-                                            label="Branch"
-                                            name="branch"
-                                            rules={[
-                                                { required: true, message: 'Please select branch' }
-                                            ]}
-                                            style={{ display: 'none' }}
-                                        >
-                                            <Input type="hidden" />
-                                        </Form.Item>
-                                        <Form.Item label="Branch">
-                                            <Input
-                                                value={savedBranchName}
-                                                size="large"
-                                                disabled
-                                                style={{
-                                                    backgroundColor: '#f5f5f5',
-                                                    color: '#000',
-                                                    cursor: 'not-allowed'
-                                                }}
-                                            />
-                                        </Form.Item>
-                                    </>
-                                ) : (
-                                    <Form.Item
-                                        label="Branch"
-                                        name="branch"
-                                        rules={[
-                                            { required: true, message: 'Please select branch' }
-                                        ]}
-                                    >
-                                        <Select
-                                            placeholder="Select Branch"
-                                            size="large"
-                                            showSearch
-                                            allowClear
-                                            onChange={handleBranchChange}
-                                            filterOption={(input, option) =>
-                                                option.children.toLowerCase().includes(input.toLowerCase())
-                                            }
-                                        >
-                                            {branchList.map((branch) => (
-                                                <Option key={branch.id} value={branch.id}>
-                                                    {branch.branch_name}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                )}
-                            </div>
 
-                            <div className="col-md-4">
-                                {(isFromLocalStorage && !params.id) || params.id ? (
-                                    <>
-                                        <Form.Item
-                                            label="Line"
-                                            name="line"
-                                            rules={[
-                                                { required: true, message: 'Please select line' }
-                                            ]}
-                                            style={{ display: 'none' }}
-                                        >
-                                            <Input type="hidden" />
-                                        </Form.Item>
-                                        <Form.Item label="Line">
-                                            <Input
-                                                value={savedLineName}
-                                                size="large"
-                                                disabled
-                                                style={{
-                                                    backgroundColor: '#f5f5f5',
-                                                    color: '#000',
-                                                    cursor: 'not-allowed'
-                                                }}
-                                            />
-                                        </Form.Item>
-                                    </>
-                                ) : (
-                                    <Form.Item
-                                        label="Line"
-                                        name="line"
-                                        rules={[
-                                            { required: true, message: 'Please select line' }
-                                        ]}
-                                    >
-                                        <Select
-                                            placeholder="Select Line"
-                                            size="large"
-                                            showSearch
-                                            allowClear
-                                            onChange={handleLineChange}
-                                            filterOption={(input, option) =>
-                                                option.children.toLowerCase().includes(input.toLowerCase())
-                                            }
-                                        >
-                                            {filteredLineList.map((line) => (
-                                                <Option key={line.id} value={line.id}>
-                                                    {line.name}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                )}
-                            </div>
+<div className="row mb-2">
+    {/* Branch Column */}
+    <div className="col-md-4">
+        {(isFromLocalStorage && !params.id) || params.id ? (
+            <>
+                <Form.Item
+                    name="branch"
+                    rules={[{ required: true, message: 'Please select branch' }]}
+                    style={{ display: 'none' }}
+                >
+                    <Input type="hidden" />
+                </Form.Item>
+                <Form.Item label="Branch">
+                    <InputWithAddon
+                        icon={<BankOutlined />}
+                        value={savedBranchName}
+                        disabled
+                        style={{
+                            backgroundColor: '#f5f5f5',
+                            color: '#000',
+                            cursor: 'not-allowed'
+                        }}
+                    />
+                </Form.Item>
+            </>
+        ) : (
+            <Form.Item
+                label="Branch"
+                name="branch"
+                rules={[{ required: true, message: 'Please select branch' }]}
+            >
+                <SelectWithAddon
+                    icon={<ApartmentOutlined />}
+                    placeholder="Select Branch"
+                    showSearch
+                    allowClear
+                    onChange={handleBranchChange}
+                    filterOption={(input, option) =>
+                        option.children.toLowerCase().includes(input.toLowerCase())
+                    }
+                >
+                    {branchList.map((branch) => (
+                        <Option key={branch.id} value={branch.id}>
+                            {branch.branch_name}
+                        </Option>
+                    ))}
+                </SelectWithAddon>
+            </Form.Item>
+        )}
+    </div>
 
-                            <div className="col-md-4">
-                                {(isFromLocalStorage && !params.id) || params.id ? (
-                                    <>
-                                        <Form.Item
-                                            label="Area"
-                                            name="area"
-                                            rules={[
-                                                { required: true, message: 'Please select area' }
-                                            ]}
-                                            style={{ display: 'none' }}
-                                        >
-                                            <Input type="hidden" />
-                                        </Form.Item>
-                                        <Form.Item label="Area">
-                                            <Input
-                                                value={savedAreaName}
-                                                size="large"
-                                                disabled
-                                                style={{
-                                                    backgroundColor: '#f5f5f5',
-                                                    color: '#000',
-                                                    cursor: 'not-allowed'
-                                                }}
-                                            />
-                                        </Form.Item>
-                                    </>
-                                ) : (
-                                    <Form.Item
-                                        label="Area"
-                                        name="area"
-                                        rules={[
-                                            { required: true, message: 'Please select area' }
-                                        ]}
-                                    >
-                                        <Select
-                                            placeholder="Select Area"
-                                            size="large"
-                                            showSearch
-                                            allowClear
-                                            filterOption={(input, option) =>
-                                                option.children.toLowerCase().includes(input.toLowerCase())
-                                            }
-                                        >
-                                            {filteredAreaList.map((area) => (
-                                                <Option key={area.id} value={area.id}>
-                                                    {area.name}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                )}
-                            </div>
-                        </div>
+    {/* Line Column */}
+    <div className="col-md-4">
+        {(isFromLocalStorage && !params.id) || params.id ? (
+            <>
+                <Form.Item
+                    name="line"
+                    rules={[{ required: true, message: 'Please select line' }]}
+                    style={{ display: 'none' }}
+                >
+                    <Input type="hidden" />
+                </Form.Item>
+                <Form.Item label="Line">
+                    <InputWithAddon
+                        icon={<ApartmentOutlined />}
+                        value={savedLineName}
+                        disabled
+                        style={{
+                            backgroundColor: '#f5f5f5',
+                            color: '#000',
+                            cursor: 'not-allowed'
+                        }}
+                    />
+                </Form.Item>
+            </>
+        ) : (
+            <Form.Item
+                label="Line"
+                name="line"
+                rules={[{ required: true, message: 'Please select line' }]}
+            >
+                <SelectWithAddon
+                    icon={<ApartmentOutlined />}
+                    placeholder="Select Line"
+                    showSearch
+                    allowClear
+                    onChange={handleLineChange}
+                    filterOption={(input, option) =>
+                        option.children.toLowerCase().includes(input.toLowerCase())
+                    }
+                >
+                    {filteredLineList.map((line) => (
+                        <Option key={line.id} value={line.id}>
+                            {line.name}
+                        </Option>
+                    ))}
+                </SelectWithAddon>
+            </Form.Item>
+        )}
+    </div>
+
+    {/* Area Column */}
+    <div className="col-md-4">
+        {(isFromLocalStorage && !params.id) || params.id ? (
+            <>
+                <Form.Item
+                    name="area"
+                    rules={[{ required: true, message: 'Please select area' }]}
+                    style={{ display: 'none' }}
+                >
+                    <Input type="hidden" />
+                </Form.Item>
+                <Form.Item label="Area">
+                    <InputWithAddon
+                        icon={<GlobalOutlined />}
+                        value={savedAreaName}
+                        disabled
+                        style={{
+                            backgroundColor: '#f5f5f5',
+                            color: '#000',
+                            cursor: 'not-allowed'
+                        }}
+                    />
+                </Form.Item>
+            </>
+        ) : (
+            <Form.Item
+                label="Area"
+                name="area"
+                rules={[{ required: true, message: 'Please select area' }]}
+            >
+                <SelectWithAddon
+                    icon={<GlobalOutlined />}
+                    placeholder="Select Area"
+                    showSearch
+                    allowClear
+                    filterOption={(input, option) =>
+                        option.children.toLowerCase().includes(input.toLowerCase())
+                    }
+                >
+                    {filteredAreaList.map((area) => (
+                        <Option key={area.id} value={area.id}>
+                            {area.name}
+                        </Option>
+                    ))}
+                </SelectWithAddon>
+            </Form.Item>
+        )}
+    </div>
+</div>
 
                         <div className="row mb-2">
                             <div className="col-md-12">
@@ -1011,7 +1074,7 @@ const [isEditMode, setIsEditMode] = useState(false);
                                     <InputWithAddon
                                         icon={<EnvironmentOutlined />}
                                         placeholder="Click map icon to select location"
-                                        disabled
+                                        
                                         value={selectedLocation ? selectedLocation.address : ""}
                                         addonAfter={
                                             <Button
@@ -1049,22 +1112,18 @@ const [isEditMode, setIsEditMode] = useState(false);
                                     {fields.map(({ key, name, ...restField }, index) => (
                                         <div key={key} className="row mb-3">
                                             <div className="col-md-6" style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
-                                                <Form.Item
-                                                    {...restField}
-                                                    name={[name, 'reference_number']}
-                                                    label={`Reference Contact ${index + 1}`}
-                                                    rules={[
-                                                        { pattern: /^\d{10}$/, message: 'Mobile number must be 10 digits' }
-                                                    ]}
-                                                    style={{ flexGrow: 1, marginBottom: 0 }}
-                                                >
-                                                    <Input
-                                                        prefix={<PhoneOutlined />}
-                                                        placeholder="10 digit mobile number"
-                                                        size="large"
-                                                        maxLength={10}
-                                                    />
-                                                </Form.Item>
+                                              <Form.Item
+                                    {...restField}
+                                    name={[name, 'reference_number']}
+                                    label={`Reference Contact ${index + 1}`}
+                                    style={{ flexGrow: 1, marginBottom: 0 }}
+                                >
+                                    <InputWithAddon
+                                        icon={<PhoneOutlined />}
+                                        placeholder="10 digit mobile number"
+                                        maxLength={10}
+                                    />
+                                </Form.Item>
 
                                                 {fields.length > 1 && (
                                                     <Button

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 // MODIFIED: Added CaretDownOutlined
-import { Button, notification, Grid, List, Avatar, Dropdown, Menu, Modal, Tag, Divider, Skeleton, Select, Switch, FloatButton,Popconfirm } from "antd"; 
+import { Button, notification, Grid, List, Image, Dropdown, Menu, Modal, Tag, Divider, Skeleton, Select, Switch, FloatButton,Popconfirm } from "antd"; 
 import Table from "../../components/Common/Table";
 import { GET, DELETE, POST } from "helpers/api_helper";
 
@@ -9,13 +9,12 @@ import { USERS, SEARCH, COLUMNCHANGE, SELECTEDCOLUMN } from "helpers/url_helper"
 import Loader from "components/Common/Loader";
 
 // MODIFIED: Added CaretDownOutlined for expand/collapse indicator
-import { EllipsisOutlined, SearchOutlined, ReloadOutlined, PlusOutlined, CaretDownOutlined,DeleteFilled,ExclamationCircleOutlined } from "@ant-design/icons"; 
+import { EllipsisOutlined, SearchOutlined, ReloadOutlined, PlusOutlined, CaretDownOutlined,DeleteFilled,ExclamationCircleOutlined, SwapOutlined } from "@ant-design/icons"; 
 import InfiniteScroll from "react-infinite-scroll-component"; 
 import SwipeablePanel from "components/Common/SwipeablePanel"; 
 import UserCollapseContent from "../../components/Common/UserCollapseContent"; 
-import userIcon from '../../assets/icons/industrial-area.png'; 
-import lineIcon from "../../assets/icons/residential-area.png"; 
-import reorderIcon from "../../assets/icons/up-and-down-arrow.png"
+import userIcon from '../../assets/icons/user (2).png'; 
+
 
 import "./ListUser.css"; 
 
@@ -781,15 +780,12 @@ const ListUser = () => {
           ) : (
             <>
               <Button
+                icon = {<SwapOutlined rotate={90}/>}
                 onClick={clickReorder}
                 disabled={reOrder || tableLoader}
                 className="list-user-reorder-button"
               >
-                <img
-                  src={reorderIcon} 
-                  alt="Reorder Icon"
-                  className="list-user-reorder-icon"
-                />
+               {!isMobile&&"Reorder"}
               </Button>
               {showReset && (
                 <Button
@@ -863,9 +859,9 @@ const ListUser = () => {
           {showReset && searchText && (
             <div className="list-user-search-results">
               <span className="list-user-search-label">
-                Search Result:{" "}
+               
                  <Tag color="blue" style={{ fontSize: 14, padding: "2px 8px" }}>
-        {searchText}
+        Pattern: {searchText}
       </Tag>
               </span>
               <span className="list-user-results-count">
@@ -889,9 +885,8 @@ const ListUser = () => {
                     onClick={() => toggleLineExpansion(lineName)}
                 >
                   <div className="list-user-line-title-container">
-                    <Avatar src={lineIcon}>
-                      {lineName?.charAt(0)?.toUpperCase()}
-                    </Avatar>
+                   
+                    <Image src={userIcon} height={30} width={30} />
                     <span className="list-user-line-title">
                       {lineName}
                     </span>
@@ -905,13 +900,13 @@ const ListUser = () => {
     {groupedData[lineName].length}
   </div>
 
-                    {/* EXPAND/COLLAPSE ICON: Rotate based on state */}
+                    {/* EXPAND/COLLAPSE ICON: Rotate based on state
                     <CaretDownOutlined 
                         style={{ 
                             transition: 'transform 0.3s',
                             transform: isLineExpanded ? 'rotate(0deg)' : 'rotate(-90deg)'
                         }} 
-                    />
+                    /> */}
                   </div>
                 </div>
 
@@ -998,7 +993,7 @@ const ListUser = () => {
                                               alt="user-icon"
                                               className="list-user-avatar-icon"
                                             /> */}
-                                            <Avatar src={lineIcon}/>
+                                            {/* <Avatar src={lineIcon}/> */}
                                             <span className="list-user-index-badge">{lineIndex}</span>
                                           </div>
                                         }

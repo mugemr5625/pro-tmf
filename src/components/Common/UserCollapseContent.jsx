@@ -65,9 +65,14 @@ const UserCollapseContent = ({ user }) => {
         size="small"
         column={{ xs: 1, sm: 2, md: 3 }}
         labelStyle={{
-          fontWeight: 700,
+          fontSize: '18px',
+          fontWeight: 600,
           background: "#e5e4e4ff",
           width: "140px",
+        }}
+        contentStyle={{
+          fontSize: '18px',
+          fontWeight: 600
         }}
       >
         <Descriptions.Item label="User ID:">
@@ -126,7 +131,8 @@ const UserCollapseContent = ({ user }) => {
                       wordBreak: 'break-word',
                       overflow: 'hidden',
                       textOverflow: 'clip',
-                      lineHeight: '1.5'
+                      lineHeight: '1.5',
+                      fontSize: '18px'
                     }}
                   >
                     <span style={{ wordBreak: 'break-word' }}>
@@ -173,7 +179,8 @@ const UserCollapseContent = ({ user }) => {
                       wordBreak: 'break-word',
                       overflow: 'hidden',
                       textOverflow: 'clip',
-                      lineHeight: '1.5'
+                      lineHeight: '1.5',
+                      fontSize: '18px'
                     }}
                   >
                     <span style={{ wordBreak: 'break-word' }}>

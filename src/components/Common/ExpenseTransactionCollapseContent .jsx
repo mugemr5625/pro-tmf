@@ -12,21 +12,26 @@ const ExpenseTransactionCollapseContent = ({ expense }) => {
         size="small"
         column={{ xs: 1, sm: 2, md: 3 }}
         labelStyle={{
-          fontWeight: 700,
+          fontSize: '18px',
+          fontWeight: 600,
           background: "#e5e4e4ff",
           width: "140px",
         }}
+        contentStyle={{
+          fontSize: '18px',
+          fontWeight: 600
+        }}
       >
-        <Descriptions.Item label="Branch Name:">
+        <Descriptions.Item label="Branch :">
           {expense.EXPNS_TRNSCTN_BRNCH_NM|| "N/A"}
         </Descriptions.Item>
-        <Descriptions.Item label="Line Name:">
+        <Descriptions.Item label="Line :">
           {expense.EXPNS_TRNSCTN_LINE_NM || "N/A"}
         </Descriptions.Item>
-        <Descriptions.Item label="Expense Type:">
+        <Descriptions.Item label="Expense :">
           {expense.EXPNS_TYPE_NM || "N/A"}
         </Descriptions.Item>
-        <Descriptions.Item label="Amount:">
+        <Descriptions.Item label="Amount :">
           {expense.EXPNS_TRNSCTN_AMNT ? `₹${expense.EXPNS_TRNSCTN_AMNT}` : "N/A"}
         </Descriptions.Item>
         <Descriptions.Item label="Payment Mode:">

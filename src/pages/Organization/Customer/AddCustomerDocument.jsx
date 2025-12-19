@@ -571,17 +571,11 @@ const cameraFieldRef = useRef({ fieldId: null, fieldType: null });
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <FileOutlined style={{ fontSize: '16px', color: '#1890ff' }} />
                 <div>
-                  <div style={{ fontWeight: '500' }}>
-                    {doc.document_file_name || 'Document'}
-                  </div>
                   {doc.document_description && (
                     <div style={{ fontSize: '12px', color: '#666' }}>
                       {doc.document_description}
                     </div>
                   )}
-                  <div style={{ fontSize: '11px', color: '#999' }}>
-                    Uploaded: {new Date(doc.uploaded_at).toLocaleDateString()}
-                  </div>
                 </div>
               </div>
               <Space>

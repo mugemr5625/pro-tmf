@@ -426,10 +426,11 @@ const BranchCollapseContent = ({ branch, details }) => {
           column={{ xs: 1, sm: 2, md: 3 }}
           labelStyle={{
             fontSize: "18px",
-            fontWeight: 700,
+            fontWeight: 600,
             backgroundColor: "#e5e4e4",
             width: "140px",
             minWidth: "100px",
+            padding: '5px'
           }}
           contentStyle={{
             backgroundColor: "#ffffff",
@@ -437,18 +438,19 @@ const BranchCollapseContent = ({ branch, details }) => {
             width: "200px",
             minWidth: "130px",
             overflow: "hidden",
-            textOverflow: "ellipsis"
+            textOverflow: "ellipsis",
+           padding: '5px'
           }}
         >
-          <Descriptions.Item label="Code:" span={1}>
+          <Descriptions.Item label="Code" span={1}>
             {details.branch_code}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Name:" span={1}>
+          <Descriptions.Item label="Name" span={1}>
             {branch.branch_name}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Address:" span={3}>
+          <Descriptions.Item label="Address" span={3}>
             {branch.branch_address}
           </Descriptions.Item>
 
@@ -459,7 +461,7 @@ const BranchCollapseContent = ({ branch, details }) => {
                 return (
                   <Descriptions.Item
                     key={`agreement-${index}`}
-                    label="Agreement:"
+                    label="Agreement"
                     span={1}
                   >
                     <div className="file-item-container">
@@ -490,7 +492,7 @@ const BranchCollapseContent = ({ branch, details }) => {
                 return (
                   <Descriptions.Item
                     key={`additional-${index}`}
-                    label={`Certificate ${index + 1}:`}
+                    label={`Certificate ${index + 1}`}
                     span={1}
                   >
                     <div className="file-item-container">

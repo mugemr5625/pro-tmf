@@ -5,6 +5,14 @@ import { ToastContainer } from "react-toastify";
 import Loader from "components/Common/Loader";
 import { GET, POST, PUT } from "helpers/api_helper";
 import { EXPENSE_TYPE_DETAIL, EXPENSE_TYPES, AREA } from "helpers/url_helper";
+import InputWithAddon from "components/Common/InputWithAddon";
+import SelectWithAddon from "components/Common/SelectWithAddon";
+import { 
+    BankOutlined, 
+    ApartmentOutlined, 
+    DollarOutlined,
+    CheckCircleOutlined 
+} from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -219,22 +227,23 @@ const AddExpense = () => {
                                 {isEditMode ? "Edit Expense Type" : "Add Expense Type"}
                             </h2>
 
-                            <Form
-                                form={form}
-                                layout="vertical"
-                                onFinish={onFinish}
-                                style={{ padding: 0, marginRight: "-20px", marginBottom: "-30px" }}
-                            >
-
-                                {/* Branch and Line Selection */}
-                                    <div className="row mb-3">
-                                        <div className="col-md-6">
-                                            <Form.Item
+<Form
+    form={form}
+    layout="vertical"
+    onFinish={onFinish}
+    style={{ padding: 0, marginRight: "-20px", marginBottom: "-30px",marginTop: '10px' }}
+>
+    <div className="container" style={{ padding: 0 }}>
+        {/* Branch and Line Selection */}
+        <div className="row mb-3">
+            <div className="col-md-6">
+               <Form.Item
                                                 label="Branch Name"
                                                 name="branch_id"
                                                 rules={[{ required: true, message: "Please select a branch" }]}
                                             >
-                                                <Select
+                                                <SelectWithAddon
+                                                    icon={<BankOutlined />}
                                                     placeholder="Select branch"
                                                     size="large"
                                                     onChange={handleBranchChange}
@@ -248,16 +257,17 @@ const AddExpense = () => {
                                                             {branch.branch_name}
                                                         </Option>
                                                     ))}
-                                                </Select>
+                                                </SelectWithAddon>
                                             </Form.Item>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <Form.Item
+            </div>
+            <div className="col-md-6">
+                <Form.Item
                                                 label="Line Name"
                                                 name="line_id"
                                                 rules={[{ required: true, message: "Please select a line" }]}
                                             >
-                                                <Select
+                                                <SelectWithAddon
+                                                    icon={<ApartmentOutlined />}
                                                     placeholder={selectedBranch ? "Select line" : "First select a branch"}
                                                     size="large"
                                                     disabled={!selectedBranch}
@@ -271,60 +281,78 @@ const AddExpense = () => {
                                                             {line.line_name}
                                                         </Option>
                                                     ))}
-                                                </Select>
+                                                </SelectWithAddon>
                                             </Form.Item>
-                                        </div>
-                                    </div>
-                                <div className="container" style={{ padding: 0 }}>
-                                    {/* Expense Details */}
-                                    <div className="row mb-1 mt-2">
-                                        <div className="col-md-6">
-                                            <Form.Item
+            </div>
+        </div>
+
+        {/* Expense Details */}
+        <div className="row mb-1 mt-2">
+            <div className="col-md-6">
+               <Form.Item
                                                 label="Expense Name"
                                                 name="name"
-                                                rules={[{ required: true, message: "Please enter expense name" }]}
+                                                rules={[
+                                                    { required: true, message: "Please enter expense name" },
+                                                    { 
+                                                        pattern: /^[A-Za-z\s]+$/, 
+                                                        message: 'Expense name must contain only alphabets' 
+                                                    }
+                                                ]}
                                             >
-                                                <Input placeholder="Enter expense name" size="large" />
+                                                <InputWithAddon
+                                                    icon={<DollarOutlined />}
+                                                    placeholder="Enter expense name"
+                                                    size="large"
+                                                    onKeyPress={(e) => {
+                                                        // Prevent numbers and special characters
+                                                        if (!/[A-Za-z\s]/.test(e.key)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
+                                                />
                                             </Form.Item>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <Form.Item
+            </div>
+            <div className="col-md-6">
+                <Form.Item
                                                 label="Status"
                                                 name="status"
                                                 rules={[{ required: true, message: "Please select a status" }]}
                                             >
-                                                <Select placeholder="Select status" size="large">
+                                                <SelectWithAddon
+                                                    icon={<CheckCircleOutlined />}
+                                                    placeholder="Select status"
+                                                    size="large"
+                                                >
                                                     <Option value="active">Active</Option>
                                                     <Option value="inactive">Inactive</Option>
-                                                </Select>
+                                                </SelectWithAddon>
                                             </Form.Item>
-                                        </div>
-                                    </div>
+            </div>
+        </div>
 
-                                  
-
-                                    {/* Submit & Cancel Buttons */}
-                                    <div className="text-center mt-4">
-                                        <Space size="large">
-                                            <Button
-                                                type="primary"
-                                                htmlType="submit"
-                                                size="large"
-                                                loading={loading}
-                                            >
-                                                {isEditMode ? "Update Expense Type" : "Add Expense Type"}
-                                            </Button>
-                                            <Button
-                                                size="large"
-                                                onClick={() => navigate("/expense/list")}
-                                                disabled={loading}
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </Space>
-                                    </div>
-                                </div>
-                            </Form>
+        {/* Submit & Cancel Buttons */}
+        <div className="text-center mt-4">
+            <Space size="large">
+                <Button
+                    type="primary"
+                    htmlType="submit"
+                    size="large"
+                    loading={loading}
+                >
+                    {isEditMode ? "Update Expense Type" : "Add Expense Type"}
+                </Button>
+                <Button
+                    size="large"
+                    onClick={() => navigate("/expense/list")}
+                    disabled={loading}
+                >
+                    Cancel
+                </Button>
+            </Space>
+        </div>
+    </div>
+</Form>
                         </div>
                     </div>
                 </div>

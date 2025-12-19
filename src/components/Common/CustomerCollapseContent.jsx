@@ -392,9 +392,14 @@ const CustomerCollapseContent = ({ customer, areaIdToNameMap, documents = [] }) 
           size="small"
           column={{ xs: 1, sm: 2, md: 3 }}
           labelStyle={{
-            fontWeight: 700,
+            fontSize: '18px',
+            fontWeight: 600,
             background: "#e5e4e4ff",
             width: "140px",
+          }}
+          contentStyle={{
+            fontSize: '18px',
+            fontWeight: 600
           }}
         >
           {/* Basic Information */}
@@ -509,7 +514,7 @@ const CustomerCollapseContent = ({ customer, areaIdToNameMap, documents = [] }) 
                       }
                     }}
                   >
-                    <Tag color="green">{truncateText(description)}</Tag>
+                    <Tag color="green"  style={{ fontSize: "18px" }}>{truncateText(description)}</Tag>
                   </span>
                 </div>
               </Descriptions.Item>

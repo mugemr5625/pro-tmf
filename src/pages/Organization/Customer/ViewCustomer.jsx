@@ -6,6 +6,7 @@ import {
   Grid,
   List,
   Avatar,
+  Image,
   Dropdown,
   Menu,
   Modal,
@@ -27,13 +28,12 @@ import {
   ReloadOutlined,
   PlusOutlined,
   SearchOutlined,
-  DeleteFilled,ExclamationCircleOutlined
+  DeleteFilled,ExclamationCircleOutlined,
+  SwapOutlined
 } from "@ant-design/icons";
 import { FloatButton } from "antd";
 import InfiniteScroll from "react-infinite-scroll-component";
-import customerIcon from "../../../assets/icons/residential-area.png";
-import areaIcon from "../../../assets/icons/residential-area.png";
-import reorderIcon from "../../../assets/icons/up-and-down-arrow.png";
+import customerIcon from "../../../assets/icons/user.png";
 import "./ViewCustomer.css";
 import CustomerCollapseContent from "components/Common/CustomerCollapseContent";
 
@@ -806,16 +806,13 @@ const ViewCustomer = () => {
           ) : (
             <>
               <Button
+                icon = {<SwapOutlined rotate={90}/>}
                 onClick={clickReorder}
                 disabled={reOrder || tableLoader || !selectedArea || showReset} // Cannot reorder in search mode
                 className="view-customer-reorder-button"
                 title="Reorder Customers"
               >
-                <img
-                  src={reorderIcon}
-                  alt="Reorder Icon"
-                  className="view-customer-reorder-icon"
-                />
+               {!isMobile && "Reorder"}
               </Button>
               {/* {showReset && (
                 <Button
@@ -900,7 +897,7 @@ const ViewCustomer = () => {
       {/* Show search pattern if in search mode */}
       {showReset && searchText && (
         <>
-          <Tag className="view-customer-filter-label" color="blue">
+          <Tag className="view-customer-filter-label" color="purple">
             Search: "{searchText}"
           </Tag>
           <Button 
@@ -925,9 +922,10 @@ const ViewCustomer = () => {
               <div key={areaName} className="view-customer-area-group">
                 <div className="view-customer-area-header">
                   <div className="view-customer-area-title-container">
-                    <Avatar src={areaIcon}>
+                    {/* <Avatar src={areaIcon}>
                       {areaName?.charAt(0)?.toUpperCase()}
-                    </Avatar>
+                    </Avatar> */}
+                    <Image src={customerIcon} width={30} height={30} />
                     <span className="view-customer-area-title">{areaName}</span>
                   </div>
                   {/* <Badge
@@ -1042,12 +1040,7 @@ const ViewCustomer = () => {
                                   <List.Item.Meta
                                     avatar={
                                       <div className="view-customer-avatar-container">
-                                        {/* <img
-                                          src={customerIcon}
-                                          alt="customer-icon"
-                                          className="view-customer-avatar-icon"
-                                        /> */}
-                                        <Avatar src={customerIcon}/>
+                                       
                                         <span className="view-customer-index-badge">{lineIndex}</span>
                                       </div>
                                     }
