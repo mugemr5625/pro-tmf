@@ -552,7 +552,7 @@ const InvestmentList = () => {
         >
           {showReset && searchCriteria && (
             <>
-              <Divider style={{ margin: '12px 0' }} />
+              <Divider style={{ margin: '5px 0' }} />
               
               <div className="investment-list-search-results">
                 <div 
@@ -596,7 +596,7 @@ const InvestmentList = () => {
                 </div>
               </div>
               
-              <Divider style={{ margin: '12px 0 16px 0' }} />
+              <Divider style={{ margin: '5px 0'}} />
             </>
           )}
 
@@ -610,7 +610,7 @@ const InvestmentList = () => {
               >
                 <div className="investment-list-line-header">
                   <div className="investment-list-line-title-container">
-                    <Image src={lineIcon} width={30} height={30} />
+                    <Image preview={false} src={lineIcon} width={30} height={30} />
                     <span className="investment-list-line-title">
                       {lineName}
                     </span>

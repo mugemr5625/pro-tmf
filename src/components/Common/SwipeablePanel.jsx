@@ -1,6 +1,6 @@
 import { DeleteFilled } from '@ant-design/icons';
 import { useState, useRef, useEffect } from 'react';
-import { Avatar, Modal } from 'antd';
+import { Image, Modal } from 'antd';
 
 import './Swipeable.css'
 const SwipeablePanel = ({
@@ -11,7 +11,7 @@ const SwipeablePanel = ({
   renderContent,
   isExpanded,
   onExpandToggle,
-  avatarSrc,
+  icon,
   isSwipeOpen = false, // NEW: External control
   onSwipeStateChange // NEW: Callback when swipe state changes
 }) => {
@@ -266,8 +266,8 @@ const SwipeablePanel = ({
               {item.lineIndex}
             </div>
    ) }
-           
-            {/* <Avatar src={avatarSrc} size={30} style={{ flexShrink: 0 }} /> */}
+           {icon && <Image src={icon} height={30} width={30}/> }
+            
            
             <h5 
               style={{ 

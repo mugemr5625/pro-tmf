@@ -92,12 +92,14 @@
 }
 
 .investment-list-search-results {
-  padding: 12px 16px;
-  margin-bottom: 16px;
+  
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
+}
+.ant-image-mask-info {
+  display: none !important;
 }
 
 .investment-list-search-results-content {

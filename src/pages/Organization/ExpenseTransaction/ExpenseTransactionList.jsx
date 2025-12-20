@@ -611,7 +611,7 @@ const ExpenseTransactionList = () => {
         >
           {showReset && searchCriteria && (
             <>
-              <Divider style={{ margin: '12px 0' }} />
+              <Divider style={{ margin: '5px 0' }} />
               
               <div className="expense-list-search-results">
                 <div 
@@ -655,7 +655,7 @@ const ExpenseTransactionList = () => {
                 </div>
               </div>
               
-              <Divider style={{ margin: '12px 0 16px 0' }} />
+              <Divider style={{ margin: '5px 0 ' }} />
             </>
           )}
 
@@ -667,7 +667,7 @@ const ExpenseTransactionList = () => {
               >
                 <div className="expense-list-line-header">
                   <div className="expense-list-line-title-container">
-                    <Image src={lineIcon} width={30} height={30} />
+                     <Image preview={false} src={lineIcon} width={30} height={30} />
                     <span className="expense-list-line-title">
                       {lineName}
                     </span>

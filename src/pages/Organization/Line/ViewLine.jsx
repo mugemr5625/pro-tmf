@@ -683,9 +683,6 @@ const ViewLine = () => {
       </Tag>
     </span>
 
-              <span className="view-line-results-count">
-                ({Object.values(groupedData).flat().length} results)
-              </span>
             </div>
           )}
 
@@ -700,8 +697,8 @@ const ViewLine = () => {
     {/* <Avatar src={branchIcon}>
       {branchName?.charAt(0)?.toUpperCase()}
     </Avatar> */}
-    <Image src={branchIcon}  width={30}
-  height={30}
+    <Image preview={false} src={branchIcon}  width={30}
+  height={30} 
     />                         
     <span className="view-line-branch-title">
       {branchName}

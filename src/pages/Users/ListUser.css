@@ -73,10 +73,12 @@
 
 .list-user-search-results {
   padding: 12px 0px;
-  margin-bottom: 16px;
   display: flex;
   align-items: center;
-  justify-content: left;
+  justify-content: center;
+}
+.ant-image-mask-info {
+  display: none !important;
 }
 
 .list-user-search-label {

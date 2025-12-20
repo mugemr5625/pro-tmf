@@ -36,12 +36,13 @@
 
 .expense-type-list-search-results {
   padding: 12px 0px;
-  margin-bottom: 16px;
   display: flex;
   align-items: center;
-  justify-content: left;
+  justify-content: center;
 }
-
+.ant-image-mask-info {
+  display: none !important;
+}
 .expense-type-list-search-label {
   font-size: 14px;
   color: #8c8c8c;

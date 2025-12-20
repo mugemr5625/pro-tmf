@@ -1,13 +1,12 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useCallback } from "react";
-import { Button, notification, FloatButton, Form, Input, Modal, Image, List, Skeleton, Divider, Menu, Dropdown, Popconfirm, Tag } from "antd";
+import { Button, notification, FloatButton, Form, Input, Modal, Image, Menu, Dropdown, Popconfirm, Tag } from "antd";
 import { PlusOutlined, ReloadOutlined, SearchOutlined, ExclamationCircleOutlined, DeleteFilled, EllipsisOutlined } from "@ant-design/icons";
 import { GET_BRANCHES, DELETE, GET } from "helpers/api_helper";
 import { ADD_BRANCH } from "helpers/url_helper";
 import Loader from "components/Common/Loader";
 import BranchCollapseContent from "components/Common/BranchCollapseContent";
 import "./ListBranch.css";
-import InfiniteScroll from "react-infinite-scroll-component";
 import { useNavigate } from "react-router-dom";
 import branchIcon from "../../../assets/icons/bank.png";
 import SwipeablePanel from "components/Common/SwipeablePanel";
@@ -20,17 +19,13 @@ const ListBranch = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [branchDetails, setBranchDetails] = useState({});
   const [searchModalVisible, setSearchModalVisible] = useState(false);
-  const [filteredBranches, setFilteredBranches] = useState([]);
   const [form] = Form.useForm();
   const [searchTerm, setSearchTerm] = useState("");
-  const [displayedBranches, setDisplayedBranches] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
+  const [allBranches, setAllBranches] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [openSwipeId, setOpenSwipeId] = useState(null);
-  const [expandedBranches, setExpandedBranches] = useState({}); // NEW: Track expanded branches
   const navigate = useNavigate();
   
-  const itemsPerPage = 10;
   const [branchModalVisible, setBranchModalVisible] = useState(false);
   const [selectedBranchName, setSelectedBranchName] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
@@ -75,6 +70,7 @@ const ListBranch = () => {
 
       if (response?.status === 200) {
         setBranches((prev) => prev.filter((item) => item.id !== record.id));
+        setAllBranches((prev) => prev.filter((item) => item.id !== record.id));
         notification.success({
           message: `${record.branch_name?.toUpperCase()} Branch Deleted!`,
           description: "The branch has been deleted successfully.",
@@ -99,15 +95,12 @@ const ListBranch = () => {
     }
   };
 
-  // Fetch branch details automatically for displayed branches
   const fetchBranchDetails = useCallback(async (branchId) => {
     setBranchDetails((prev) => {
-      // Check if already exists to avoid unnecessary API calls
       if (prev[branchId]) {
         return prev;
       }
       
-      // Fetch in background
       (async () => {
         try {
           const response = await GET(`/api/branch/${branchId}/`);
@@ -131,28 +124,23 @@ const ListBranch = () => {
     try {
       const response = await GET_BRANCHES(ADD_BRANCH);
       if (response?.status === 200) {
-        const allBranches = response.data;
-        setBranches(allBranches);
+        const allBranchesData = response.data;
+        setBranches(allBranchesData);
         
-        // Filter branches based on selected branch name
         const savedBranchName = localStorage.getItem("selected_branch_name");
         if (savedBranchName) {
-          const filtered = allBranches.filter(
+          const filtered = allBranchesData.filter(
             (branch) => branch.branch_name === savedBranchName
           );
-          setDisplayedBranches(filtered.slice(0, 10));
-          setHasMore(filtered.length > 10);
+          setAllBranches(filtered);
           
-          // Fetch details for initially displayed branches
-          filtered.slice(0, 10).forEach(branch => {
+          filtered.forEach(branch => {
             fetchBranchDetails(branch.id);
           });
         } else {
-          setDisplayedBranches(allBranches.slice(0, 10));
-          setHasMore(allBranches.length > 10);
+          setAllBranches(allBranchesData);
           
-          // Fetch details for initially displayed branches
-          allBranches.slice(0, 10).forEach(branch => {
+          allBranchesData.forEach(branch => {
             fetchBranchDetails(branch.id);
           });
         }
@@ -194,7 +182,6 @@ const ListBranch = () => {
     const searchValue = branchName.toLowerCase().trim();
     setSearchTerm(searchValue);
 
-    // Filter from already filtered branches (selected branch only)
     const savedBranchName = localStorage.getItem("selected_branch_name");
     const baseFiltered = savedBranchName 
       ? branches.filter(b => b.branch_name === savedBranchName)
@@ -211,11 +198,9 @@ const ListBranch = () => {
       });
     }
 
-    setDisplayedBranches(filtered.slice(0, 10));
-    setHasMore(filtered.length > 10);
+    setAllBranches(filtered);
     
-    // Fetch details for search results
-    filtered.slice(0, 10).forEach(branch => {
+    filtered.forEach(branch => {
       fetchBranchDetails(branch.id);
     });
     
@@ -226,25 +211,20 @@ const ListBranch = () => {
     form.resetFields();
     setSearchTerm("");
     
-    // Reset to show only selected branch
     const savedBranchName = localStorage.getItem("selected_branch_name");
     if (savedBranchName) {
       const filtered = branches.filter(
         (branch) => branch.branch_name === savedBranchName
       );
-      setDisplayedBranches(filtered.slice(0, itemsPerPage));
-      setHasMore(filtered.length > itemsPerPage);
+      setAllBranches(filtered);
       
-      // Fetch details for reset branches
-      filtered.slice(0, itemsPerPage).forEach(branch => {
+      filtered.forEach(branch => {
         fetchBranchDetails(branch.id);
       });
     } else {
-      setDisplayedBranches(branches.slice(0, itemsPerPage));
-      setHasMore(branches.length > itemsPerPage);
+      setAllBranches(branches);
       
-      // Fetch details for reset branches
-      branches.slice(0, itemsPerPage).forEach(branch => {
+      branches.forEach(branch => {
         fetchBranchDetails(branch.id);
       });
     }
@@ -256,19 +236,6 @@ const ListBranch = () => {
       setOpenSwipeId(branchId);
     } else if (openSwipeId === branchId) {
       setOpenSwipeId(null);
-    }
-  };
-
-  // NEW: Handle expand/collapse toggle
-  const handleExpandToggle = (branch) => {
-    setExpandedBranches((prev) => ({
-      ...prev,
-      [branch.id]: !prev[branch.id]
-    }));
-    
-    // Fetch details when expanding
-    if (!expandedBranches[branch.id]) {
-      fetchBranchDetails(branch.id);
     }
   };
 
@@ -312,48 +279,6 @@ const ListBranch = () => {
   );
 
   useEffect(() => {
-    if (branches.length > 0) {
-      // Filter by selected branch name
-      const savedBranchName = localStorage.getItem("selected_branch_name");
-      if (savedBranchName) {
-        const filtered = branches.filter(
-          (branch) => branch.branch_name === savedBranchName
-        );
-        setDisplayedBranches(filtered.slice(0, itemsPerPage));
-      } else {
-        setDisplayedBranches(branches.slice(0, itemsPerPage));
-      }
-    }
-  }, [branches]);
-
-  const fetchMoreBranches = () => {
-    const savedBranchName = localStorage.getItem("selected_branch_name");
-    const baseFiltered = savedBranchName 
-      ? branches.filter(b => b.branch_name === savedBranchName)
-      : branches;
-
-    const currentLength = displayedBranches.length;
-    const nextLength = currentLength + itemsPerPage;
-    
-    if (nextLength >= baseFiltered.length) {
-      setDisplayedBranches(baseFiltered);
-      setHasMore(false);
-      
-      // Fetch details for remaining branches
-      baseFiltered.slice(currentLength).forEach(branch => {
-        fetchBranchDetails(branch.id);
-      });
-    } else {
-      setDisplayedBranches(baseFiltered.slice(0, nextLength));
-      
-      // Fetch details for newly loaded branches
-      baseFiltered.slice(currentLength, nextLength).forEach(branch => {
-        fetchBranchDetails(branch.id);
-      });
-    }
-  };
-
-  useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -362,14 +287,22 @@ const ListBranch = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const handleEditBranch = (branch) => {
+    setOpenSwipeId(null);
+    navigate(`/branch/edit/${branch.id}`);
+  };
+
+  const handleDeleteBranch = (branch) => {
+    setOpenSwipeId(null);
+    onDelete(branch);
+  };
+
   return (
     <div className="list-branch-page-content">
       {loading && <Loader />}
 
       <div className="list-branch-header">
-        <h2 className="list-branch-title">
-          Branch List
-        </h2>
+        <h2 className="list-branch-title">Branch List</h2>
 
         <div className="list-branch-actions">
           <Button
@@ -377,8 +310,7 @@ const ListBranch = () => {
             onClick={showSearchModal}
             className="search-button"
           >
-             {!isMobile && "Search"}
-            {/* <span className="search-text">Search</span> */}
+            {!isMobile && "Search"}
           </Button>
 
           {searchTerm && (
@@ -391,126 +323,72 @@ const ListBranch = () => {
         </div>
       </div>
 
-  
+      <div className="list-branch-scrollable-div">
+        {searchTerm && (
+          <div className="list-branch-search-results">
+            <Tag color="blue" style={{ fontSize: 14, padding: "2px 8px" }}>
+              Pattern: {searchTerm}
+            </Tag>
+          </div>
+        )}
+        
+        {allBranches.length === 0 ? (
+          <div className="list-branch-no-data">
+            <p style={{ fontSize: "16px", marginBottom: "8px" }}>No branches found</p>
+            <p style={{ fontSize: "14px" }}>Try adjusting your search or filters</p>
+          </div>
+        ) : (
+          allBranches.map((branch, index) => {
+            const details = branchDetails[branch.id];
 
-      <div
-        id="scrollableDiv"
-        className="list-branch-scrollable-div"
-      >
-        <InfiniteScroll
-          dataLength={displayedBranches.length}
-          className="list-branch-infinite-scroll"
-          next={fetchMoreBranches}
-          hasMore={hasMore}
-          loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
-          scrollableTarget="scrollableDiv"
-        >
-          {searchTerm && (
-            <div className="list-branch-search-results">
-              <span className="list-branch-search-label">
-                Search Result:{" "}
-               <Tag color="blue" style={{ fontSize: 14, padding: "2px 8px" }}>
-        {searchTerm}
-      </Tag>
-   
-
-              </span>
-              <span className="list-branch-results-count">
-                ({displayedBranches.length} result{displayedBranches.length !== 1 ? 's' : ''})
-              </span>
-            </div>
-          )}
-          
-          {displayedBranches.length === 0 ? (
-            <div style={{
-              textAlign: "center",
-              padding: "40px 20px",
-              color: "#8c8c8c"
-            }}>
-              <p style={{ fontSize: "16px", marginBottom: "8px" }}>No branches found</p>
-              <p style={{ fontSize: "14px" }}>Try adjusting your search or filters</p>
-            </div>
-          ) : (
-            <List
-              dataSource={displayedBranches}
-              renderItem={(branch, index) => {
-                const details = branchDetails[branch.id];
-                const lineIndex = index + 1;
-                const isExpanded = expandedBranches[branch.id]; // Check if this branch is expanded
-
-                const handleEditBranch = (branch) => {
-                  setOpenSwipeId(null);
-                  navigate(`/branch/edit/${branch.id}`);
-                };
-
-                const handleDeleteBranch = (branch) => {
-                  setOpenSwipeId(null);
-                  onDelete(branch);
-                };
-
-                return (
-                  <div
-                    key={branch.id}
-                    className="list-branch-item-wrapper"
-                  >
-                    {isMobile ? (
-                      <SwipeablePanel
-                        item={{...branch,lineIndex }}
-                        
-                        index={index}
-                        titleKey="branch_name"
-                        name="branch"
-                        avatarSrc={branchIcon}
-                        onSwipeRight={!isExpanded ? () => handleEditBranch(branch) : undefined}
-                        onSwipeLeft={!isExpanded ? () => handleDeleteBranch(branch) : undefined}
-                        isExpanded={isExpanded}
-                        onExpandToggle={() => handleExpandToggle(branch)}
-                        renderContent={() => (
-                          isExpanded ? (
-                            <BranchCollapseContent branch={branch} details={details} />
-                          ) : null
-                        )}
-                        isSwipeOpen={openSwipeId === branch.id}
-                        onSwipeStateChange={(isOpen) => handleSwipeStateChange(branch.id, isOpen)}
-                      />
-                    ) : (
-                      <>
-                        <List.Item
-                          className="list-branch-item list-branch-item-expanded"
-                        >
-                          <List.Item.Meta
-                            // avatar={<Avatar src={branchIcon} shape="square" />}
-                            avatar ={
-                              <Image src={branchIcon}  />                         }
-                            
-                            title={
-                              <div className="list-branch-item-title-container">
-                                <span className="list-branch-item-title">
-                                  {branch.branch_name}
-                                </span>
-                                <Dropdown overlay={renderMenu(branch)} trigger={["click"]}>
-                                  <EllipsisOutlined
-                                    className="list-branch-ellipsis-icon"
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                </Dropdown>
-                                
-                              </div>
-                            }
-                          />
-                        </List.Item>
-
-                        <div className="list-branch-collapse-content">
-                          <BranchCollapseContent branch={branch} details={details} />
-                        </div>
-                      </>
-                    )}
+            return (
+              <div key={branch.id} className="list-branch-item-wrapper">
+                {isMobile ? (
+                  <div>
+                    <SwipeablePanel
+                      item={branch}
+                      icon={branchIcon}
+                      index={index}
+                      titleKey="branch_name"
+                      name="branch"
+                      
+                      showIndex={false}
+                      onSwipeRight={() => handleEditBranch(branch)}
+                      onSwipeLeft={() => handleDeleteBranch(branch)}
+                      isExpanded={false}
+                      isSwipeOpen={openSwipeId === branch.id}
+                      onSwipeStateChange={(isOpen) => handleSwipeStateChange(branch.id, isOpen)}
+                    />
+                    <div >
+                      <BranchCollapseContent branch={branch} details={details} />
+                    </div>
                   </div>
-                );
-              }}
-            />
-          )}
-        </InfiniteScroll>
+                ) : (
+                  <div className="list-branch-accordion-container">
+                    <div className="list-branch-accordion-header list-branch-accordion-header-expanded">
+                      <div className="list-branch-accordion-title-container">
+                        <Image src={branchIcon} width={30} height={30} preview={false} />
+                        <span className="list-branch-accordion-title">{branch.branch_name}</span>
+                      </div>
+                      <div className="list-branch-accordion-actions">
+                        <Dropdown overlay={renderMenu(branch)} trigger={["click"]}>
+                          <EllipsisOutlined
+                            className="list-branch-ellipsis-icon"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </Dropdown>
+                      </div>
+                    </div>
+
+                    <div className="list-branch-accordion-content">
+                      <BranchCollapseContent branch={branch} details={details} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
 
       <Modal
@@ -530,7 +408,6 @@ const ListBranch = () => {
               onChange={(e) => {
                 const value = e.target.value.trim();
                 if (value === "") {
-                  setFilteredBranches([]);
                   getBranchesList();
                 }
               }}
@@ -544,7 +421,6 @@ const ListBranch = () => {
         type="primary"
         className="list-branch-float-button"
         onClick={() => (window.location.href = "/branch/add")}
-        // tooltip="Add New Branch"
       />
 
       {isInitialized && (

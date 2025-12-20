@@ -886,7 +886,7 @@ const ListUser = () => {
                 >
                   <div className="list-user-line-title-container">
                    
-                    <Image src={userIcon} height={30} width={30} />
+                    <Image src={userIcon} height={30} width={30} preview={false}  />
                     <span className="list-user-line-title">
                       {lineName}
                     </span>

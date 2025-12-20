@@ -69,6 +69,7 @@
   width: 100% !important;
 }
 
+
 /* Menu container - prevent width changes during submenu operations */
 .ant-layout-sider .ant-menu {
   width: 100% !important;

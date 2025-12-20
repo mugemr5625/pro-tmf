@@ -438,9 +438,7 @@ const ExpenseTypeList = () => {
                       Pattern: {searchTerm}
                     </Tag>
             </span>
-            <span className="expense-type-list-results-count">
-              ({Object.values(groupedExpenses).flat().length} results)
-            </span>
+           
           </div>
         )}
 
@@ -466,7 +464,7 @@ const ExpenseTypeList = () => {
                     {/* <Avatar src={lineIcon}>
                       {lineName?.charAt(0)?.toUpperCase()}
                     </Avatar> */}
-                    <Image src={lineIcon} width={30} height={30} />
+                    <Image preview={false} src={lineIcon} width={30} height={30} />
                     <span className="expense-type-list-line-title">
                       {lineName}
                     </span>

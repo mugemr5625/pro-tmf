@@ -100,7 +100,7 @@ function ProfileMenu(props) {
           tag="button"
         >
           <img
-            className="rounded-circle header-profile-user text-white"
+            className=" header-profile-user text-white"
             src={user1}
             alt="Header Avatar"
           />

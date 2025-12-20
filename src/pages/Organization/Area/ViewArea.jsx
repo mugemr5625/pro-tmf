@@ -806,9 +806,7 @@ const ViewArea = () => {
       </Tag>
               </span>
               
-              <span className="view-area-results-count">
-                ({Object.values(groupedData).flat().length} results)
-              </span>
+             
             </div>
           )}
 
@@ -823,7 +821,7 @@ const ViewArea = () => {
                     {/* <Avatar src={lineIcon}>
                       {lineName?.charAt(0)?.toUpperCase()}
                     </Avatar> */}
-                    <Image src={areaIcon} width={30} height={30} />
+                     <Image preview={false} src={areaIcon} width={30} height={30} />
                     <span className="view-area-line-title">
                       {lineName}
                     </span>

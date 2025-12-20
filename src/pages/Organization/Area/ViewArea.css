@@ -72,13 +72,15 @@
   /* padding: 10px; */
   margin-top: 20px;
 }
+.ant-image-mask-info {
+  display: none !important;
+}
 
 .view-area-search-results {
   padding: 12px 0px;
-  margin-bottom: 16px;
   display: flex;
   align-items: center;
-  justify-content: left;
+  justify-content: center;
 }
 
 .view-area-search-label {

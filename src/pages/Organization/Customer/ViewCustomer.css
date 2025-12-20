@@ -78,10 +78,12 @@
 
 .view-customer-filter-info {
   padding: 12px 0px;
-  margin-bottom: 10px;
   display: flex;
   align-items: center;
-  justify-content: left;
+  justify-content: center;
+}
+.ant-image-mask-info {
+  display: none !important;
 }
 
 .view-customer-filter-label {

@@ -910,10 +910,7 @@ const ViewCustomer = () => {
           </Button>
         </>
       )}
-      
-      <span className="view-customer-results-count">
-        ({Object.values(groupedData).flat().length} result{Object.values(groupedData).flat().length !== 1 ? 's' : ''})
-      </span>
+    
     </div>
   )}
 
@@ -925,7 +922,7 @@ const ViewCustomer = () => {
                     {/* <Avatar src={areaIcon}>
                       {areaName?.charAt(0)?.toUpperCase()}
                     </Avatar> */}
-                    <Image src={customerIcon} width={30} height={30} />
+                     <Image preview={false}  src={customerIcon} width={30} height={30} />
                     <span className="view-customer-area-title">{areaName}</span>
                   </div>
                   {/* <Badge

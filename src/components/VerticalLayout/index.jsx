@@ -96,7 +96,7 @@ const VerticalLayout = (props) => {
     };
   }, []);
 
-  const menuItems = useMemo(() => [
+ const menuItems = useMemo(() => [
     { key: '/home', icon: <HomeOutlined />, label: 'Home' },
     {
       key: 'settings',
@@ -105,23 +105,23 @@ const VerticalLayout = (props) => {
       children: [
         { key: '/view', 
           icon: <img src={organizationIcon} width={18} height={18}  
-          style={{ filter: 'invert(1)'}}/>, 
+          style={{ filter: isMobile ? 'none' : 'invert(1)'}}/>, 
           label: 'Organization' },
         { key: '/branch/list', icon: <img src={branchIcon} width={18} height={18} 
-         style={{filter: 'invert(1)',}} />, label: 'Branch' },
+         style={{filter: isMobile ? 'none' : 'invert(1)',}} />, label: 'Branch' },
         { key: '/line', icon: <img src={lineIcon} width={18} height={18} 
-         style={{filter: 'invert(1)',}} />,
+         style={{filter: isMobile ? 'none' : 'invert(1)',}} />,
           label: 'Line' },
         { key: '/area', icon: <img src={areaIcon} width={18} height={18} 
-         style={{filter: 'invert(1)',}} />, label: 'Area' },
+         style={{filter: isMobile ? 'none' : 'invert(1)',}} />, label: 'Area' },
         { key: '/expense/list', icon:<img src={expenseTypeIcon} width={18} height={18} 
-         style={{filter: 'invert(1)',}} />, label: 'Expense Type' },
+         style={{filter: isMobile ? 'none' : 'invert(1)',}} />, label: 'Expense Type' },
         { key: '/investment',icon: <img src={investmentIcon} width={20} height={20} 
-         style={{filter: 'invert(1)',}} />, label: 'Investments' },
+         style={{filter: isMobile ? 'none' : 'invert(1)',}} />, label: 'Investments' },
         { key: '/expense-transaction', icon: <img src={expenseTransactionIcon} width={18} height={18} 
-         style={{filter: 'invert(1)',}} />,  label: 'Expense Transactions' },
+         style={{filter: isMobile ? 'none' : 'invert(1)',}} />,  label: 'Expense Transactions' },
         { key: '/user/list', icon: <img src={userIcon} width={18} height={18} 
-         style={{filter: 'invert(1)',}} />, label: 'Users' },
+         style={{filter: isMobile ? 'none' : 'invert(1)',}} />, label: 'Users' },
         {key: '/location-list', icon: <UserOutlined />, label: 'Location' }
       ],
     },
@@ -134,10 +134,10 @@ const VerticalLayout = (props) => {
     //   ],
     // },
     { key: '/reset-password', icon:<img src={resetIcon} width={18} height={18} 
-         style={{filter: 'invert(1)',}} />, label: 'Reset Password' },
+         style={{filter: isMobile ? 'none' : 'invert(1)',}} />, label: 'Reset Password' },
     { key: '/view-customer', icon: <img src={customerIcon} width={18} height={18} 
-         style={{filter: 'invert(1)',}} />, label: 'Customer' },
-  ], []);
+         style={{filter: isMobile ? 'none' : 'invert(1)',}} />, label: 'Customer' },
+  ], [isMobile]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -350,6 +350,7 @@ const VerticalLayout = (props) => {
         }}
       >
         <div style={{ 
+          width: '32px',
           height: '64px', 
           margin: '16px', 
           display: 'flex',
@@ -478,9 +479,9 @@ const VerticalLayout = (props) => {
             }}
             style={{
               fontSize: '16px',
-              width: 64,
+              width: 32,
               height: 64,
-              marginLeft: '-12px',
+              marginRight: '10px',
             }}
           />
           <div style={{ 
@@ -525,7 +526,7 @@ const VerticalLayout = (props) => {
               display: 'flex',
               alignItems: 'center',
               gap: '0px',
-              marginRight: '-10px'
+              marginRight: '-20px'
             }}>
               <NotificationDropdown />
               <ProfileMenu />
