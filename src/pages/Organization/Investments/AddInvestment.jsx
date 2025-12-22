@@ -336,7 +336,7 @@ const AddInvestment = () => {
                     </div>
                   </div>
 
-                  <Divider className="add-investment-divider" />
+                 
 
                   {/* Buttons */}
                   <div className="text-center mt-4">

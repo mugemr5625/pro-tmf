@@ -353,9 +353,9 @@ const VerticalLayout = (props) => {
           width: '32px',
           height: '64px', 
           margin: '16px', 
-          display: 'flex',
+         
           alignItems: 'center',
-          justifyContent: 'center',
+         
         }}>
           <img 
             src={collapsed ? logoLight : logoLarge} 
@@ -570,7 +570,7 @@ const VerticalLayout = (props) => {
         placement="left"
         onClose={() => setMobileDrawerVisible(false)}
         open={mobileDrawerVisible}
-        width={260}
+        width={220}
         bodyStyle={{ padding: 0 }}
         headerStyle={{ display: "none" }}
         style={{ display: isMobile ? 'block' : 'none' }}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { notification, Form, Input, Button, Select, Space } from "antd";
+import { notification, Form, Spin, Button, Select, Space } from "antd";
 import { ToastContainer } from "react-toastify";
 import Loader from "components/Common/Loader";
 import { GET, POST, PUT } from "helpers/api_helper";
@@ -26,9 +26,12 @@ const AddExpense = () => {
     const [lines, setLines] = useState([]);
     const [selectedBranch, setSelectedBranch] = useState(null);
     const [allAreaData, setAllAreaData] = useState([]);
+    const [branchLoading, setBranchLoading] = useState(false);
+    const [lineLoading, setLineLoading] = useState(false);
 
     // Fetch area data (branches and lines)
     const fetchAreaData = useCallback(async () => {
+        setBranchLoading(true);
         try {
             const response = await GET(AREA);
             if (response.status === 200) {
@@ -59,10 +62,14 @@ const AddExpense = () => {
                 description: "Failed to load area data.",
             });
         }
+        finally{
+            setBranchLoading(false)
+        }
     }, []);
 
     // Get lines for selected branch from area data
     const getLinesForBranch = useCallback((branchId) => {
+        setLineLoading(true)
         const branchLines = allAreaData
             .filter(area => area.branch_id === branchId && area.line_id)
             .map(area => ({
@@ -76,6 +83,7 @@ const AddExpense = () => {
         );
         
         setLines(uniqueLines);
+        setLineLoading(false)
     }, [allAreaData]);
 
     // Fetch expense data for editing
@@ -248,9 +256,12 @@ const AddExpense = () => {
                                                     size="large"
                                                     onChange={handleBranchChange}
                                                     showSearch
+                                                    
                                                     filterOption={(input, option) =>
                                                         option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                     }
+                                                     notFoundContent={branchLoading ? <Spin size="small" /> : "No branches"}
+
                                                 >
                                                     {branches.map((branch) => (
                                                         <Option key={branch.id} value={branch.id}>
@@ -275,12 +286,14 @@ const AddExpense = () => {
                                                     filterOption={(input, option) =>
                                                         option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                     }
+
                                                 >
                                                     {lines.map((line) => (
                                                         <Option key={line.id} value={line.id}>
                                                             {line.line_name}
                                                         </Option>
                                                     ))}
+                                                    notFoundContent={lineLoading ? <Spin size="small" /> : "No branches"}
                                                 </SelectWithAddon>
                                             </Form.Item>
             </div>

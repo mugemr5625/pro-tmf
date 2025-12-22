@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Form, Input, Button, Select, notification, Divider, Space } from "antd";
+import { Form, Input, Button, Select, notification, Spin, Space } from "antd";
 import { ToastContainer } from "react-toastify";
 import Loader from "components/Common/Loader";
 import { LINE, ADD_BRANCH } from "helpers/url_helper";
@@ -183,6 +183,9 @@ const AddLine = () => {
                           showSearch
                           size="large"
                           loading={branchLoader}
+                           notFoundContent={
+      branchLoader ? <Spin size="small" /> : "No branches found"
+    }     
                         >
                           {branchList.map((branch) => (
                             <Option key={branch.id} value={branch.id}>
@@ -308,7 +311,7 @@ const AddLine = () => {
                     </div>
                   </div>
 
-                  <Divider className="add-line-divider" />
+                 
 
                   {/* Buttons */}
                   <div className="text-center mt-4">

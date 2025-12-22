@@ -315,7 +315,7 @@ const AddArea = () => {
                     </div>
                   </div>
 
-                  <Divider className="add-area-divider" />
+                 
 
                   {/* Buttons */}
                   <div className="text-center mt-4">

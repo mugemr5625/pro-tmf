@@ -873,7 +873,7 @@ const cameraFieldRef = useRef({ fieldId: null, fieldType: null });
                     4
                   )}
 
-                  <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
+                 
 
                   {/* Action Buttons */}
                   <div className="text-center mt-4" style={{ 

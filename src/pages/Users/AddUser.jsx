@@ -1067,12 +1067,13 @@ const AddUser = () => {
         </div>
       </div>
     )}
-
-    <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
+  
+  
 
     {/* User Expense Mapping Section */}
     {isEditMode && (
       <>
+        <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
         <Divider orientation="center">User Expense Mapping</Divider>
         
         {expenseMappings.map((mapping, index) => (
@@ -1207,7 +1208,7 @@ const AddUser = () => {
           />
         </div>
 
-        <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
+       
       </>
     )}
 

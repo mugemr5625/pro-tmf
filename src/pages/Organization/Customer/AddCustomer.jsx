@@ -1166,7 +1166,7 @@ const [isEditMode, setIsEditMode] = useState(false);
                             )}
                         </Form.List>
 
-                        <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
+                       
 
                         <div className="text-center mt-4">
                             <Space size="middle">

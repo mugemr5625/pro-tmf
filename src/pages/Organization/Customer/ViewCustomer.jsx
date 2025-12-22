@@ -16,7 +16,8 @@ import {
   Switch,
   Input,
   Popconfirm,
-  Tag
+  Tag,
+  Spin
 } from "antd";
 import { GET, DELETE, POST } from "helpers/api_helper";
 import { AREA,CUSTOMERS } from "helpers/url_helper";
@@ -78,6 +79,9 @@ const ViewCustomer = () => {
   const [searchModalVisible, setSearchModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [showReset, setShowReset] = useState(false);
+  const [lineLoading, setLineLoading] = useState(false);
+const [areaLoading, setAreaLoading] = useState(false);
+
   
   const CUSTOMERS_PAGE_SIZE = 10;
 
@@ -152,6 +156,7 @@ const ViewCustomer = () => {
   }, [originalCustomers, areaIdToNameMap, selectedLine, selectedArea]);
 
   const fetchAreaData = async () => {
+    setLineLoading(true)
     try {
       const response = await GET(AREA);
       if (response?.status === 200) {
@@ -193,6 +198,10 @@ const ViewCustomer = () => {
         message: "Error",
         description: "Failed to fetch area data",
       });
+     
+      }
+       finally{
+        setLineLoading(false);
     }
   };
 
@@ -305,6 +314,7 @@ const ViewCustomer = () => {
   const handleLineChange = (lineName) => {
     setTempLine(lineName);
     setTempArea(null);
+     setAreaLoading(true);
     
     const lineAreas = allAreas.filter(
       (area) => area.line_name === lineName
@@ -316,6 +326,7 @@ const ViewCustomer = () => {
     }));
     
     setAreas(areaOptions);
+     setAreaLoading(false);
   };
 
   const handleApplyFilter = () => {
@@ -723,6 +734,7 @@ const ViewCustomer = () => {
           onChange={handleLineChange}
           value={tempLine}
           options={lines}
+           notFoundContent={lineLoading ? <Spin size="small" /> : "No data"}
         />
       </div>
 
@@ -741,6 +753,7 @@ const ViewCustomer = () => {
           value={tempArea}
           options={areas}
           disabled={!tempLine}
+          loading={areaLoading}
         />
       </div>
     </Modal>

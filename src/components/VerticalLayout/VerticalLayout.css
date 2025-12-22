@@ -156,15 +156,17 @@
     opacity: 0 !important;
     max-height: 0 !important;
     transition: all 0.2s ease-in-out !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
   }
   
   /* Mobile menu items - minimal left spacing */
   .ant-drawer .ant-menu-item {
     margin: 2px 8px 2px 4px !important;
     border-radius: 6px !important;
-    height: 48px !important;
-    line-height: 48px !important;
-    padding: 0 12px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+    padding: 0 6px !important;
   }
   
   .ant-drawer .ant-menu-item:hover {
@@ -191,7 +193,7 @@
     border-radius: 6px !important;
     height: 48px !important;
     line-height: 48px !important;
-    padding: 0 12px !important;
+    padding: 0 !important;
     transition: none !important;
   }
   
@@ -209,7 +211,6 @@
   .ant-drawer .ant-menu-sub {
     background: transparent !important;
     margin-left: 0 !important;
-    padding-left: 8px !important;
     overflow: hidden !important;
   }
   
@@ -218,7 +219,7 @@
     line-height: 44px !important;
     font-size: 14px !important;
     margin: 2px 8px 2px 12px !important;
-    padding: 0 12px !important;
+    padding: 0 6px !important;
     transition: none !important;
   }
 }
