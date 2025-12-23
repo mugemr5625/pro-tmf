@@ -375,7 +375,7 @@ const InvestmentList = () => {
   if (!lines || lines.length === 0) return null;
   
   if (lines.includes("All Line")) {
-    return <span>All Lines</span>;
+    return <span>All Line</span>;
   }
   
   // Show badge when more than one line is selected
@@ -387,7 +387,7 @@ const InvestmentList = () => {
           title={
             <div>
               <div style={{ marginBottom: '4px', fontWeight: 'bold' }}>
-                All Selected Lines ({lines.length}):
+                All Selected Line ({lines.length}):
               </div>
               {lines.map((line, idx) => (
                 <div key={idx}>• {line}</div>
@@ -530,7 +530,7 @@ const InvestmentList = () => {
             onClick={() => setSearchModalVisible(true)}
             type="default"
           >
-            {!isMobile && "Search"}
+            {!isMobile && "Search Criteria"}
           </Button>
           {showReset && (
             <Button
@@ -591,7 +591,7 @@ const InvestmentList = () => {
                   )}
                   
                   <Tag color="purple" style={{ margin: 0, padding: '4px 8px' }}>
-                    Pattern: {searchCriteria.searchText ? `"${searchCriteria.searchText}"` : "All"}
+                    Investment = {searchCriteria.searchText ? `"${searchCriteria.searchText}"` : "All"}
                   </Tag>
                 </div>
               </div>

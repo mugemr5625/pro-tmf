@@ -4,6 +4,10 @@ import { Descriptions, Tag } from "antd";
 const UserCollapseContent = ({ user }) => {
   if (!user) return null;
 
+  // Tag colors for odd/even pattern
+  const oddColor = 'purple';
+  const evenColor = 'green';
+
   // Helper function to group line allocations by branch
   const getLineAllocationsByBranch = (allocations) => {
     if (!allocations || allocations.length === 0) {
@@ -50,6 +54,10 @@ const UserCollapseContent = ({ user }) => {
   const lineAllocationsByBranch = getLineAllocationsByBranch(user.line_allocations);
   const expenseMappings = getExpenseMappings(user.user_expenses);
 
+  // Get base branch and line
+  const baseBranch = user.line_allocations?.[0]?.base_branch_name;
+  const baseLine = user.line_allocations?.[0]?.base_line_name;
+
   // Helper function to extract unique areas
   const getAreas = (allocations) => {
     if (!allocations || allocations.length === 0) return [];
@@ -57,6 +65,30 @@ const UserCollapseContent = ({ user }) => {
   };
 
   const areas = getAreas(user.line_allocations);
+
+  // Organize line mappings with base first
+  const getOrganizedLineMappings = () => {
+    const entries = Object.entries(lineAllocationsByBranch);
+    
+    if (entries.length === 0) return [];
+    
+    // If there's a base branch, prioritize it
+    if (baseBranch && baseLine) {
+      const baseEntry = entries.find(([branch, lines]) => 
+        branch === baseBranch && lines.includes(baseLine)
+      );
+      
+      if (baseEntry) {
+        // Put base first, then others
+        const otherEntries = entries.filter(([branch]) => branch !== baseBranch);
+        return [baseEntry, ...otherEntries];
+      }
+    }
+    
+    return entries;
+  };
+
+  const organizedLineMappings = getOrganizedLineMappings();
 
   return (
     <div style={{ background: "#fff", padding: "0px 0px" }}>
@@ -95,10 +127,10 @@ const UserCollapseContent = ({ user }) => {
         </Descriptions.Item>
         
         <Descriptions.Item label="Base Branch:">
-          {user.line_allocations?.[0]?.base_branch_name || "N/A"}
+          {baseBranch || "N/A"}
         </Descriptions.Item>
         <Descriptions.Item label="Base Line:" span={2}>
-          {user.line_allocations?.[0]?.base_line_name || "N/A"}
+          {baseLine || "N/A"}
         </Descriptions.Item>
         <Descriptions.Item label="Address:" span={2}>
           {user.address || "N/A"}
@@ -107,7 +139,7 @@ const UserCollapseContent = ({ user }) => {
           {user.pin_code || "N/A"}
         </Descriptions.Item>
         <Descriptions.Item label="Line Mapping:" span={3}>
-          {Object.keys(lineAllocationsByBranch).length > 0 ? (
+          {organizedLineMappings.length > 0 ? (
             <div style={{ 
               display: 'flex', 
               flexDirection: 'column', 
@@ -115,32 +147,41 @@ const UserCollapseContent = ({ user }) => {
               maxWidth: '100%',
               overflow: 'hidden'
             }}>
-              {Object.entries(lineAllocationsByBranch).map(([branch, lines]) => (
-                <div key={branch} style={{ 
-                  display: 'flex', 
-                  flexWrap: 'wrap',
-                  gap: '4px',
-                  wordBreak: 'break-word'
-                }}>
-                  <Tag 
-                    color="blue" 
-                    style={{ 
-                      marginRight: '0px',
-                      maxWidth: '100%',
-                      whiteSpace: 'normal',
-                      wordBreak: 'break-word',
-                      overflow: 'hidden',
-                      textOverflow: 'clip',
-                      lineHeight: '1.5',
-                      fontSize: '18px'
-                    }}
-                  >
-                    <span style={{ wordBreak: 'break-word' }}>
-                      {branch} : {lines.join(", ")}
-                    </span>
-                  </Tag>
-                </div>
-              ))}
+              {organizedLineMappings.map(([branch, lines], index) => {
+                const isBase = index === 0 && branch === baseBranch;
+                const color = organizedLineMappings.length > 1 
+                  ? (index % 2 === 0 ? oddColor : evenColor)
+                  : 'blue';
+                
+                return (
+                  <div key={branch} style={{ 
+                    display: 'flex', 
+                    flexWrap: 'wrap',
+                    gap: '4px',
+                    wordBreak: 'break-word'
+                  }}>
+                    <Tag 
+                      color={color}
+                      style={{ 
+                        marginRight: '0px',
+                        maxWidth: '100%',
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-word',
+                        overflow: 'hidden',
+                        textOverflow: 'clip',
+                        lineHeight: '1.5',
+                        fontSize: '18px',
+                        fontWeight: isBase ? 700 : 600
+                      }}
+                    >
+                      <span style={{ wordBreak: 'break-word' }}>
+                        {isBase && "(Base) "}
+                        {branch} : {lines.join(", ")}
+                      </span>
+                    </Tag>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             "N/A"
@@ -161,34 +202,40 @@ const UserCollapseContent = ({ user }) => {
               maxWidth: '100%',
               overflow: 'hidden'
             }}>
-              {expenseMappings.map((mapping, index) => (
-                <div 
-                  key={index} 
-                  style={{ 
-                    fontSize: '13px',
-                    wordBreak: 'break-word',
-                    overflow: 'hidden'
-                  }}
-                >
-                  <Tag 
-                    color="blue" 
+              {expenseMappings.map((mapping, index) => {
+                const color = expenseMappings.length > 1 
+                  ? (index % 2 === 0 ? oddColor : evenColor)
+                  : 'blue';
+                
+                return (
+                  <div 
+                    key={index} 
                     style={{ 
-                      marginRight: '0px',
-                      maxWidth: '100%',
-                      whiteSpace: 'normal',
+                      fontSize: '13px',
                       wordBreak: 'break-word',
-                      overflow: 'hidden',
-                      textOverflow: 'clip',
-                      lineHeight: '1.5',
-                      fontSize: '18px'
+                      overflow: 'hidden'
                     }}
                   >
-                    <span style={{ wordBreak: 'break-word' }}>
-                      {mapping.branch} : {mapping.line} : {mapping.expenseName}
-                    </span>
-                  </Tag>
-                </div>
-              ))}
+                    <Tag 
+                      color={color}
+                      style={{ 
+                        marginRight: '0px',
+                        maxWidth: '100%',
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-word',
+                        overflow: 'hidden',
+                        textOverflow: 'clip',
+                        lineHeight: '1.5',
+                        fontSize: '18px'
+                      }}
+                    >
+                      <span style={{ wordBreak: 'break-word' }}>
+                        {mapping.branch} : {mapping.line} : {mapping.expenseName}
+                      </span>
+                    </Tag>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             "N/A"

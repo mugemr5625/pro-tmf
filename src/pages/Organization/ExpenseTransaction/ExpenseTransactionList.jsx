@@ -590,7 +590,7 @@ const ExpenseTransactionList = () => {
             onClick={() => setSearchModalVisible(true)}
             type="default"
           >
-            {!isMobile && "Search"}
+            {!isMobile && "Search Criteria"}
           </Button>
           {showReset && (
             <Button
@@ -650,7 +650,7 @@ const ExpenseTransactionList = () => {
                   )}
                   
                   <Tag color="purple" style={{ margin: 0, padding: '4px 8px' }}>
-                    Expense Type: {searchCriteria.searchText ? `"${searchCriteria.searchText}"` : "All"}
+                    Expense Type = {searchCriteria.searchText ? `"${searchCriteria.searchText}"` : "All"}
                   </Tag>
                 </div>
               </div>

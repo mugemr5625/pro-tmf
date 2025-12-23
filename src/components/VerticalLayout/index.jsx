@@ -462,7 +462,7 @@ const VerticalLayout = (props) => {
             display: 'flex',
             alignItems: 'center',
             transition: 'left 0.3s ease, width 0.3s ease',
-            height: '64px',
+            height: '48px',
           }}
         >
           <Button
@@ -480,7 +480,7 @@ const VerticalLayout = (props) => {
             style={{
               fontSize: '16px',
               width: 32,
-              height: 64,
+              height: 48,
               marginRight: '10px',
             }}
           />
@@ -536,7 +536,7 @@ const VerticalLayout = (props) => {
 
         <Content
           style={{
-            margin: '64px 0 0',
+            margin: '48px 0 0',
             overflow: 'initial',
             flex: 1,
             display: 'flex',
@@ -556,12 +556,12 @@ const VerticalLayout = (props) => {
         </Content>
 
         <Footer style={{ 
-          textAlign: 'center', 
-          padding: '24px 16px',
+           textAlign: isMobile ? 'left' : 'center', 
+          padding: isMobile ? '12px 16px' : '24px 16px',
           marginTop: 'auto',
           flexShrink: 0
         }}>
-          © {new Date().getFullYear()} - THINKTANK
+         {isMobile ? '©' : `© ${new Date().getFullYear()} - THINKTANK`}
         </Footer>
       </Layout>
       

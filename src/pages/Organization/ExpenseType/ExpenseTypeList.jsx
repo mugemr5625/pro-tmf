@@ -398,7 +398,7 @@ const ExpenseTypeList = () => {
             onClick={showSearchModal}
             type="default"
           >
-            {!isMobile && "Search"}
+            {!isMobile && "Search Expense"}
           </Button>
           {searchTerm && (
             <Button
@@ -435,7 +435,7 @@ const ExpenseTypeList = () => {
                 "{searchTerm}"
               </span> */}
               <Tag color="blue" style={{ fontSize: 14, padding: "2px 8px" }}>
-                      Pattern: {searchTerm}
+                      Expense = "{searchTerm}"
                     </Tag>
             </span>
            

@@ -730,6 +730,14 @@ const ViewArea = () => {
                 {!isMobile && "Reorder"}
                 
               </Button>
+              
+              <Button
+                icon={<SearchOutlined />}
+                onClick={() => setSearchModalVisible(true)}
+                type="default"
+              >
+                {!isMobile && "Search Area"}
+              </Button>
               {showReset && (
                 <Button
                   icon={<ReloadOutlined />}
@@ -737,13 +745,6 @@ const ViewArea = () => {
                   title="Reset to Original"
                 />
               )}
-              <Button
-                icon={<SearchOutlined />}
-                onClick={() => setSearchModalVisible(true)}
-                type="default"
-              >
-                {!isMobile && "Search"}
-              </Button>
             </>
           )}
         </div>
@@ -802,7 +803,7 @@ const ViewArea = () => {
               <span className="view-area-search-label">
                
                 <Tag color="blue" style={{ fontSize: 14, padding: "2px 8px" }}>
-        Pattern: {searchText}
+        Area = "{searchText}"
       </Tag>
               </span>
               

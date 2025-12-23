@@ -32,12 +32,26 @@ const AddLine = () => {
     badinstallment: null,
   });
   const [branchLoader, setBranchLoader] = useState(false);
+  const [selectedBranchName, setSelectedBranchName] = useState("");
   const [form] = Form.useForm();
   const params = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     getBranchList();
+  }, []);
+
+  useEffect(() => {
+    const branchId = localStorage.getItem("selected_branch_id");
+    const branchName = localStorage.getItem("selected_branch_name");
+
+    if (branchId && branchName) {
+      setSelectedBranchName(branchName);
+      setFormData((prev) => ({
+        ...prev,
+        branch: branchId,
+      }));
+    }
   }, []);
 
   const getLineDetails = useCallback(async () => {
@@ -106,7 +120,6 @@ const AddLine = () => {
       form.setFieldsValue({
         lineName: "",
         lineType: "",
-        branch: "",
         installment: null,
         badinstallment: null,
       });
@@ -168,66 +181,59 @@ const AddLine = () => {
                   {/* Branch and Line Name */}
                   <div className="row mb-2">
                     <div className="col-md-6">
-                       <Form.Item
+                      <Form.Item
                         label="Branch"
-                        name="branch"
                         rules={[{ 
                           required: true, 
                           message: ERROR_MESSAGES.LINE.BRANCH_REQUIRED 
                         }]}
                       >
-                        <SelectWithAddon
+                        <InputWithAddon
                           icon={<BankOutlined />}
-                          placeholder="Select Branch"
-                          allowClear={!params.id}
-                          showSearch
-                          size="large"
-                          loading={branchLoader}
-                           notFoundContent={
-      branchLoader ? <Spin size="small" /> : "No branches found"
-    }     
-                        >
-                          {branchList.map((branch) => (
-                            <Option key={branch.id} value={branch.id}>
-                              {branch.branch_name}
-                            </Option>
-                          ))}
-                        </SelectWithAddon>
+                          value={selectedBranchName}
+                          placeholder="No branch selected"
+                          disabled
+                          style={{ 
+                            backgroundColor: '#f5f5f5',
+                            cursor: 'not-allowed',
+                            color: '#000'
+                          }}
+                        />
                       </Form.Item>
                     </div>
 
                     <div className="col-md-6">
                       <Form.Item
-    label="Line Name"
-    name="lineName"
-    rules={[
-      { 
-        required: true, 
-        message: ERROR_MESSAGES.LINE.LINE_NAME_REQUIRED 
-      },
-      { 
-        pattern: /^[A-Za-z\s]+$/, 
-        message: 'Line name must contain only alphabets' 
-      }
-    ]}
-  >
-    <InputWithAddon
-      icon={<ApartmentOutlined />}
-      placeholder="Enter line name"
-      onKeyPress={(e) => {
-        if (!/[A-Za-z\s]/.test(e.key)) {
-          e.preventDefault();
-        }
-      }}
-    />
-  </Form.Item>
+                        label="Line Name"
+                        name="lineName"
+                        rules={[
+                          { 
+                            required: true, 
+                            message: ERROR_MESSAGES.LINE.LINE_NAME_REQUIRED 
+                          },
+                          { 
+                            pattern: /^[A-Za-z\s]+$/, 
+                            message: 'Line name must contain only alphabets' 
+                          }
+                        ]}
+                      >
+                        <InputWithAddon
+                          icon={<ApartmentOutlined />}
+                          placeholder="Enter line name"
+                          onKeyPress={(e) => {
+                            if (!/[A-Za-z\s]/.test(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                        />
+                      </Form.Item>
                     </div>
                   </div>
 
                   {/* Line Type & Installment */}
                   <div className="row mb-2">
                     <div className="col-md-6">
-                       <Form.Item
+                      <Form.Item
                         label="Line Type"
                         name="lineType"
                         rules={[{ 
@@ -250,32 +256,32 @@ const AddLine = () => {
                     </div>
 
                     <div className="col-md-6">
-                     <Form.Item
-    label="Installment"
-    name="installment"
-    rules={[
-      { 
-        required: true, 
-        message: ERROR_MESSAGES.LINE.INSTALLMENT_REQUIRED 
-      },
-      {
-        pattern: /^[1-9]\d*$/,
-        message: 'Please enter a valid number (greater than 0)'
-      }
-    ]}
-  >
-    <InputWithAddon
-      icon={<CalendarOutlined />}
-      placeholder="Enter number of installments"
-      maxLength={3}
-      onKeyPress={(e) => {
-        // Allow only digits
-        if (!/\d/.test(e.key)) {
-          e.preventDefault();
-        }
-      }}
-    />
-  </Form.Item>
+                      <Form.Item
+                        label="Installment"
+                        name="installment"
+                        rules={[
+                          { 
+                            required: true, 
+                            message: ERROR_MESSAGES.LINE.INSTALLMENT_REQUIRED 
+                          },
+                          {
+                            pattern: /^[1-9]\d*$/,
+                            message: 'Please enter a valid number (greater than 0)'
+                          }
+                        ]}
+                      >
+                        <InputWithAddon
+                          icon={<CalendarOutlined />}
+                          placeholder="Enter number of installments"
+                          maxLength={3}
+                          onKeyPress={(e) => {
+                            // Allow only digits
+                            if (!/\d/.test(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                        />
+                      </Form.Item>
                     </div>
                   </div>
 
@@ -283,35 +289,33 @@ const AddLine = () => {
                   <div className="row mb-2">
                     <div className="col-md-6">
                       <Form.Item
-    label="No. of Bad Installments"
-    name="badinstallment"
-    rules={[
-      {
-        required: true,
-        message: ERROR_MESSAGES.LINE.BAD_INSTALLMENT_REQUIRED,
-      },
-      {
-        pattern: /^[0-9]\d*$/,
-        message: 'Please enter a valid number'
-      }
-    ]}
-  >
-    <InputWithAddon
-      icon={<WarningOutlined />}
-      placeholder="Enter bad installment count"
-      maxLength={3}
-      onKeyPress={(e) => {
-        // Allow only digits
-        if (!/\d/.test(e.key)) {
-          e.preventDefault();
-        }
-      }}
-    />
-  </Form.Item>
+                        label="No. of Bad Installments"
+                        name="badinstallment"
+                        rules={[
+                          {
+                            required: true,
+                            message: ERROR_MESSAGES.LINE.BAD_INSTALLMENT_REQUIRED,
+                          },
+                          {
+                            pattern: /^[0-9]\d*$/,
+                            message: 'Please enter a valid number'
+                          }
+                        ]}
+                      >
+                        <InputWithAddon
+                          icon={<WarningOutlined />}
+                          placeholder="Enter bad installment count"
+                          maxLength={3}
+                          onKeyPress={(e) => {
+                            // Allow only digits
+                            if (!/\d/.test(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                        />
+                      </Form.Item>
                     </div>
                   </div>
-
-                 
 
                   {/* Buttons */}
                   <div className="text-center mt-4">

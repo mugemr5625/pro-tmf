@@ -1,5 +1,5 @@
 import ReloadOutlined from "@ant-design/icons/lib/icons/ReloadOutlined";
-import { Button, Form, Input, Select, notification, Divider, Space } from "antd";
+import { Button, Form, Input, Select, notification, Spin, Space } from "antd";
 import { 
   BankOutlined, 
   ApartmentOutlined, 
@@ -251,6 +251,10 @@ const ExpenseTransactionForm = () => {
                           showSearch
                           size="large"
                           loading={areaLoader}
+                          notFoundContent={
+      areaLoader ? <Spin size="small" /> : "No branches found"
+    }    
+                          
                           optionFilterProp="children"
                         >
                           {branchList.map((branch, index) => (
@@ -309,6 +313,9 @@ const ExpenseTransactionForm = () => {
                           showSearch
                           size="large"
                           loading={expenseTypeLoader}
+                           notFoundContent={
+      expenseTypeLoader ? <Spin size="small" /> : "No expense types found"
+    }
                           optionFilterProp="children"
                         >
                           {expenseTypeList?.map((type) => (

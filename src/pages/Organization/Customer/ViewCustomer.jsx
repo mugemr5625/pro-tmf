@@ -840,15 +840,15 @@ const [areaLoading, setAreaLoading] = useState(false);
                 type="default"
                 disabled={!selectedArea || tableLoader} // Disable if no area selected
               >
-                {!isMobile && "Search"}
+                {!isMobile && "Search Customer"}
               </Button>
               <Button
                 icon={<ReloadOutlined />}
                 onClick={handleReset}
-                title="Change Filters"
+                title="Change Area"
                 disabled={reOrder || tableLoader}
               >
-                {!isMobile && "Change Filters"}
+                {!isMobile && "Change Area"}
               </Button>
             </>
           )}
@@ -902,7 +902,10 @@ const [areaLoading, setAreaLoading] = useState(false);
        <div id="scrollableDiv" className="view-customer-scrollable-div">
   {/* Display filter info - Always show when filters are selected */}
   {selectedBranch && selectedLine && selectedArea && (
+    <>
+     <Divider style={{ margin: '5px 0'}} />
     <div className="view-customer-filter-info">
+        
       <Tag className="view-customer-filter-label" color="blue">
         Line: {selectedLine}
       </Tag>
@@ -911,7 +914,7 @@ const [areaLoading, setAreaLoading] = useState(false);
       {showReset && searchText && (
         <>
           <Tag className="view-customer-filter-label" color="purple">
-            Search: "{searchText}"
+            Name = "{searchText}"
           </Tag>
           <Button 
             type="link" 
@@ -921,10 +924,14 @@ const [areaLoading, setAreaLoading] = useState(false);
           >
             ✕ 
           </Button>
+           
         </>
       )}
     
     </div>
+     <Divider style={{ margin: '5px 0'}} />
+    
+    </>
   )}
 
           {Object.keys(groupedData).map((areaName) => {

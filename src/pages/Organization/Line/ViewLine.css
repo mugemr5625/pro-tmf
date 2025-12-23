@@ -38,7 +38,7 @@
   .view-line-actions {
     display: flex;
     align-items: center;
-    /* gap: 10px; */
+    gap: 6px;
   }
 
   .view-line-switch-label {
@@ -51,7 +51,6 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-right: 8px;
   }
 
   .view-line-reorder-icon {

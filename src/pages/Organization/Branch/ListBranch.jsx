@@ -28,12 +28,18 @@ const ListBranch = () => {
   
   const [branchModalVisible, setBranchModalVisible] = useState(false);
   const [selectedBranchName, setSelectedBranchName] = useState("");
+  const [selectedBranchId, setSelectedBranchId] = useState(null); // New state for branch ID
   const [isInitialized, setIsInitialized] = useState(false);
+  const [hasBranchSelected, setHasBranchSelected] = useState(false);
 
   useEffect(() => {
     const savedBranch = localStorage.getItem("selected_branch_name");
-    if (savedBranch) {
+    const savedBranchId = localStorage.getItem("selected_branch_id"); // Get saved ID
+    
+    if (savedBranch && savedBranchId) {
       setSelectedBranchName(savedBranch);
+      setSelectedBranchId(savedBranchId);
+      setHasBranchSelected(true);
       setIsInitialized(true);
     } else {
       const checkToken = () => {
@@ -49,9 +55,13 @@ const ListBranch = () => {
     }
   }, []);
 
-  const handleSaveBranchName = (name) => {
+  const handleSaveBranchName = (name, id) => {
+    // Now accepts both name and id as parameters
     localStorage.setItem("selected_branch_name", name);
+    localStorage.setItem("selected_branch_id", id); // Save the ID
     setSelectedBranchName(name);
+    setSelectedBranchId(id);
+    setHasBranchSelected(true);
     setBranchModalVisible(false);
     window.location.reload();
   };
@@ -71,6 +81,17 @@ const ListBranch = () => {
       if (response?.status === 200) {
         setBranches((prev) => prev.filter((item) => item.id !== record.id));
         setAllBranches((prev) => prev.filter((item) => item.id !== record.id));
+        
+        // If the deleted branch is the currently selected one, clear selection
+        if (record.id === selectedBranchId) {
+          localStorage.removeItem("selected_branch_name");
+          localStorage.removeItem("selected_branch_id");
+          setSelectedBranchName("");
+          setSelectedBranchId(null);
+          setHasBranchSelected(false);
+          setBranchModalVisible(true);
+        }
+        
         notification.success({
           message: `${record.branch_name?.toUpperCase()} Branch Deleted!`,
           description: "The branch has been deleted successfully.",
@@ -120,6 +141,10 @@ const ListBranch = () => {
   }, []);
 
   const getBranchesList = useCallback(async () => {
+    if (!hasBranchSelected) {
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await GET_BRANCHES(ADD_BRANCH);
@@ -128,10 +153,28 @@ const ListBranch = () => {
         setBranches(allBranchesData);
         
         const savedBranchName = localStorage.getItem("selected_branch_name");
-        if (savedBranchName) {
+        const savedBranchId = localStorage.getItem("selected_branch_id");
+        
+        if (savedBranchName && savedBranchId) {
+          // Filter by both name and ID for extra safety
           const filtered = allBranchesData.filter(
-            (branch) => branch.branch_name === savedBranchName
+            (branch) => branch.branch_name === savedBranchName && branch.id === parseInt(savedBranchId)
           );
+          
+          // If no match found, the saved branch might have been deleted
+          if (filtered.length === 0) {
+            notification.warning({
+              message: "Branch Not Found",
+              description: "The previously selected branch no longer exists. Please select a new branch.",
+            });
+            localStorage.removeItem("selected_branch_name");
+            localStorage.removeItem("selected_branch_id");
+            setHasBranchSelected(false);
+            setBranchModalVisible(true);
+            setLoading(false);
+            return;
+          }
+          
           setAllBranches(filtered);
           
           filtered.forEach(branch => {
@@ -150,21 +193,23 @@ const ListBranch = () => {
     } finally {
       setLoading(false);
     }
-  }, [fetchBranchDetails]);
+  }, [fetchBranchDetails, hasBranchSelected]);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
-    if (token) {
+    if (token && hasBranchSelected) {
       getBranchesList();
-    } else {
+    } else if (token && !hasBranchSelected) {
       setTimeout(() => {
         const retryToken = localStorage.getItem("access_token");
-        if (retryToken) {
+        const savedBranch = localStorage.getItem("selected_branch_name");
+        const savedBranchId = localStorage.getItem("selected_branch_id");
+        if (retryToken && savedBranch && savedBranchId) {
           getBranchesList();
         }
       }, 300);
     }
-  }, [getBranchesList]);
+  }, [getBranchesList, hasBranchSelected]);
 
   const showSearchModal = () => setSearchModalVisible(true);
   const handleCancel = () => setSearchModalVisible(false);
@@ -297,30 +342,26 @@ const ListBranch = () => {
     onDelete(branch);
   };
 
+  if (!hasBranchSelected) {
+    return (
+      <div className="list-branch-page-content">
+        {isInitialized && (
+          <BranchNameModal
+            visible={branchModalVisible}
+            onSave={handleSaveBranchName}
+            onCancel={handleCancelBranchModal}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="list-branch-page-content">
       {loading && <Loader />}
 
       <div className="list-branch-header">
         <h2 className="list-branch-title">Branch List</h2>
-
-        <div className="list-branch-actions">
-          <Button
-            icon={<SearchOutlined />}
-            onClick={showSearchModal}
-            className="search-button"
-          >
-            {!isMobile && "Search"}
-          </Button>
-
-          {searchTerm && (
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={handleReset}
-              title="Reset Search"
-            />
-          )}
-        </div>
       </div>
 
       <div className="list-branch-scrollable-div">
@@ -351,7 +392,6 @@ const ListBranch = () => {
                       index={index}
                       titleKey="branch_name"
                       name="branch"
-                      
                       showIndex={false}
                       onSwipeRight={() => handleEditBranch(branch)}
                       onSwipeLeft={() => handleDeleteBranch(branch)}

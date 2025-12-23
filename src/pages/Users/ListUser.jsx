@@ -787,20 +787,21 @@ const ListUser = () => {
               >
                {!isMobile&&"Reorder"}
               </Button>
-              {showReset && (
+             
+              <Button
+                icon={<SearchOutlined />}
+                onClick={() => setSearchModalVisible(true)}
+                type="default"
+              >
+                {!isMobile && "Search User"}
+              </Button>
+               {showReset && (
                 <Button
                   icon={<ReloadOutlined />}
                   onClick={handleReset}
                   title="Reset to Original"
                 />
               )}
-              <Button
-                icon={<SearchOutlined />}
-                onClick={() => setSearchModalVisible(true)}
-                type="default"
-              >
-                {!isMobile && "Search"}
-              </Button>
             </>
           )}
         </div>
@@ -861,11 +862,8 @@ const ListUser = () => {
               <span className="list-user-search-label">
                
                  <Tag color="blue" style={{ fontSize: 14, padding: "2px 8px" }}>
-        Pattern: {searchText}
+        Full Name = "{searchText}"
       </Tag>
-              </span>
-              <span className="list-user-results-count">
-                ({Object.values(groupedData).flat().length} results)
               </span>
             </div>
           )}

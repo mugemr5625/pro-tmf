@@ -49,8 +49,11 @@ function ProfileMenu(props) {
     setPasswordModalVisible(true); // Open password modal
   };
 
-  const handleBranchSave = (branchName) => {
+  const handleBranchSave = (branchName, branchId) => {
     localStorage.setItem("selected_branch_name", branchName);
+    if (branchId) {
+      localStorage.setItem("selected_branch_id", branchId);
+    }
     setSelectedBranch(branchName);
     setBranchModalVisible(false);
     window.location.reload();

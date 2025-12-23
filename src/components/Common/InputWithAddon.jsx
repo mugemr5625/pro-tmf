@@ -1,11 +1,12 @@
 import { Input, Space } from "antd";
 
 
-const InputWithAddon = ({ icon, placeholder, size = "large", ...rest }) => {
+const InputWithAddon = ({ icon, placeholder, value,size = "large", ...rest }) => {
   return (
     <Space.Compact style={{ width: "100%" }}>
       <Input
         size={size}
+        value={value}
         addonBefore={
           <span
             style={{

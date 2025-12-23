@@ -83,7 +83,8 @@ const BranchNameModal = ({ visible, onSave, onCancel }) => {
 
   const handleOk = () => {
     form.validateFields().then((values) => {
-      onSave(values.branchName);
+      const selectedBranch = branchList.find(b => b.branch_name === values.branchName);
+      onSave(values.branchName, selectedBranch?.id);
     });
   };
 

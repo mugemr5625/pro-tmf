@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Select, Form, Input, Button, Switch, message, Divider, Space } from "antd";
+import { Select, Form, Input, Button, Switch, message, Divider, Space ,Spin} from "antd";
 import {
   BankOutlined,
   ApartmentOutlined,
@@ -916,6 +916,9 @@ const AddUser = () => {
             showSearch
             size="large"
             loading={branchLoader}
+            notFoundContent={
+      branchLoader ? <Spin size="small" /> : "No branches found"
+    }    
             onChange={handleBaseBranchChange}
           >
             {branchList?.map((branch) => (
@@ -993,6 +996,9 @@ const AddUser = () => {
             showSearch
             size="large"
             loading={branchLoader}
+            notFoundContent={
+      branchLoader ? <Spin size="small" /> : "No branches found"
+    }    
             mode="multiple"
             allowClear
             onChange={handleBranchChange}

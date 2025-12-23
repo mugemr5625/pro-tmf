@@ -607,6 +607,14 @@ const ViewLine = () => {
               >
                {!isMobile&&"Reorder"}
               </Button>
+              
+              <Button
+                icon={<SearchOutlined />}
+                onClick={() => setSearchModalVisible(true)}
+                type="default"
+              >
+                {!isMobile && "Search Line"}
+              </Button>
               {showReset && (
                 <Button
                   icon={<ReloadOutlined />}
@@ -614,13 +622,6 @@ const ViewLine = () => {
                   title="Reset to Original"
                 />
               )}
-              <Button
-                icon={<SearchOutlined />}
-                onClick={() => setSearchModalVisible(true)}
-                type="default"
-              >
-                {!isMobile && "Search"}
-              </Button>
             </>
           )}
         </div>
@@ -679,7 +680,7 @@ const ViewLine = () => {
               <span className="view-line-search-label">
                 
                <Tag color="blue" style={{ fontSize: 14, padding: "2px 8px" }}>
-        Pattern: {searchText}
+        Line = "{searchText}"
       </Tag>
     </span>
 
