@@ -1,339 +1,67 @@
-import { useEffect, useState, useCallback } from "react";
-import { Form, Input, Button, Select, notification, Divider, Space, InputNumber, Tabs, Modal } from "antd";
-import { UserOutlined, PhoneOutlined, MailOutlined, IdcardOutlined, EnvironmentOutlined, FileTextOutlined, UserAddOutlined, ReloadOutlined, PlusOutlined, MinusOutlined, HomeOutlined } from '@ant-design/icons';
-import { useParams, useNavigate } from "react-router-dom";
-import Loader from "components/Common/Loader";
-import { GET, POST, PUT, DELETE } from "helpers/api_helper";
-import { AREA } from "helpers/url_helper";
-import "./AddCustomer.css";
-import AddCustomerDocument from "./AddCustomerDocument";
-import professionIcon from '../../../assets/icons/businessman.png'
-import { GoogleMap, LoadScript, Marker,Circle } from '@react-google-maps/api';
-import InputWithAddon from "components/Common/InputWithAddon";
+import React, { useState, useEffect } from 'react';
+import { Modal, Button, notification } from 'antd';
+import { EnvironmentOutlined, ReloadOutlined } from '@ant-design/icons';
+import { GoogleMap, LoadScript, Marker, Circle } from '@react-google-maps/api';
 
 const mapContainerStyle = {
     width: '100%',
     height: '400px'
 };
-const { Option } = Select;
-const { TextArea } = Input;
 
-const AddCustomer = () => {
-    const [loader, setLoader] = useState(false);
-    const [activeTab, setActiveTab] = useState("1");
-    const [lineList, setLineList] = useState([]);
-    const [areaList, setAreaList] = useState([]);
-    const [branchList, setBranchList] = useState([]);
-    const [allData, setAllData] = useState([]);
-    const [filteredLineList, setFilteredLineList] = useState([]);
-    const [filteredAreaList, setFilteredAreaList] = useState([]);
-    const [isPersonalInfoSubmitted, setIsPersonalInfoSubmitted] = useState(false);
-    const [nextCustomerId, setNextCustomerId] = useState(null);
-    const [currentCustomerId, setCurrentCustomerId] = useState(null);
-    const [mapModalVisible, setMapModalVisible] = useState(false);
-    const [mapCenter, setMapCenter] = useState({ lat: 20.5937, lng: 78.9629 });
-    const [selectedLocation, setSelectedLocation] = useState(null);
+const GOOGLE_MAPS_API_KEY = "AIzaSyBqZO5W2UKl7m5gPxh0_KIjaRckuJ7VUsE";
 
-    // LocalStorage states
-    const [savedBranchName, setSavedBranchName] = useState(null);
-    const [savedLineName, setSavedLineName] = useState(null);
-    const [savedAreaId, setSavedAreaId] = useState(null);
-    const [savedAreaName, setSavedAreaName] = useState(null);
-    const [isFromLocalStorage, setIsFromLocalStorage] = useState(false);
-const [currentAccuracy, setCurrentAccuracy] = useState(null);
+/**
+ * LocationMapModal - Reusable Google Maps component
+ * 
+ * @param {boolean} visible - Control modal visibility
+ * @param {function} onClose - Callback when modal is closed
+ * @param {function} onConfirm - Callback with selected location (only in editable mode)
+ * @param {object} initialLocation - Initial location to display { lat, lng }
+ * @param {boolean} editable - Whether user can select/change location (default: true)
+ * @param {boolean} showCurrentLocation - Show "Use Current Location" button (default: true)
+ */
+const LocationMapModal = ({
+    visible = false,
+    onClose,
+    onConfirm,
+    initialLocation = null,
+    editable = true,
+    showCurrentLocation = true,
+    title = "Select Customer Location"
+}) => {
+    const [mapCenter, setMapCenter] = useState(
+        initialLocation || { lat: 20.5937, lng: 78.9629 }
+    );
+    const [selectedLocation, setSelectedLocation] = useState(initialLocation);
+    const [currentAccuracy, setCurrentAccuracy] = useState(null);
 
-    const [form] = Form.useForm();
-    const params = useParams();
-    const navigate = useNavigate();
-
-    const getAreaList = useCallback(async () => {
-        try {
-            setLoader(true);
-            const response = await GET(AREA);
-            if (response?.status === 200) {
-                const data = response.data;
-                setAllData(data);
-
-                // Extract unique branches
-                const branchMap = new Map();
-                data.forEach(item => {
-                    if (item.branch_id && !branchMap.has(item.branch_id)) {
-                        branchMap.set(item.branch_id, {
-                            id: item.branch_id,
-                            branch_name: item.branch_name
-                        });
-                    }
-                });
-                const uniqueBranches = Array.from(branchMap.values());
-
-                // Extract unique lines
-                const lineMap = new Map();
-                data.forEach(item => {
-                    if (item.line_id && !lineMap.has(item.line_id)) {
-                        lineMap.set(item.line_id, {
-                            id: item.line_id,
-                            name: item.line_name,
-                            branch_id: item.branch_id
-                        });
-                    }
-                });
-                const uniqueLines = Array.from(lineMap.values());
-
-                // Extract unique areas
-                const areaMap = new Map();
-                data.forEach(item => {
-                    if (item.id && !areaMap.has(item.id)) {
-                        areaMap.set(item.id, {
-                            id: item.id,
-                            name: item.areaName,
-                            branch_id: item.branch_id,
-                            line_id: item.line_id
-                        });
-                    }
-                });
-                const uniqueAreas = Array.from(areaMap.values());
-
-                setBranchList(uniqueBranches);
-                setLineList(uniqueLines);
-                setAreaList(uniqueAreas);
-                setFilteredLineList(uniqueLines);
-                setFilteredAreaList(uniqueAreas);
-
-                // Check for saved selections in localStorage
-                const storedLineName = localStorage.getItem('selected_line_name');
-                const storedAreaId = localStorage.getItem('selected_area_id');
-                const storedAreaName = localStorage.getItem('selected_area_name');
-                const storedBranchName = localStorage.getItem('selected_branch_name');
-
-                if (storedLineName && storedAreaId && storedBranchName && !params.id) {
-                    // Set saved values
-                    setSavedBranchName(storedBranchName);
-                    setSavedLineName(storedLineName);
-                    setSavedAreaId(parseInt(storedAreaId));
-                    setSavedAreaName(storedAreaName);
-                    setIsFromLocalStorage(true);
-
-                    // Find the branch ID from branch name
-                    const matchedBranch = uniqueBranches.find(
-                        branch => branch.branch_name === storedBranchName
-                    );
-
-                    // Find the line ID from line name
-                    const matchedLine = uniqueLines.find(
-                        line => line.name === storedLineName &&
-                            line.branch_id === matchedBranch?.id
-                    );
-
-                    if (matchedBranch && matchedLine) {
-                        // Set form values
-                        form.setFieldsValue({
-                            branch: matchedBranch.id,
-                            line: matchedLine.id,
-                            area: parseInt(storedAreaId)
-                        });
-
-                        // Filter line and area lists
-                        const filteredLines = uniqueLines.filter(
-                            line => line.branch_id === matchedBranch.id
-                        );
-                        setFilteredLineList(filteredLines);
-
-                        const filteredAreas = uniqueAreas.filter(
-                            area => area.branch_id === matchedBranch.id &&
-                                area.line_id === matchedLine.id
-                        );
-                        setFilteredAreaList(filteredAreas);
-                    }
-                }
-            }
-            setLoader(false);
-        } catch (error) {
-            setLoader(false);
-            notification.error({
-                message: 'Error',
-                description: 'Failed to fetch area details',
-                duration: 3,
-            });
-            console.error(error);
-        }
-    }, [params.id, form]);
-
-    const getAllCustomers = useCallback(async () => {
-        try {
-            const response = await GET('/api/customers/');
-            if (response?.status === 200) {
-                const customers = response.data;
-
-                if (customers && customers.length > 0) {
-                    const maxId = Math.max(...customers.map(customer => customer.customer_order));
-                    setNextCustomerId(maxId + 1);
-                } else {
-                    setNextCustomerId(1);
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching customers:', error);
-            setNextCustomerId(1);
-        }
-    }, []);
-
-    const handleBranchChange = (branchId) => {
-        const filtered = allData.filter(item => item.branch_id === branchId);
-
-        const lineMap = new Map();
-        filtered.forEach(item => {
-            if (item.line_id && !lineMap.has(item.line_id)) {
-                lineMap.set(item.line_id, {
-                    id: item.line_id,
-                    name: item.line_name,
-                    branch_id: item.branch_id
-                });
-            }
-        });
-        const filteredLines = Array.from(lineMap.values());
-        setFilteredLineList(filteredLines);
-
-        form.setFieldsValue({ line: undefined, area: undefined });
-        setFilteredAreaList([]);
-    };
-
-    const handleLineChange = (lineId) => {
-        const branchId = form.getFieldValue('branch');
-
-        const filtered = allData.filter(item =>
-            item.branch_id === branchId && item.line_id === lineId
-        );
-
-        const areaMap = new Map();
-        filtered.forEach(item => {
-            if (item.id && !areaMap.has(item.id)) {
-                areaMap.set(item.id, {
-                    id: item.id,
-                    name: item.areaName,
-                    branch_id: item.branch_id,
-                    line_id: item.line_id
-                });
-            }
-        });
-        const filteredAreas = Array.from(areaMap.values());
-        setFilteredAreaList(filteredAreas);
-
-        form.setFieldsValue({ area: undefined });
-    };
-
-    // Replace the getCustomerDetails function with this updated version:
-
-    const getCustomerDetails = useCallback(async () => {
-        try {
-            setLoader(true);
-            const response = await GET(`/api/customers/${params.id}/`);
-            if (response?.status === 200) {
-                const data = response?.data;
-
-                // Find names for display
-                const customerBranch = branchList.find(b => b.id === data.branch);
-                const customerLine = lineList.find(l => l.id === data.line);
-                const customerArea = areaList.find(a => a.id === data.area);
-
-                if (customerBranch) setSavedBranchName(customerBranch.branch_name);
-                if (customerLine) setSavedLineName(customerLine.name);
-                if (customerArea) setSavedAreaName(customerArea.name);
-
-                // Initialize reference contacts
-                if (!data.reference_contacts || data.reference_contacts.length === 0) {
-                    data.reference_contacts = [{ reference_number: '' }];
-                }
-
-                // ✅ OPTIMIZED: Load existing coordinates
-                if (data?.latitude && data?.longitude) {
-                    const lat = parseFloat(data.latitude);
-                    const lng = parseFloat(data.longitude);
-
-                    // Validate coordinates
-                    if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-                        setSelectedLocation({
-                            lat: lat.toFixed(6),
-                            lng: lng.toFixed(6),
-                            address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
-                        });
-
-                        setMapCenter({ lat, lng });
-                    }
-                }
-
-                form.setFieldsValue(data);
-                setIsPersonalInfoSubmitted(true);
-                setCurrentCustomerId(data?.id);
-            }
-            setLoader(false);
-        } catch (error) {
-            setLoader(false);
-            notification.error({
-                message: 'Error',
-                description: 'Failed to fetch customer details',
-                duration: 3,
-            });
-            console.error(error);
-        }
-    }, [params.id, form, branchList, lineList, areaList]);
-
-
-    // ALTERNATIVE SOLUTION: Update the useEffect that initializes the form
-    // Replace the existing useEffect with this:
-
+    // Update map when initialLocation changes
     useEffect(() => {
-        getAreaList();
-
-        // Always initialize reference_contacts with at least one field
-        if (!params.id) {
-            getAllCustomers();
+        if (initialLocation) {
+            setMapCenter(initialLocation);
+            setSelectedLocation(initialLocation);
         }
+    }, [initialLocation]);
 
-        // Initialize form with one reference contact field (for both add and edit)
-        form.setFieldsValue({
-            reference_contacts: [{ reference_number: '' }]
-        });
-    }, [params.id, getAllCustomers, getAreaList, form]);
-
+    // Reset map center when modal opens
     useEffect(() => {
-        getAreaList();
-
-        if (!params.id) {
-            getAllCustomers();
-            form.setFieldsValue({
-                reference_contacts: [{ reference_number: '' }]
-            });
-        }
-    }, [params.id, getAllCustomers, getAreaList, form]);
-
-    // Separate useEffect for getting customer details after area list is loaded
-    useEffect(() => {
-        if (params.id && branchList.length > 0 && lineList.length > 0 && areaList.length > 0) {
-            getCustomerDetails();
-        }
-    }, [params.id, branchList, lineList, areaList, getCustomerDetails]);
-
-    const openMapModal = () => {
-        // FIX: Always set the map center to selected location when opening modal
-        if (selectedLocation) {
+        if (visible && selectedLocation) {
             const lat = parseFloat(selectedLocation.lat);
             const lng = parseFloat(selectedLocation.lng);
             if (!isNaN(lat) && !isNaN(lng)) {
                 setMapCenter({ lat, lng });
             }
-        } else {
-            // Default to India center if no location selected
+        } else if (visible && !selectedLocation) {
             setMapCenter({ lat: 20.5937, lng: 78.9629 });
         }
-        setMapModalVisible(true);
-    };
+    }, [visible, selectedLocation]);
+    
 
     const handleGetCurrentLocation = () => {
         if (!navigator.geolocation) {
             notification.error({
                 message: 'Geolocation Not Supported',
                 description: 'Your browser does not support geolocation.',
-                // duration: 5,
             });
             return;
         }
@@ -344,69 +72,64 @@ const [currentAccuracy, setCurrentAccuracy] = useState(null);
             duration: 4,
         });
 
-        // OPTIMIZED: Get high-accuracy position
-         const watchId = navigator.geolocation.watchPosition(
-        (position) => {
-               const { latitude, longitude, accuracy } = position.coords;
+        const watchId = navigator.geolocation.watchPosition(
+            (position) => {
+                const { latitude, longitude, accuracy } = position.coords;
 
-            console.log("Live Accuracy:", accuracy);
+                console.log("Live Accuracy:", accuracy);
 
-            // ✅ Only accept when accuracy is GOOD (≤ 5 meters)
-            if (accuracy <= 2) {
-                const lat = latitude.toFixed(6);
-                const lng = longitude.toFixed(6);
+                if (accuracy <= 5) {
+                    const lat = latitude.toFixed(6);
+                    const lng = longitude.toFixed(6);
 
-                setSelectedLocation({
-                    lat,
-                    lng,
-                    address: `${lat}, ${lng}`,
+                    setSelectedLocation({
+                        lat,
+                        lng,
+                        address: `${lat}, ${lng}`,
+                    });
+
+                    setMapCenter({ lat: latitude, lng: longitude });
+
+                    notification.success({
+                        message: "High Accuracy Location Locked ✅",
+                        description: `Accuracy: ${accuracy.toFixed(1)} meters`,
+                        duration: 3,
+                    });
+
+                    navigator.geolocation.clearWatch(watchId);
+                } else {
+                    setSelectedLocation({
+                        lat: latitude.toFixed(6),
+                        lng: longitude.toFixed(6),
+                        address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+                    });
+
+                    setMapCenter({ lat: latitude, lng: longitude });
+                    setCurrentAccuracy(accuracy);
+                }
+            },
+            (error) => {
+                let errorMessage = "Unable to get location";
+                if (error.code === 1) errorMessage = "Location permission denied";
+                if (error.code === 2) errorMessage = "Location unavailable";
+                if (error.code === 3) errorMessage = "Location request timeout";
+
+                notification.error({
+                    message: "GPS Error",
+                    description: errorMessage,
                 });
-
-                setMapCenter({ lat: latitude, lng: longitude });
-
-                notification.success({
-                    message: "High Accuracy Location Locked ✅",
-                    description: `Accuracy: ${accuracy.toFixed(1)} meters`,
-                    duration: 3,
-                });
-
-                // ✅ Stop tracking once good accuracy is achieved
-                navigator.geolocation.clearWatch(watchId);
-            } else {
-                // Keep updating marker live while accuracy improves
-                setSelectedLocation({
-                    lat: latitude.toFixed(6),
-                    lng: longitude.toFixed(6),
-                    address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
-                });
-
-                setMapCenter({ lat: latitude, lng: longitude });
-                setCurrentAccuracy(accuracy);
-
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 20000,
+                maximumAge: 0,
             }
-        },
-        (error) => {
-            let errorMessage = "Unable to get location";
-            if (error.code === 1) errorMessage = "Location permission denied";
-            if (error.code === 2) errorMessage = "Location unavailable";
-            if (error.code === 3) errorMessage = "Location request timeout";
-
-            notification.error({
-                message: "GPS Error",
-                description: errorMessage,
-            });
-        },
-        {
-            enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge: 0,
-        }
-    );
-};
-
-   
+        );
+    };
 
     const handleMapClick = (e) => {
+        if (!editable) return;
+
         const lat = e.latLng.lat();
         const lng = e.latLng.lng();
 
@@ -416,25 +139,13 @@ const [currentAccuracy, setCurrentAccuracy] = useState(null);
             address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
         });
 
-        
         setMapCenter({ lat, lng });
     };
 
-
-    const handleMapModalOk = () => {
-        if (selectedLocation) {
-            form.setFieldsValue({
-                latitude: parseFloat(selectedLocation.lat),
-                longitude: parseFloat(selectedLocation.lng)
-            });
-            setMapModalVisible(false);
-
-            notification.success({
-                message: 'Location Set',
-                description: `Coordinates: ${selectedLocation.lat}, ${selectedLocation.lng}`,
-                duration: 2,
-            });
-        } else {
+    const handleConfirm = () => {
+        if (selectedLocation && onConfirm) {
+            onConfirm(selectedLocation);
+        } else if (!selectedLocation) {
             notification.error({
                 message: 'No Location Selected',
                 description: 'Please select a location on the map or use current location',
@@ -443,856 +154,110 @@ const [currentAccuracy, setCurrentAccuracy] = useState(null);
         }
     };
 
-    // Replace the onFinish function with this updated version:
-
-    const onFinish = async (values) => {
-        setLoader(true);
-        try {
-            // Filter out empty reference contacts
-            const filteredReferenceContacts = (values.reference_contacts || []).filter(
-                contact => contact.reference_number && contact.reference_number.trim() !== ''
-            );
-
-            const payload = {
-                customer_name: values.customer_name,
-                mobile_number: values.mobile_number,
-                alternate_mobile_number: values.alternate_mobile_number || null,
-                email_id: values.email_id,
-                aadhaar_id: values.aadhaar_id,
-                pan_number: values.pan_number,
-                address: values.address,
-                profession: values.profession,
-                line: values.line,
-                area: values.area,
-                branch: values.branch,
-                latitude: values.latitude ? String(values.latitude) : null,
-                longitude: values.longitude ? String(values.longitude) : null,
-                customer_order: params.id ? values.customer_order : nextCustomerId,
-                reference_contacts: filteredReferenceContacts,
-            };
-
-            console.log('Payload being sent:', payload);
-
-            let response;
-            if (params.id) {
-                response = await PUT(`/api/customers/${params.id}/`, payload);
-            } else {
-                response = await POST('/api/customers/', payload);
-            }
-
-            setLoader(false);
-
-            if (response.status === 400) {
-                // Handle validation errors
-                const errorMessages = [];
-
-                if (response?.data) {
-                    Object.keys(response.data).forEach(key => {
-                        if (Array.isArray(response.data[key])) {
-                            errorMessages.push(`${key}: ${response.data[key][0]}`);
-                        } else {
-                            errorMessages.push(`${key}: ${response.data[key]}`);
-                        }
-                    });
-                }
-
-                notification.error({
-                    message: 'Validation Error',
-                    description: errorMessages.length > 0
-                        ? errorMessages.join('\n')
-                        : (params.id ? 'Failed to update customer' : 'Failed to create customer'),
-                    duration: 5,
-                });
-                return;
-            }
-
-            notification.success({
-                message: `${values.customer_name} ${params.id ? 'Updated' : 'Added'}!`,
-                description: params.id
-                    ? 'Customer details updated successfully. You can now manage documents.'
-                    : 'Customer added successfully. You can now upload documents.',
-                duration: 3,
-            });
-
-            // FIX: In both add and edit mode, go to document upload tab
-            if (!params.id) {
-                // Add mode
-                form.setFieldsValue({ id: response?.data?.id });
-                setCurrentCustomerId(response?.data?.id);
-                setIsPersonalInfoSubmitted(true);
-                setActiveTab("2");
-            } else {
-                // Edit mode - also go to tab 2 instead of navigating away
-                setCurrentCustomerId(params.id);
-                setIsPersonalInfoSubmitted(true);
-                setActiveTab("2");
-            }
-        } catch (error) {
-            console.error('Submit error:', error);
-            notification.error({
-                message: 'Error',
-                description: error?.response?.data?.detail || 'An error occurred. Please try again.',
-                duration: 5,
-            });
-            setLoader(false);
-        }
+    const handleClose = () => {
+        setCurrentAccuracy(null);
+        if (onClose) onClose();
     };
-
-    const handleReset = () => {
-        form.resetFields();
-
-        // If values are from localStorage, restore them
-        if (isFromLocalStorage && savedBranchName && savedLineName && savedAreaId) {
-            const matchedBranch = branchList.find(
-                branch => branch.branch_name === savedBranchName
-            );
-            const matchedLine = lineList.find(
-                line => line.name === savedLineName
-            );
-
-            if (matchedBranch && matchedLine) {
-                form.setFieldsValue({
-                    branch: matchedBranch.id,
-                    line: matchedLine.id,
-                    area: savedAreaId
-                });
-            }
-        } else {
-            setFilteredLineList(lineList);
-            setFilteredAreaList(areaList);
-        }
-    };
-
-    const handleDelete = async () => {
-        if (!params.id) return;
-
-        try {
-            setLoader(true);
-            const response = await DELETE(`/api/customers/${params.id}/`);
-
-            if (response.status === 204 || response.status === 200) {
-                notification.success({
-                    message: 'Customer Deleted',
-                    description: 'Customer has been deleted successfully',
-                    duration: 0,
-                });
-                navigate('/customers');
-            } else {
-                notification.error({
-                    message: 'Error',
-                    description: 'Failed to delete customer',
-                    duration: 0,
-                });
-            }
-            setLoader(false);
-        } catch (error) {
-            notification.error({
-                message: 'Error',
-                description: 'Failed to delete customer',
-                duration: 0,
-            });
-            setLoader(false);
-            console.error(error);
-        }
-    };
-
-    const handleTabChange = (key) => {
-        if (key === "2") {
-            // In add mode: only allow if personal info is submitted
-            if (!params.id && !isPersonalInfoSubmitted) {
-                notification.warning({
-                    message: 'Complete Personal Information',
-                    description: 'Please submit the personal information form before uploading documents.',
-                    duration: 3,
-                });
-                return;
-            }
-        }
-        setActiveTab(key);
-    };
-
-    const handlePreviousTab = () => {
-        setActiveTab("1");
-    };
-
-    const handleCancelForm = () => {
-        if (window.confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
-            navigate('/view-customer');
-        }
-    };
-
-    const tabItems = [
-        {
-            key: "1",
-            label: (
-                <span>
-                    <UserAddOutlined />
-                    Personal Info
-                </span>
-            ),
-            children: (
-                <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={onFinish}
-                    className="add-customer-form"
-                >
-                    <div className="container add-customer-form-container">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <h3 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>
-                                Personal Information
-                            </h3>
-                            <Button
-                                icon={<ReloadOutlined />}
-                                onClick={handleReset}
-                                title="Reset to Original"
-                            />
-                        </div>
-
-                        <div className="row mb-2">
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Customer Name"
-                                    name="customer_name"
-                                    rules={[
-                                        { required: true, message: 'Please enter customer name' },
-                                        { min: 2, message: 'Name must be at least 2 characters' }
-                                    ]}
-                                >
-<InputWithAddon
-  icon={<UserOutlined />}
-  placeholder="Enter customer name"
-/>
-
-                                </Form.Item>
-                            </div>
-
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Mobile Number"
-                                    name="mobile_number"
-                                    rules={[
-                                        { required: true, message: 'Please enter mobile number' },
-                                        { pattern: /^\d{10}$/, message: 'Mobile number must be 10 digits' }
-                                    ]}
-                                >
-                                   <InputWithAddon
-  icon={<PhoneOutlined />}
-  placeholder="10 digit mobile number"
-  maxLength={10}
-/>
-
-                                </Form.Item>
-                            </div>
-                        </div>
-
-                        <div className="row mb-2">
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Alternate Mobile Number"
-                                    name="alternate_mobile_number"
-                                    rules={[
-                                        { pattern: /^\d{10}$/, message: 'Alternate mobile number must be 10 digits' }
-                                    ]}
-                                >
-                                   <InputWithAddon
-  icon={<PhoneOutlined />}
-  placeholder="10 digit alternate mobile number (optional)"
-  maxLength={10}
-/>
-
-                                </Form.Item>
-                            </div>
-
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Email ID"
-                                    name="email_id"
-                                    rules={[
-                                        { required: true, message: 'Please enter email' },
-                                        { type: 'email', message: 'Please enter valid email' }
-                                    ]}
-                                >
-                                   <InputWithAddon
-  icon={<MailOutlined />}
-  placeholder="example@email.com"
-/>
-
-                                </Form.Item>
-                            </div>
-                        </div>
-
-                        <div className="row mb-2">
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Profession"
-                                    name="profession"
-                                    rules={[
-                                        { required: true, message: 'Please enter profession' }
-                                    ]}
-                                >
-                                   <InputWithAddon
-  icon={
-    <img
-      src={professionIcon}
-      alt="Profession"
-      style={{ width: 16, height: 16 }}
-    />
-  }
-  placeholder="Enter profession"
-/>
-
-                                </Form.Item>
-                            </div>
-
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Aadhaar ID"
-                                    name="aadhaar_id"
-                                    rules={[
-                                        { required: true, message: 'Please enter Aadhaar ID' },
-                                        { pattern: /^\d{12}$/, message: 'Aadhaar ID must be 12 digits' }
-                                    ]}
-                                >
-                                   <InputWithAddon
-  icon={<IdcardOutlined />}
-  placeholder="12 digit Aadhaar number"
-  maxLength={12}
-/>
-
-                                </Form.Item>
-                            </div>
-                        </div>
-
-                        <div className="row mb-2">
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="PAN Number"
-                                    name="pan_number"
-                                    rules={[
-                                        { required: true, message: 'Please enter PAN number' },
-                                    ]}
-                                >
-                                   <InputWithAddon
-  icon={<IdcardOutlined />}
-  placeholder="ABCDE1234F"
-  style={{ textTransform: "uppercase" }}
-  maxLength={10}
-/>
-
-                                </Form.Item>
-                            </div>
-
-                            <div className="col-md-6">
-                                <Form.Item
-                                    label="Address"
-                                    name="address"
-                                    rules={[
-                                        { required: true, message: 'Please enter address' },
-                                    ]}
-                                >
-                                    <Input.TextArea
-                                        prefix={<IdcardOutlined />}
-                                        placeholder="Enter complete address"
-                                         autoSize={{ minRows: 2, maxRows: 6 }}
-                                        size="large"
-                                         
-                                        allowClear
-                                    />
-                                </Form.Item>
-                            </div>
-                        </div>
-
-                        <Divider className="add-customer-divider" style={{ border: "1px solid #d9d9d9" }} />
-                        <Divider orientation="center">Location Details</Divider>
-                        {/* <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
-                            Location Details
-                        </h3> */}
-
-                        {/* Display info banner when fields are from localStorage */}
-                        {/* {isFromLocalStorage && !params.id && (
-                            <div style={{ 
-                                marginBottom: '16px', 
-                                padding: '12px', 
-                                background: '#e6f7ff', 
-                                border: '1px solid #91d5ff',
-                                borderRadius: '4px'
-                            }}>
-                                <strong>Note:</strong> Branch, Line, and Area are pre-selected from your last selection and cannot be changed.
-                            </div>
-                        )} */}
-
-                        {params.id && (
-                            <div style={{
-                                marginBottom: '16px',
-                                padding: '12px',
-                                background: '#fff7e6',
-                                border: '1px solid #ffd591',
-                                borderRadius: '4px'
-                            }}>
-                                <strong>Note:</strong> Branch, Line, and Area cannot be changed while editing a customer.
-                            </div>
-                        )}
-
-                        <div className="row mb-2">
-                            <div className="col-md-4">
-                                {(isFromLocalStorage && !params.id) || params.id ? (
-                                    <>
-                                        <Form.Item
-                                            label="Branch"
-                                            name="branch"
-                                            rules={[
-                                                { required: true, message: 'Please select branch' }
-                                            ]}
-                                            style={{ display: 'none' }}
-                                        >
-                                            <Input type="hidden" />
-                                        </Form.Item>
-                                        <Form.Item label="Branch">
-                                            <Input
-                                                value={savedBranchName}
-                                                size="large"
-                                                disabled
-                                                style={{
-                                                    backgroundColor: '#f5f5f5',
-                                                    color: '#000',
-                                                    cursor: 'not-allowed'
-                                                }}
-                                            />
-                                        </Form.Item>
-                                    </>
-                                ) : (
-                                    <Form.Item
-                                        label="Branch"
-                                        name="branch"
-                                        rules={[
-                                            { required: true, message: 'Please select branch' }
-                                        ]}
-                                    >
-                                        <Select
-                                            placeholder="Select Branch"
-                                            size="large"
-                                            showSearch
-                                            allowClear
-                                            onChange={handleBranchChange}
-                                            filterOption={(input, option) =>
-                                                option.children.toLowerCase().includes(input.toLowerCase())
-                                            }
-                                        >
-                                            {branchList.map((branch) => (
-                                                <Option key={branch.id} value={branch.id}>
-                                                    {branch.branch_name}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                )}
-                            </div>
-
-                            <div className="col-md-4">
-                                {(isFromLocalStorage && !params.id) || params.id ? (
-                                    <>
-                                        <Form.Item
-                                            label="Line"
-                                            name="line"
-                                            rules={[
-                                                { required: true, message: 'Please select line' }
-                                            ]}
-                                            style={{ display: 'none' }}
-                                        >
-                                            <Input type="hidden" />
-                                        </Form.Item>
-                                        <Form.Item label="Line">
-                                            <Input
-                                                value={savedLineName}
-                                                size="large"
-                                                disabled
-                                                style={{
-                                                    backgroundColor: '#f5f5f5',
-                                                    color: '#000',
-                                                    cursor: 'not-allowed'
-                                                }}
-                                            />
-                                        </Form.Item>
-                                    </>
-                                ) : (
-                                    <Form.Item
-                                        label="Line"
-                                        name="line"
-                                        rules={[
-                                            { required: true, message: 'Please select line' }
-                                        ]}
-                                    >
-                                        <Select
-                                            placeholder="Select Line"
-                                            size="large"
-                                            showSearch
-                                            allowClear
-                                            onChange={handleLineChange}
-                                            filterOption={(input, option) =>
-                                                option.children.toLowerCase().includes(input.toLowerCase())
-                                            }
-                                        >
-                                            {filteredLineList.map((line) => (
-                                                <Option key={line.id} value={line.id}>
-                                                    {line.name}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                )}
-                            </div>
-
-                            <div className="col-md-4">
-                                {(isFromLocalStorage && !params.id) || params.id ? (
-                                    <>
-                                        <Form.Item
-                                            label="Area"
-                                            name="area"
-                                            rules={[
-                                                { required: true, message: 'Please select area' }
-                                            ]}
-                                            style={{ display: 'none' }}
-                                        >
-                                            <Input type="hidden" />
-                                        </Form.Item>
-                                        <Form.Item label="Area">
-                                            <Input
-                                                value={savedAreaName}
-                                                size="large"
-                                                disabled
-                                                style={{
-                                                    backgroundColor: '#f5f5f5',
-                                                    color: '#000',
-                                                    cursor: 'not-allowed'
-                                                }}
-                                            />
-                                        </Form.Item>
-                                    </>
-                                ) : (
-                                    <Form.Item
-                                        label="Area"
-                                        name="area"
-                                        rules={[
-                                            { required: true, message: 'Please select area' }
-                                        ]}
-                                    >
-                                        <Select
-                                            placeholder="Select Area"
-                                            size="large"
-                                            showSearch
-                                            allowClear
-                                            filterOption={(input, option) =>
-                                                option.children.toLowerCase().includes(input.toLowerCase())
-                                            }
-                                        >
-                                            {filteredAreaList.map((area) => (
-                                                <Option key={area.id} value={area.id}>
-                                                    {area.name}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    </Form.Item>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="row mb-2">
-                            <div className="col-md-12">
-                                <Form.Item
-                                    label="Location"
-                                    rules={[
-                                        { required: true, message: 'Please select location' }
-                                    ]}
-                                >
-                                    <Input
-                                        prefix={<EnvironmentOutlined />}
-                                        placeholder="Click map icon to select location"
-                                        size="large"
-                                        disabled
-                                        value={selectedLocation ? selectedLocation.address : ''}
-                                        suffix={
-                                            <Button
-                                                type="text"
-                                                icon={<EnvironmentOutlined />}
-                                                onClick={openMapModal}
-                                                style={{ color: '#1890ff' }}
-                                            />
-                                        }
-                                    />
-                                </Form.Item>
-                            </div>
-                        </div>
-
-                        <Form.Item name="latitude" style={{ display: 'none' }}>
-                            <Input type="hidden" />
-                        </Form.Item>
-                        <Form.Item name="longitude" style={{ display: 'none' }}>
-                            <Input type="hidden" />
-                        </Form.Item>
-                        <Form.Item name="customer_order" style={{ display: 'none' }}>
-                            <Input type="hidden" />
-                        </Form.Item>
-
-                        <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
-                        <Divider orientation="center">Reference Contacts</Divider>
-
-                        <Form.List name="reference_contacts">
-                            {(fields, { add, remove }) => (
-                                <>
-                                    {fields.map(({ key, name, ...restField }, index) => (
-                                        <div key={key} className="row mb-3">
-                                            <div className="col-md-6" style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
-                                                <Form.Item
-                                                    {...restField}
-                                                    name={[name, 'reference_number']}
-                                                    label={`Reference Contact ${index + 1}`}
-                                                    rules={[
-                                                        { pattern: /^\d{10}$/, message: 'Mobile number must be 10 digits' }
-                                                    ]}
-                                                    style={{ flexGrow: 1, marginBottom: 0 }}
-                                                >
-                                                    <Input
-                                                        prefix={<PhoneOutlined />}
-                                                        placeholder="10 digit mobile number"
-                                                        size="large"
-                                                        maxLength={10}
-                                                    />
-                                                </Form.Item>
-
-                                                {fields.length > 1 && (
-                                                    <Button
-                                                        type="primary"
-                                                        danger
-                                                        shape="circle"
-                                                        icon={<MinusOutlined />}
-                                                        onClick={() => remove(name)}
-                                                        style={{
-                                                            width: 35,
-                                                            height: 35,
-                                                            backgroundColor: 'red',
-                                                            borderColor: 'red',
-                                                        }}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
-
-                                    {/* Add Button - Only show if less than 5 reference contacts */}
-                                    {fields.length < 5 && (
-                                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                                            <Button
-                                                type="primary"
-                                                shape="circle"
-                                                icon={<PlusOutlined />}
-                                                onClick={() => add()}
-                                                style={{
-                                                    width: 35,
-                                                    height: 35,
-                                                    backgroundColor: '#28a745',
-                                                    borderColor: '#28a745',
-                                                    color: '#fff',
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-                                </>
-                            )}
-                        </Form.List>
-
-                        <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
-
-                        <div className="text-center mt-4">
-                            <Space size="middle">
-                                <Button
-                                    size="large"
-                                    onClick={() => navigate("/view-customer")}
-                                >
-                                    Cancel
-                                </Button>
-
-                                <Button type="primary" htmlType="submit" size="large">
-                                    {params.id ? "Update Customer" : "Submit & Next"}
-                                </Button>
-
-
-                            </Space>
-                            {/* {params.id && (
-                                    <Button 
-                                        danger
-                                        size="large"
-                                        onClick={handleDelete}
-                                        style={{marginTop: '10px'}}
-                                    >
-                                        Delete 
-                                    </Button>
-                                )} */}
-                        </div>
-                    </div>
-                </Form>
-            )
-        },
-        {
-            key: "2",
-            label: (
-                <span>
-                    <FileTextOutlined />
-                    Upload Doc
-                </span>
-            ),
-            children: <AddCustomerDocument
-                customerId={currentCustomerId || params.id}
-                onPrevious={handlePreviousTab}
-                onCancel={handleCancelForm}
-            />,
-        }
-    ];
 
     return (
-        <>
-            {loader && <Loader />}
-
-            <div className="add-customer-page-content">
-                <div className="add-customer-container-fluid">
-                    <div className="row">
-                        <div className="col-md-12">
-                            <div className="add-customer-header">
-                                <h2 className="add-customer-title">
-                                    {params.id ? "Edit Customer" : "Add New Customer"}
-                                </h2>
-                            </div>
-
-                            <Tabs
-                                activeKey={activeTab}
-                                onChange={handleTabChange}
-                                items={tabItems}
-                                size="large"
-                                type="card"
-                                className="custom-tabs"
-                            />
-
-                            {/* Map Modal */}
-                            {/* ... inside your return statement ... */}
-
-                            <Modal
-                                title={
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <EnvironmentOutlined style={{ color: '#1890ff' }} />
-                                        <span>Select Customer Location</span>
-                                    </div>
-                                }
-                                open={mapModalVisible}
-                                onOk={handleMapModalOk}
-                                onCancel={() => setMapModalVisible(false)}
-                                width={900}
-                                footer={[
-                                    <Button key="back" onClick={() => setMapModalVisible(false)}>
-                                        Cancel
-                                    </Button>,
-                                    <Button
-                                        key="current"
-                                        type="default"
-                                        icon={<EnvironmentOutlined />}
-                                        onClick={handleGetCurrentLocation}
-                                        style={{ marginRight: '8px' }}
-                                    >
-                                        Use Current Location
-                                    </Button>,
-                                    <Button
-                                        key="submit"
-                                        type="primary"
-                                        onClick={handleMapModalOk}
-                                        disabled={!selectedLocation}
-                                    >
-                                        Confirm Location
-                                    </Button>,
-                                ]}
+        <Modal
+            title={
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <EnvironmentOutlined style={{ color: '#1890ff' }} />
+                    <span>{title}</span>
+                </div>
+            }
+            open={visible}
+            onCancel={handleClose}
+            width={900}
+            footer={
+                editable ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+                            {selectedLocation && (
+                                <Button
+                                    icon={<ReloadOutlined />}
+                                    onClick={() => setSelectedLocation(null)}
+                                />
+                            )}
+                            {showCurrentLocation && (
+                                <Button
+                                    type="default"
+                                    icon={<EnvironmentOutlined />}
+                                    onClick={handleGetCurrentLocation}
+                                >
+                                    Use Current Location
+                                </Button>
+                            )}
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+                            <Button onClick={handleClose}>Cancel</Button>
+                            <Button
+                                type="primary"
+                                onClick={handleConfirm}
+                                disabled={!selectedLocation}
                             >
-                                <div style={{ marginBottom: '12px', padding: '10px', background: '#e6f7ff', borderRadius: '4px' }}>
-                                    <strong>Instructions:</strong> Click anywhere on the map to select a location, or use the "Use Current Location" button for precise GPS coordinates.
-                                </div>
-
-                                <LoadScript googleMapsApiKey="AIzaSyBqZO5W2UKl7m5gPxh0_KIjaRckuJ7VUsE">
-                                    <GoogleMap
-                                        mapContainerStyle={mapContainerStyle}
-                                        center={mapCenter}
-                                        zoom={15}
-                                        onClick={handleMapClick}
-                                        options={{
-                                            zoomControl: true,
-                                            streetViewControl: false,
-                                            mapTypeControl: true,
-                                            fullscreenControl: true,
-                                            gestureHandling: 'greedy',
-                                        }}
-                                    >
-                                        {selectedLocation && (
-                                            <Marker
-                                                position={{
-                                                    lat: parseFloat(selectedLocation.lat),
-                                                    lng: parseFloat(selectedLocation.lng)
-                                                }}
-                                                animation={window.google?.maps?.Animation?.DROP}
-                                            />
-                                        )}
-                                         {selectedLocation && currentAccuracy && (
-        <Circle
-            center={{
-                lat: parseFloat(selectedLocation.lat),
-                lng: parseFloat(selectedLocation.lng),
-            }}
-            radius={currentAccuracy}   // radius in meters
-            options={{
-                fillOpacity: 0.15,
-                strokeOpacity: 0.4,
-            }}
-        />
-    )}
-
-                                    </GoogleMap>
-                                </LoadScript>
-
-                                <div style={{
-                                    marginTop: '12px',
-                                    padding: '12px',
-                                    background: selectedLocation ? '#f6ffed' : '#f5f5f5',
-                                    borderRadius: '4px',
-                                    border: selectedLocation ? '1px solid #b7eb8f' : '1px solid #d9d9d9'
-                                }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div>
-                                            <strong>Selected Coordinates:</strong>
-                                            {selectedLocation ? (
-                                                <div style={{ marginTop: '4px' }}>
-                                                    <span style={{ color: '#52c41a', fontWeight: 500 }}>
-                                                        Latitude: {selectedLocation.lat}, Longitude: {selectedLocation.lng}
-                                                    </span>
-                                                </div>
-                                            ) : (
-                                                <span style={{ color: '#999', marginLeft: '8px' }}>
-                                                    No location selected yet
-                                                </span>
-                                            )}
-                                        </div>
-                                        {selectedLocation && (
-                                            <Button
-                                                size="small"
-                                                danger
-                                                onClick={() => setSelectedLocation(null)}
-                                            >
-                                                Clear
-                                            </Button>
-                                        )}
-                                    </div>
-                                </div>
-                            </Modal>
+                                Confirm Location
+                            </Button>
                         </div>
                     </div>
+                ) : (
+                    <Button onClick={handleClose}>Close</Button>
+                )
+            }
+        >
+            {editable && (
+                <div style={{ marginBottom: '12px', padding: '10px', background: '#e6f7ff', borderRadius: '4px' }}>
+                    <span>! Click Anywhere on the map (or) Click "Use Current Location" button</span>
                 </div>
-            </div>
-        </>
+            )}
+
+            {!editable && (
+                <div style={{ marginBottom: '12px', padding: '10px', background: '#fff7e6', borderRadius: '4px',alignItems:'center' }}>
+                    <span>📍 Viewing customer's saved location</span>
+                </div>
+            )}
+
+            <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY}>
+                <GoogleMap
+                    mapContainerStyle={mapContainerStyle}
+                    center={mapCenter}
+                    zoom={15}
+                    onClick={handleMapClick}
+                    options={{
+                        zoomControl: true,
+                        streetViewControl: false,
+                        mapTypeControl: true,
+                        fullscreenControl: true,
+                        gestureHandling: 'greedy',
+                    }}
+                >
+                    {selectedLocation && (
+                        <Marker
+                            position={{
+                                lat: parseFloat(selectedLocation.lat),
+                                lng: parseFloat(selectedLocation.lng)
+                            }}
+                            animation={window.google?.maps?.Animation?.DROP}
+                        />
+                    )}
+                    {selectedLocation && currentAccuracy && editable && (
+                        <Circle
+                            center={{
+                                lat: parseFloat(selectedLocation.lat),
+                                lng: parseFloat(selectedLocation.lng),
+                            }}
+                            radius={currentAccuracy}
+                            options={{
+                                fillOpacity: 0.15,
+                                strokeOpacity: 0.4,
+                            }}
+                        />
+                    )}
+                </GoogleMap>
+            </LoadScript>
+        </Modal>
     );
 };
 
-export default AddCustomer;
+export default LocationMapModal;
