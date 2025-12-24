@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Form, Input, Button, Select, notification, Divider, Space, InputNumber, Tabs, Modal } from "antd";
-import { UserOutlined, PhoneOutlined, MailOutlined, IdcardOutlined, EnvironmentOutlined, FileTextOutlined, UserAddOutlined, ReloadOutlined, PlusOutlined, MinusOutlined, ApartmentOutlined,GlobalOutlined, BankFilled, BankOutlined } from '@ant-design/icons';
+import { UserOutlined, PhoneOutlined, MailOutlined, IdcardOutlined, EnvironmentOutlined, FileTextOutlined, UserAddOutlined, ReloadOutlined, PlusOutlined, MinusOutlined, HomeOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from "react-router-dom";
 import Loader from "components/Common/Loader";
 import { GET, POST, PUT, DELETE } from "helpers/api_helper";
@@ -8,11 +8,8 @@ import { AREA } from "helpers/url_helper";
 import "./AddCustomer.css";
 import AddCustomerDocument from "./AddCustomerDocument";
 import professionIcon from '../../../assets/icons/businessman.png'
-import { GoogleMap, LoadScript, Marker, Circle } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker,Circle } from '@react-google-maps/api';
 import InputWithAddon from "components/Common/InputWithAddon";
-import SelectWithAddon from "components/Common/SelectWithAddon";
-import locationIcon1 from "../../../assets/icons/earth-grid.png";
-import locationIcon2 from "../../../assets/icons/location (1).png"
 
 const mapContainerStyle = {
     width: '100%',
@@ -43,8 +40,8 @@ const AddCustomer = () => {
     const [savedAreaId, setSavedAreaId] = useState(null);
     const [savedAreaName, setSavedAreaName] = useState(null);
     const [isFromLocalStorage, setIsFromLocalStorage] = useState(false);
-    const [currentAccuracy, setCurrentAccuracy] = useState(null);
-const [isEditMode, setIsEditMode] = useState(false);
+const [currentAccuracy, setCurrentAccuracy] = useState(null);
+
     const [form] = Form.useForm();
     const params = useParams();
     const navigate = useNavigate();
@@ -267,7 +264,6 @@ const [isEditMode, setIsEditMode] = useState(false);
                 form.setFieldsValue(data);
                 setIsPersonalInfoSubmitted(true);
                 setCurrentCustomerId(data?.id);
-                setIsEditMode(true)
             }
             setLoader(false);
         } catch (error) {
@@ -349,66 +345,66 @@ const [isEditMode, setIsEditMode] = useState(false);
         });
 
         // OPTIMIZED: Get high-accuracy position
-        const watchId = navigator.geolocation.watchPosition(
-            (position) => {
-                const { latitude, longitude, accuracy } = position.coords;
+         const watchId = navigator.geolocation.watchPosition(
+        (position) => {
+               const { latitude, longitude, accuracy } = position.coords;
 
-                console.log("Live Accuracy:", accuracy);
+            console.log("Live Accuracy:", accuracy);
 
-                // ✅ Only accept when accuracy is GOOD (≤ 5 meters)
-                if (accuracy <= 5) {
-                    const lat = latitude.toFixed(6);
-                    const lng = longitude.toFixed(6);
+            // ✅ Only accept when accuracy is GOOD (≤ 5 meters)
+            if (accuracy <= 1) {
+                const lat = latitude.toFixed(6);
+                const lng = longitude.toFixed(6);
 
-                    setSelectedLocation({
-                        lat,
-                        lng,
-                        address: `${lat}, ${lng}`,
-                    });
-
-                    setMapCenter({ lat: latitude, lng: longitude });
-
-                    notification.success({
-                        message: "High Accuracy Location Locked ✅",
-                        description: `Accuracy: ${accuracy.toFixed(1)} meters`,
-                        duration: 3,
-                    });
-
-                    // ✅ Stop tracking once good accuracy is achieved
-                    navigator.geolocation.clearWatch(watchId);
-                } else {
-                    // Keep updating marker live while accuracy improves
-                    setSelectedLocation({
-                        lat: latitude.toFixed(6),
-                        lng: longitude.toFixed(6),
-                        address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
-                    });
-
-                    setMapCenter({ lat: latitude, lng: longitude });
-                    setCurrentAccuracy(accuracy);
-
-                }
-            },
-            (error) => {
-                let errorMessage = "Unable to get location";
-                if (error.code === 1) errorMessage = "Location permission denied";
-                if (error.code === 2) errorMessage = "Location unavailable";
-                if (error.code === 3) errorMessage = "Location request timeout";
-
-                notification.error({
-                    message: "GPS Error",
-                    description: errorMessage,
+                setSelectedLocation({
+                    lat,
+                    lng,
+                    address: `${lat}, ${lng}`,
                 });
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 20000,
-                maximumAge: 0,
+
+                setMapCenter({ lat: latitude, lng: longitude });
+
+                notification.success({
+                    message: "High Accuracy Location Locked ✅",
+                    description: `Accuracy: ${accuracy.toFixed(1)} meters`,
+                    duration: 3,
+                });
+
+                // ✅ Stop tracking once good accuracy is achieved
+                navigator.geolocation.clearWatch(watchId);
+            } else {
+                // Keep updating marker live while accuracy improves
+                setSelectedLocation({
+                    lat: latitude.toFixed(6),
+                    lng: longitude.toFixed(6),
+                    address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+                });
+
+                setMapCenter({ lat: latitude, lng: longitude });
+                setCurrentAccuracy(accuracy);
+
             }
-        );
-    };
+        },
+        (error) => {
+            let errorMessage = "Unable to get location";
+            if (error.code === 1) errorMessage = "Location permission denied";
+            if (error.code === 2) errorMessage = "Location unavailable";
+            if (error.code === 3) errorMessage = "Location request timeout";
 
+            notification.error({
+                message: "GPS Error",
+                description: errorMessage,
+            });
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0,
+        }
+    );
+};
 
+   
 
     const handleMapClick = (e) => {
         const lat = e.latLng.lat();
@@ -420,7 +416,7 @@ const [isEditMode, setIsEditMode] = useState(false);
             address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
         });
 
-
+        
         setMapCenter({ lat, lng });
     };
 
@@ -544,9 +540,7 @@ const [isEditMode, setIsEditMode] = useState(false);
 
     const handleReset = () => {
         form.resetFields();
- form.setFieldsValue({
-        reference_contacts: [{ reference_number: '' }]
-    });
+
         // If values are from localStorage, restore them
         if (isFromLocalStorage && savedBranchName && savedLineName && savedAreaId) {
             const matchedBranch = branchList.find(
@@ -658,206 +652,135 @@ const [isEditMode, setIsEditMode] = useState(false);
                         <div className="row mb-2">
                             <div className="col-md-6">
                                 <Form.Item
-    label="Customer Name"
-    name="customer_name"
-    rules={[
-        { required: true, message: 'Please enter customer name' },
-        { min: 2, message: 'Name must be at least 2 characters' },
-        { pattern: /^[A-Za-z\s]+$/, message: 'Must contain only alphabets' }
-    ]}
->
-    <InputWithAddon
-        icon={<UserOutlined />}
-        placeholder="Enter customer name"
-        onKeyPress={(e) => {
-            // Prevent numbers and special characters
-            if (!/[A-Za-z\s]/.test(e.key)) {
-                e.preventDefault();
-            }
-        }}
-    />
-</Form.Item>
+                                    label="Customer Name"
+                                    name="customer_name"
+                                    rules={[
+                                        { required: true, message: 'Please enter customer name' },
+                                        { min: 2, message: 'Name must be at least 2 characters' }
+                                    ]}
+                                >
+<InputWithAddon
+  icon={<UserOutlined />}
+  placeholder="Enter customer name"
+/>
+
+                                </Form.Item>
                             </div>
 
                             <div className="col-md-6">
-                              
-<Form.Item
-    label="Mobile Number"
-    name="mobile_number"
-    rules={[
-        { required: true, message: 'Please enter mobile number' },
-        { pattern: /^\d{10}$/, message: 'Must be 10 digits' }
-    ]}
->
-    <InputWithAddon
-        icon={<PhoneOutlined />}
-        placeholder="10 digit mobile number"
-        maxLength={10}
-        onKeyPress={(e) => {
-            // Allow only digits
-            if (!/\d/.test(e.key)) {
-                e.preventDefault();
-            }
-        }}
-    />
-</Form.Item>
-                            </div>
-                        </div>
+                                <Form.Item
+                                    label="Mobile Number"
+                                    name="mobile_number"
+                                    rules={[
+                                        { required: true, message: 'Please enter mobile number' },
+                                        { pattern: /^\d{10}$/, message: 'Mobile number must be 10 digits' }
+                                    ]}
+                                >
+                                   <InputWithAddon
+  icon={<PhoneOutlined />}
+  placeholder="10 digit mobile number"
+  maxLength={10}
+/>
 
-                        <div className="row mb-2">
-                            <div className="col-md-6">
-                              <Form.Item
-    label="Alternate Mobile Number"
-    name="alternate_mobile_number"
-    rules={[
-        { pattern: /^\d{10}$/, message: 'Must be 10 digits' }
-    ]}
->
-    <InputWithAddon
-        icon={<PhoneOutlined />}
-        placeholder="10 digit alternate mobile number (optional)"
-        maxLength={10}
-        onKeyPress={(e) => {
-            // Allow only digits
-            if (!/\d/.test(e.key)) {
-                e.preventDefault();
-            }
-        }}
-    />
-</Form.Item>
-                            </div>
-
-                            <div className="col-md-6">
-                               <Form.Item
-    label="Email ID"
-    name="email_id"
-    rules={[
-        { required: true, message: 'Please enter email' },
-        { type: 'email', message: 'Please enter valid email' },
-        { 
-            pattern: /^[a-z][a-z0-9._-]*@[a-z0-9.-]+\.[a-z]{2,}$/, 
-            message: 'Enter correct format' 
-        }
-    ]}
->
-    <InputWithAddon
-        icon={<MailOutlined />}
-        placeholder="example@email.com"
-        onKeyPress={(e) => {
-            // Prevent uppercase letters
-            if (/[A-Z]/.test(e.key)) {
-                e.preventDefault();
-            }
-        }}
-        onChange={(e) => {
-            // Convert to lowercase
-            e.target.value = e.target.value.toLowerCase();
-        }}
-    />
-</Form.Item>
+                                </Form.Item>
                             </div>
                         </div>
 
                         <div className="row mb-2">
                             <div className="col-md-6">
                                 <Form.Item
-    label="Profession"
-    name="profession"
-    rules={[
-        { required: true, message: 'Please enter profession' },
-        { pattern: /^[A-Za-z\s]+$/, message: 'Must contain alphabets only' }
-    ]}
->
-    <InputWithAddon
-        icon={
-            <img
-                src={professionIcon}
-                alt="Profession"
-                style={{ width: 16, height: 16 }}
-            />
-        }
-        placeholder="Enter profession"
-        onKeyPress={(e) => {
-            // Prevent numbers and special characters
-            if (!/[A-Za-z\s]/.test(e.key)) {
-                e.preventDefault();
-            }
-        }}
-    />
-</Form.Item>
+                                    label="Alternate Mobile Number"
+                                    name="alternate_mobile_number"
+                                    rules={[
+                                        { pattern: /^\d{10}$/, message: 'Alternate mobile number must be 10 digits' }
+                                    ]}
+                                >
+                                   <InputWithAddon
+  icon={<PhoneOutlined />}
+  placeholder="10 digit alternate mobile number (optional)"
+  maxLength={10}
+/>
 
+                                </Form.Item>
                             </div>
 
                             <div className="col-md-6">
-                               <Form.Item
-    label="Aadhaar ID"
-    name="aadhaar_id"
-    rules={[
-        { required: true, message: 'Please enter Aadhaar ID' },
-        { pattern: /^\d{12}$/, message: 'Must be 12 digits' }
-    ]}
->
-    <InputWithAddon
-        icon={<IdcardOutlined />}
-        placeholder="12 digit Aadhaar number"
-        maxLength={12}
-        onKeyPress={(e) => {
-            // Allow only digits
-            if (!/\d/.test(e.key)) {
-                e.preventDefault();
-            }
-        }}
-    />
-</Form.Item>
+                                <Form.Item
+                                    label="Email ID"
+                                    name="email_id"
+                                    rules={[
+                                        { required: true, message: 'Please enter email' },
+                                        { type: 'email', message: 'Please enter valid email' }
+                                    ]}
+                                >
+                                   <InputWithAddon
+  icon={<MailOutlined />}
+  placeholder="example@email.com"
+/>
+
+                                </Form.Item>
                             </div>
                         </div>
 
                         <div className="row mb-2">
                             <div className="col-md-6">
                                 <Form.Item
-    label="PAN Number"
-    name="pan_number"
-    normalize={(value) => value ? value.toUpperCase() : value}
-    rules={[
-        { required: true, message: 'Please enter PAN number' },
-        { 
-            pattern: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 
-            message: 'Format:(e.g., ABCDE1234F)' 
-        }
-    ]}
->
-    <InputWithAddon
-        icon={<IdcardOutlined />}
-        placeholder="ABCDE1234F"
-        maxLength={10}
-       
-        onKeyPress={(e) => {
-            const value = e.target.value || '';
-            const key = e.key;
-            
-            // First 5 characters must be letters
-            if (value.length < 5) {
-                if (!/[A-Za-z]/.test(key)) {
-                    e.preventDefault();
-                }
-            }
-            // Next 4 characters (positions 5-8) must be digits
-            else if (value.length >= 5 && value.length < 9) {
-                if (!/\d/.test(key)) {
-                    e.preventDefault();
-                }
-            }
-            // Last character (position 9) must be a letter
-            else if (value.length === 9) {
-                if (!/[A-Za-z]/.test(key)) {
-                    e.preventDefault();
-                }
-            }
-        }}
-       
-        style={{ textTransform: "uppercase" }}
+                                    label="Profession"
+                                    name="profession"
+                                    rules={[
+                                        { required: true, message: 'Please enter profession' }
+                                    ]}
+                                >
+                                   <InputWithAddon
+  icon={
+    <img
+      src={professionIcon}
+      alt="Profession"
+      style={{ width: 16, height: 16 }}
     />
-</Form.Item>
+  }
+  placeholder="Enter profession"
+/>
+
+                                </Form.Item>
+                            </div>
+
+                            <div className="col-md-6">
+                                <Form.Item
+                                    label="Aadhaar ID"
+                                    name="aadhaar_id"
+                                    rules={[
+                                        { required: true, message: 'Please enter Aadhaar ID' },
+                                        { pattern: /^\d{12}$/, message: 'Aadhaar ID must be 12 digits' }
+                                    ]}
+                                >
+                                   <InputWithAddon
+  icon={<IdcardOutlined />}
+  placeholder="12 digit Aadhaar number"
+  maxLength={12}
+/>
+
+                                </Form.Item>
+                            </div>
+                        </div>
+
+                        <div className="row mb-2">
+                            <div className="col-md-6">
+                                <Form.Item
+                                    label="PAN Number"
+                                    name="pan_number"
+                                    rules={[
+                                        { required: true, message: 'Please enter PAN number' },
+                                    ]}
+                                >
+                                   <InputWithAddon
+  icon={<IdcardOutlined />}
+  placeholder="ABCDE1234F"
+  style={{ textTransform: "uppercase" }}
+  maxLength={10}
+/>
+
+                                </Form.Item>
                             </div>
 
                             <div className="col-md-6">
@@ -870,10 +793,10 @@ const [isEditMode, setIsEditMode] = useState(false);
                                 >
                                     <Input.TextArea
                                         prefix={<IdcardOutlined />}
-                                        placeholder="Enter address"
-                                        autoSize={{ minRows: 2, maxRows: 6 }}
+                                        placeholder="Enter complete address"
+                                         autoSize={{ minRows: 2, maxRows: 6 }}
                                         size="large"
-
+                                         
                                         allowClear
                                     />
                                 </Form.Item>
@@ -911,157 +834,168 @@ const [isEditMode, setIsEditMode] = useState(false);
                             </div>
                         )}
 
+                        <div className="row mb-2">
+                            <div className="col-md-4">
+                                {(isFromLocalStorage && !params.id) || params.id ? (
+                                    <>
+                                        <Form.Item
+                                            label="Branch"
+                                            name="branch"
+                                            rules={[
+                                                { required: true, message: 'Please select branch' }
+                                            ]}
+                                            style={{ display: 'none' }}
+                                        >
+                                            <Input type="hidden" />
+                                        </Form.Item>
+                                        <Form.Item label="Branch">
+                                            <Input
+                                                value={savedBranchName}
+                                                size="large"
+                                                disabled
+                                                style={{
+                                                    backgroundColor: '#f5f5f5',
+                                                    color: '#000',
+                                                    cursor: 'not-allowed'
+                                                }}
+                                            />
+                                        </Form.Item>
+                                    </>
+                                ) : (
+                                    <Form.Item
+                                        label="Branch"
+                                        name="branch"
+                                        rules={[
+                                            { required: true, message: 'Please select branch' }
+                                        ]}
+                                    >
+                                        <Select
+                                            placeholder="Select Branch"
+                                            size="large"
+                                            showSearch
+                                            allowClear
+                                            onChange={handleBranchChange}
+                                            filterOption={(input, option) =>
+                                                option.children.toLowerCase().includes(input.toLowerCase())
+                                            }
+                                        >
+                                            {branchList.map((branch) => (
+                                                <Option key={branch.id} value={branch.id}>
+                                                    {branch.branch_name}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                )}
+                            </div>
 
-<div className="row mb-2">
-    {/* Branch Column */}
-    <div className="col-md-4">
-        {(isFromLocalStorage && !params.id) || params.id ? (
-            <>
-                <Form.Item
-                    name="branch"
-                    rules={[{ required: true, message: 'Please select branch' }]}
-                    style={{ display: 'none' }}
-                >
-                    <Input type="hidden" />
-                </Form.Item>
-                <Form.Item label="Branch">
-                    <InputWithAddon
-                        icon={<BankOutlined />}
-                        value={savedBranchName}
-                        disabled
-                        style={{
-                            backgroundColor: '#f5f5f5',
-                            color: '#000',
-                            cursor: 'not-allowed'
-                        }}
-                    />
-                </Form.Item>
-            </>
-        ) : (
-            <Form.Item
-                label="Branch"
-                name="branch"
-                rules={[{ required: true, message: 'Please select branch' }]}
-            >
-                <SelectWithAddon
-                    icon={<ApartmentOutlined />}
-                    placeholder="Select Branch"
-                    showSearch
-                    allowClear
-                    onChange={handleBranchChange}
-                    filterOption={(input, option) =>
-                        option.children.toLowerCase().includes(input.toLowerCase())
-                    }
-                >
-                    {branchList.map((branch) => (
-                        <Option key={branch.id} value={branch.id}>
-                            {branch.branch_name}
-                        </Option>
-                    ))}
-                </SelectWithAddon>
-            </Form.Item>
-        )}
-    </div>
+                            <div className="col-md-4">
+                                {(isFromLocalStorage && !params.id) || params.id ? (
+                                    <>
+                                        <Form.Item
+                                            label="Line"
+                                            name="line"
+                                            rules={[
+                                                { required: true, message: 'Please select line' }
+                                            ]}
+                                            style={{ display: 'none' }}
+                                        >
+                                            <Input type="hidden" />
+                                        </Form.Item>
+                                        <Form.Item label="Line">
+                                            <Input
+                                                value={savedLineName}
+                                                size="large"
+                                                disabled
+                                                style={{
+                                                    backgroundColor: '#f5f5f5',
+                                                    color: '#000',
+                                                    cursor: 'not-allowed'
+                                                }}
+                                            />
+                                        </Form.Item>
+                                    </>
+                                ) : (
+                                    <Form.Item
+                                        label="Line"
+                                        name="line"
+                                        rules={[
+                                            { required: true, message: 'Please select line' }
+                                        ]}
+                                    >
+                                        <Select
+                                            placeholder="Select Line"
+                                            size="large"
+                                            showSearch
+                                            allowClear
+                                            onChange={handleLineChange}
+                                            filterOption={(input, option) =>
+                                                option.children.toLowerCase().includes(input.toLowerCase())
+                                            }
+                                        >
+                                            {filteredLineList.map((line) => (
+                                                <Option key={line.id} value={line.id}>
+                                                    {line.name}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                )}
+                            </div>
 
-    {/* Line Column */}
-    <div className="col-md-4">
-        {(isFromLocalStorage && !params.id) || params.id ? (
-            <>
-                <Form.Item
-                    name="line"
-                    rules={[{ required: true, message: 'Please select line' }]}
-                    style={{ display: 'none' }}
-                >
-                    <Input type="hidden" />
-                </Form.Item>
-                <Form.Item label="Line">
-                    <InputWithAddon
-                        icon={<ApartmentOutlined />}
-                        value={savedLineName}
-                        disabled
-                        style={{
-                            backgroundColor: '#f5f5f5',
-                            color: '#000',
-                            cursor: 'not-allowed'
-                        }}
-                    />
-                </Form.Item>
-            </>
-        ) : (
-            <Form.Item
-                label="Line"
-                name="line"
-                rules={[{ required: true, message: 'Please select line' }]}
-            >
-                <SelectWithAddon
-                    icon={<ApartmentOutlined />}
-                    placeholder="Select Line"
-                    showSearch
-                    allowClear
-                    onChange={handleLineChange}
-                    filterOption={(input, option) =>
-                        option.children.toLowerCase().includes(input.toLowerCase())
-                    }
-                >
-                    {filteredLineList.map((line) => (
-                        <Option key={line.id} value={line.id}>
-                            {line.name}
-                        </Option>
-                    ))}
-                </SelectWithAddon>
-            </Form.Item>
-        )}
-    </div>
-
-    {/* Area Column */}
-    <div className="col-md-4">
-        {(isFromLocalStorage && !params.id) || params.id ? (
-            <>
-                <Form.Item
-                    name="area"
-                    rules={[{ required: true, message: 'Please select area' }]}
-                    style={{ display: 'none' }}
-                >
-                    <Input type="hidden" />
-                </Form.Item>
-                <Form.Item label="Area">
-                    <InputWithAddon
-                        icon={<GlobalOutlined />}
-                        value={savedAreaName}
-                        disabled
-                        style={{
-                            backgroundColor: '#f5f5f5',
-                            color: '#000',
-                            cursor: 'not-allowed'
-                        }}
-                    />
-                </Form.Item>
-            </>
-        ) : (
-            <Form.Item
-                label="Area"
-                name="area"
-                rules={[{ required: true, message: 'Please select area' }]}
-            >
-                <SelectWithAddon
-                    icon={<GlobalOutlined />}
-                    placeholder="Select Area"
-                    showSearch
-                    allowClear
-                    filterOption={(input, option) =>
-                        option.children.toLowerCase().includes(input.toLowerCase())
-                    }
-                >
-                    {filteredAreaList.map((area) => (
-                        <Option key={area.id} value={area.id}>
-                            {area.name}
-                        </Option>
-                    ))}
-                </SelectWithAddon>
-            </Form.Item>
-        )}
-    </div>
-</div>
+                            <div className="col-md-4">
+                                {(isFromLocalStorage && !params.id) || params.id ? (
+                                    <>
+                                        <Form.Item
+                                            label="Area"
+                                            name="area"
+                                            rules={[
+                                                { required: true, message: 'Please select area' }
+                                            ]}
+                                            style={{ display: 'none' }}
+                                        >
+                                            <Input type="hidden" />
+                                        </Form.Item>
+                                        <Form.Item label="Area">
+                                            <Input
+                                                value={savedAreaName}
+                                                size="large"
+                                                disabled
+                                                style={{
+                                                    backgroundColor: '#f5f5f5',
+                                                    color: '#000',
+                                                    cursor: 'not-allowed'
+                                                }}
+                                            />
+                                        </Form.Item>
+                                    </>
+                                ) : (
+                                    <Form.Item
+                                        label="Area"
+                                        name="area"
+                                        rules={[
+                                            { required: true, message: 'Please select area' }
+                                        ]}
+                                    >
+                                        <Select
+                                            placeholder="Select Area"
+                                            size="large"
+                                            showSearch
+                                            allowClear
+                                            filterOption={(input, option) =>
+                                                option.children.toLowerCase().includes(input.toLowerCase())
+                                            }
+                                        >
+                                            {filteredAreaList.map((area) => (
+                                                <Option key={area.id} value={area.id}>
+                                                    {area.name}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                )}
+                            </div>
+                        </div>
 
                         <div className="row mb-2">
                             <div className="col-md-12">
@@ -1071,21 +1005,18 @@ const [isEditMode, setIsEditMode] = useState(false);
                                         { required: true, message: 'Please select location' }
                                     ]}
                                 >
-                                    <InputWithAddon
-                                        icon={<EnvironmentOutlined />}
+                                    <Input
+                                        prefix={<EnvironmentOutlined />}
                                         placeholder="Click map icon to select location"
-                                        
-                                        value={selectedLocation ? selectedLocation.address : ""}
-                                        addonAfter={
+                                        size="large"
+                                        disabled
+                                        value={selectedLocation ? selectedLocation.address : ''}
+                                        suffix={
                                             <Button
                                                 type="text"
-                                                icon={  <img
-            src={isEditMode? locationIcon2: locationIcon1}
-            alt="Location Icon"
-            style={{ width: 18, height: 18 }}
-        />}
+                                                icon={<EnvironmentOutlined />}
                                                 onClick={openMapModal}
-                                                style={{ color: "#1890ff" }}
+                                                style={{ color: '#1890ff' }}
                                             />
                                         }
                                     />
@@ -1112,18 +1043,22 @@ const [isEditMode, setIsEditMode] = useState(false);
                                     {fields.map(({ key, name, ...restField }, index) => (
                                         <div key={key} className="row mb-3">
                                             <div className="col-md-6" style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
-                                              <Form.Item
-                                    {...restField}
-                                    name={[name, 'reference_number']}
-                                    label={`Reference Contact ${index + 1}`}
-                                    style={{ flexGrow: 1, marginBottom: 0 }}
-                                >
-                                    <InputWithAddon
-                                        icon={<PhoneOutlined />}
-                                        placeholder="10 digit mobile number"
-                                        maxLength={10}
-                                    />
-                                </Form.Item>
+                                                <Form.Item
+                                                    {...restField}
+                                                    name={[name, 'reference_number']}
+                                                    label={`Reference Contact ${index + 1}`}
+                                                    rules={[
+                                                        { pattern: /^\d{10}$/, message: 'Mobile number must be 10 digits' }
+                                                    ]}
+                                                    style={{ flexGrow: 1, marginBottom: 0 }}
+                                                >
+                                                    <Input
+                                                        prefix={<PhoneOutlined />}
+                                                        placeholder="10 digit mobile number"
+                                                        size="large"
+                                                        maxLength={10}
+                                                    />
+                                                </Form.Item>
 
                                                 {fields.length > 1 && (
                                                     <Button
@@ -1166,7 +1101,7 @@ const [isEditMode, setIsEditMode] = useState(false);
                             )}
                         </Form.List>
 
-                       
+                        <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
 
                         <div className="text-center mt-4">
                             <Space size="middle">
@@ -1242,7 +1177,7 @@ const [isEditMode, setIsEditMode] = useState(false);
 
                             <Modal
                                 title={
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <EnvironmentOutlined style={{ color: '#1890ff' }} />
                                         <span>Select Customer Location</span>
                                     </div>
@@ -1251,48 +1186,31 @@ const [isEditMode, setIsEditMode] = useState(false);
                                 onOk={handleMapModalOk}
                                 onCancel={() => setMapModalVisible(false)}
                                 width={900}
-                                footer={
-                                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-
-                                        {/* ---- ROW 1: CLEAR + CURRENT LOCATION ---- */}
-                                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-                                            <div>
-                                                {selectedLocation && (
-
-                                                    <Button
-                                                        icon={<ReloadOutlined />}
-                                                        onClick={() => setSelectedLocation(null)}
-
-                                                    />
-                                                )}
-                                            </div>
-
-                                            <Button
-                                                type="default"
-                                                icon={<EnvironmentOutlined />}
-                                                onClick={handleGetCurrentLocation}
-                                            >
-                                                Use Current Location
-                                            </Button>
-                                        </div>
-
-                                        {/* ---- ROW 2: CANCEL + CONFIRM ---- */}
-                                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-                                            <Button onClick={() => setMapModalVisible(false)}>Cancel</Button>
-                                            <Button
-                                                type="primary"
-                                                onClick={handleMapModalOk}
-                                                disabled={!selectedLocation}
-                                            >
-                                                Confirm Location
-                                            </Button>
-                                        </div>
-
-                                    </div>
-                                }
+                                footer={[
+                                    <Button key="back" onClick={() => setMapModalVisible(false)}>
+                                        Cancel
+                                    </Button>,
+                                    <Button
+                                        key="current"
+                                        type="default"
+                                        icon={<EnvironmentOutlined />}
+                                        onClick={handleGetCurrentLocation}
+                                        style={{ marginRight: '8px' }}
+                                    >
+                                        Use Current Location
+                                    </Button>,
+                                    <Button
+                                        key="submit"
+                                        type="primary"
+                                        onClick={handleMapModalOk}
+                                        disabled={!selectedLocation}
+                                    >
+                                        Confirm Location
+                                    </Button>,
+                                ]}
                             >
                                 <div style={{ marginBottom: '12px', padding: '10px', background: '#e6f7ff', borderRadius: '4px' }}>
-                                    <span>! Click Anywhere on the map (or) Click "Use Current Location" button</span>
+                                    <strong>Instructions:</strong> Click anywhere on the map to select a location, or use the "Use Current Location" button for precise GPS coordinates.
                                 </div>
 
                                 <LoadScript googleMapsApiKey="AIzaSyBqZO5W2UKl7m5gPxh0_KIjaRckuJ7VUsE">
@@ -1318,24 +1236,24 @@ const [isEditMode, setIsEditMode] = useState(false);
                                                 animation={window.google?.maps?.Animation?.DROP}
                                             />
                                         )}
-                                        {selectedLocation && currentAccuracy && (
-                                            <Circle
-                                                center={{
-                                                    lat: parseFloat(selectedLocation.lat),
-                                                    lng: parseFloat(selectedLocation.lng),
-                                                }}
-                                                radius={currentAccuracy}   // radius in meters
-                                                options={{
-                                                    fillOpacity: 0.15,
-                                                    strokeOpacity: 0.4,
-                                                }}
-                                            />
-                                        )}
+                                         {selectedLocation && currentAccuracy && (
+        <Circle
+            center={{
+                lat: parseFloat(selectedLocation.lat),
+                lng: parseFloat(selectedLocation.lng),
+            }}
+            radius={currentAccuracy}   // radius in meters
+            options={{
+                fillOpacity: 0.15,
+                strokeOpacity: 0.4,
+            }}
+        />
+    )}
 
                                     </GoogleMap>
                                 </LoadScript>
 
-                                {/* <div style={{
+                                <div style={{
                                     marginTop: '12px',
                                     padding: '12px',
                                     background: selectedLocation ? '#f6ffed' : '#f5f5f5',
@@ -1367,7 +1285,7 @@ const [isEditMode, setIsEditMode] = useState(false);
                                             </Button>
                                         )}
                                     </div>
-                                </div> */}
+                                </div>
                             </Modal>
                         </div>
                     </div>
