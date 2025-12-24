@@ -352,7 +352,7 @@ const [currentAccuracy, setCurrentAccuracy] = useState(null);
             console.log("Live Accuracy:", accuracy);
 
             // ✅ Only accept when accuracy is GOOD (≤ 5 meters)
-            if (accuracy <= 1) {
+            if (accuracy <= 2) {
                 const lat = latitude.toFixed(6);
                 const lng = longitude.toFixed(6);
 
