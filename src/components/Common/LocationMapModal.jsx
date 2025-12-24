@@ -71,13 +71,47 @@ const LocationMapModal = ({
             duration: 4,
         });
 
+       const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+
+    if (isFirefox) {
+        // Use getCurrentPosition for Firefox
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude, accuracy } = position.coords;
+                const lat = latitude.toFixed(6);
+                const lng = longitude.toFixed(6);
+
+                setSelectedLocation({ lat, lng, address: `${lat}, ${lng}` });
+                setMapCenter({ lat: latitude, lng: longitude });
+                setCurrentAccuracy(accuracy);
+
+                notification.success({
+                    message: "Location Acquired ✅",
+                    description: `Accuracy: ${accuracy.toFixed(1)} meters`,
+                    duration: 3,
+                });
+            },
+            (error) => {
+                notification.error({
+                    message: "GPS Error",
+                    description: error.code === 1 ? "Permission denied" : "Unable to get location",
+                });
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0,
+            }
+        );
+    } else {
+        // Use watchPosition for Chrome (your existing code)
         const watchId = navigator.geolocation.watchPosition(
             (position) => {
                 const { latitude, longitude, accuracy } = position.coords;
 
                 console.log("Live Accuracy:", accuracy);
 
-                if (accuracy <= 5) {
+                if (accuracy <= 2) {
                     const lat = latitude.toFixed(6);
                     const lng = longitude.toFixed(6);
 
@@ -121,10 +155,10 @@ const LocationMapModal = ({
             {
                 enableHighAccuracy: true,
                 timeout: 20000,
-                maximumAge: 0,
             }
         );
-    };
+    }
+};
 
     const handleMapClick = (e) => {
         if (!editable) return;
