@@ -489,6 +489,7 @@ const VerticalLayout = (props) => {
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center', 
+            marginRight: isMobile? '15px ' : '25px'
           
           }}>
             {/* Title and Branch Name Section */}
@@ -525,7 +526,6 @@ const VerticalLayout = (props) => {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0px',
               marginRight: '-20px'
             }}>
               <NotificationDropdown />
@@ -555,14 +555,17 @@ const VerticalLayout = (props) => {
           </div>
         </Content>
 
-        <Footer style={{ 
-           textAlign: isMobile ? 'left' : 'center', 
-          padding: isMobile ? '12px 16px' : '24px 16px',
-          marginTop: 'auto',
-          flexShrink: 0
-        }}>
-         {isMobile ? '©' : `© ${new Date().getFullYear()} - THINKTANK`}
-        </Footer>
+     <Footer 
+  className="transparent-footer"
+  style={{ 
+    textAlign: isMobile ? 'left' : 'center', 
+    padding: isMobile ? '12px 16px' : '24px 16px',
+    marginTop: 'auto',
+    flexShrink: 0
+  }}
+>
+  {isMobile ? '©' : `© ${new Date().getFullYear()} - THINKTANK`}
+</Footer>
       </Layout>
       
       <Drawer

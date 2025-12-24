@@ -212,7 +212,7 @@ const LocationMapModal = ({
             )}
 
             {!editable && (
-                <div style={{ marginBottom: '12px', padding: '10px', background: '#fff7e6', borderRadius: '4px' }}>
+                <div style={{ marginBottom: '12px', padding: '10px', background: '#fff7e6', borderRadius: '4px',alignItems:'center' }}>
                     <span>📍 Viewing customer's saved location</span>
                 </div>
             )}

@@ -9,11 +9,11 @@ import {
 } from "reactstrap";
 
 import { Link, useNavigate } from "react-router-dom";
-// users
-import user1 from "../../../assets/images/users/avatar-1.jpg";
+// Import the user profile icon
+import userProfileIcon from "../../../assets/icons/user (3).png"; // Update path as needed
 import Avatar from "../../Common/Avatar";
 import BranchNameModal from "../../Common/BranchNameModal";
-import ChangePasswordModal from "../../Common/ChangePasswordModal"; // New import
+import ChangePasswordModal from "../../Common/ChangePasswordModal";
 
 import "./ProfileMenu.css";
 
@@ -22,7 +22,7 @@ function ProfileMenu(props) {
   const [menu, setMenu] = useState(false);
   const [user, setUser] = useState({});
   const [branchModalVisible, setBranchModalVisible] = useState(false);
-  const [passwordModalVisible, setPasswordModalVisible] = useState(false); // New state
+  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState("");
   const [userRole, setUserRole] = useState("");
 
@@ -45,8 +45,8 @@ function ProfileMenu(props) {
   };
 
   const handleChangePassword = () => {
-    setMenu(false); // Close dropdown
-    setPasswordModalVisible(true); // Open password modal
+    setMenu(false);
+    setPasswordModalVisible(true);
   };
 
   const handleBranchSave = (branchName, branchId) => {
@@ -65,7 +65,6 @@ function ProfileMenu(props) {
 
   const handlePasswordSave = () => {
     setPasswordModalVisible(false);
-    // Password change is handled in the modal component
   };
 
   const handlePasswordCancel = () => {
@@ -88,8 +87,6 @@ function ProfileMenu(props) {
     }
   }, [props.success]);
 
-
-
   return (
     <React.Fragment>
       <Dropdown
@@ -98,14 +95,24 @@ function ProfileMenu(props) {
         className="d-inline-block"
       >
         <DropdownToggle
-          className="btn header-item "
+          className="btn header-item"
           id="page-header-user-dropdown"
           tag="button"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            padding: '8px 12px'
+          }}
         >
           <img
-            className=" header-profile-user text-white"
-            src={user1}
-            alt="Header Avatar"
+            className="header-profile-user"
+            src={userProfileIcon}
+            alt="User Profile"
+            style={{
+              width: '24px',
+              height: '24px',
+              
+            }}
           />
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">

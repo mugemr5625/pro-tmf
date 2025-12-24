@@ -9,6 +9,8 @@ const BranchNameModal = ({ visible, onSave, onCancel }) => {
   const [branchList, setBranchList] = useState([]);
   const [username, setUsername] = useState("");
   const retryTimeoutRef = useRef(null);
+  const DEFAULT_LIMIT = 5;
+
 
   // Read username from localStorage
   useEffect(() => {
@@ -127,16 +129,19 @@ const BranchNameModal = ({ visible, onSave, onCancel }) => {
             <Spin />
           ) : (
             <Select
-              placeholder="Select your branch"
-              options={branchList.map((b) => ({
-                label: b.branch_name,
-                value: b.branch_name,
-              }))}
-              showSearch
-              filterOption={(input, option) =>
-                option.label.toLowerCase().includes(input.toLowerCase())
-              }
-            />
+  placeholder="Select your branch"
+  showSearch
+  options={branchList.map((b) => ({
+    label: b.branch_name,
+    value: b.branch_name,
+  }))}
+  filterOption={(input, option) =>
+    option.label.toLowerCase().includes(input.toLowerCase())
+  }
+   listHeight={32 * 5}        // 5 items × 40px
+   allowClear
+/>
+
           )}
         </Form.Item>
       </Form>

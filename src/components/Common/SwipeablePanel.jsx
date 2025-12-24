@@ -266,11 +266,11 @@ const SwipeablePanel = ({
               {item.lineIndex}
             </div>
    ) }
-           {icon && <Image src={icon} height={30} width={30}/> }
+           {icon && <Image src={icon} height={30} width={30} preview={false}/> }
             
            
             <h5 
-              style={{ 
+              style={{  
                 margin: 0, 
                 fontSize: "20px",
                 // fontWeight: 600,

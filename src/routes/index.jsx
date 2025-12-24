@@ -44,7 +44,7 @@ const authProtectedRoutes = [
   {
     path: '/',
     exact: true,
-    component: <Navigate to="/home" />,
+    component: <Navigate to="/branch/list" />,
   },
 
   { path: '/settings', component: <Organization /> },

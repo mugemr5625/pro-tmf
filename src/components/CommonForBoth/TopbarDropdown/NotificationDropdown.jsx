@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Col, Dropdown, DropdownMenu, DropdownToggle, Row } from "reactstrap";
 
+// Import the bell icon image
+import bellIcon from "../../../assets/icons/notification.png"; // Update path as needed
 
 const NotificationDropdown = props => {
   // Declare a new state variable, which we'll call "menu"
@@ -20,9 +22,22 @@ const NotificationDropdown = props => {
           className="btn header-item noti-icon position-relative"
           tag="button"
           id="page-header-notifications-dropdown"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            padding: '8px 12px'
+          }}
         >
-          <i className="bx bx-bell bx-tada" />
-          <span className="badge bg-primary text-white rounded-pill">0</span>
+          <img 
+            src={bellIcon} 
+            alt="notifications" 
+            style={{
+              width: '24px',
+              height: '24px',
+             
+            }}
+          />
+          {/* Badge removed as requested */}
         </DropdownToggle>
 
         <DropdownMenu className="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0">
@@ -40,107 +55,12 @@ const NotificationDropdown = props => {
             </Row>
           </div>
 
-          {/* <SimpleBar style={{ height: "230px" }}>
-            <Link to="" className="text-reset notification-item">
-              <div className="d-flex">
-                <div className="avatar-xs me-3">
-                  <span className="avatar-title bg-primary rounded-circle font-size-16">
-                    <i className="bx bx-cart" />
-                  </span>
-                </div>
-                <div className="flex-grow-1">
-                  <h6 className="mt-0 mb-1">
-                    {props.t("Your order is placed")}
-                  </h6>
-                  <div className="font-size-12 text-muted">
-                    <p className="mb-1">
-                      {props.t(
-                        "If several languages coalesce the grammar"
-                      )}
-                    </p>
-                    <p className="mb-0">
-                      <i className="mdi mdi-clock-outline" />{" "}
-                      {props.t("3 min ago")}{" "}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-            <Link to="" className="text-reset notification-item">
-              <div className="d-flex">
-                <img
-                  src={avatar3}
-                  className="me-3 rounded-circle avatar-xs"
-                  alt="user-pic"
-                />
-                <div className="flex-grow-1">
-                  <h6 className="mt-0 mb-1">James Lemire</h6>
-                  <div className="font-size-12 text-muted">
-                    <p className="mb-1">
-                      {props.t("It will seem like simplified English") +
-                        "."}
-                    </p>
-                    <p className="mb-0">
-                      <i className="mdi mdi-clock-outline" />
-                      {props.t("1 hours ago")}{" "}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-            <Link to="" className="text-reset notification-item">
-              <div className="d-flex">
-                <div className="avatar-xs me-3">
-                  <span className="avatar-title bg-success rounded-circle font-size-16">
-                    <i className="bx bx-badge-check" />
-                  </span>
-                </div>
-                <div className="flex-grow-1">
-                  <h6 className="mt-0 mb-1">
-                    {props.t("Your item is shipped")}
-                  </h6>
-                  <div className="font-size-12 text-muted">
-                    <p className="mb-1">
-                      {props.t(
-                        "If several languages coalesce the grammar"
-                      )}
-                    </p>
-                    <p className="mb-0">
-                      <i className="mdi mdi-clock-outline" />{" "}
-                      {props.t("3 min ago")}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            <Link to="" className="text-reset notification-item">
-              <div className="d-flex">
-                <img
-                  src={avatar4}
-                  className="me-3 rounded-circle avatar-xs"
-                  alt="user-pic"
-                />
-                <div className="flex-grow-1">
-                  <h6 className="mt-0 mb-1">Salena Layfield</h6>
-                  <div className="font-size-12 text-muted">
-                    <p className="mb-1">
-                      {props.t(
-                        "As a skeptical Cambridge friend of mine occidental"
-                      ) + "."}
-                    </p>
-                    <p className="mb-0">
-                      <i className="mdi mdi-clock-outline" />
-                      {props.t("1 hours ago")}{" "}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </SimpleBar> */}
+          {/* Notification content commented out as in original */}
+          
           <div className="p-2 border-top d-grid">
             <Link className="btn btn-sm btn-link font-size-14 text-center" to="#">
-              <i className="mdi mdi-arrow-right-circle me-1"></i> <span key="t-view-more">View More..</span>
+              <i className="mdi mdi-arrow-right-circle me-1"></i> 
+              <span key="t-view-more">View More..</span>
             </Link>
           </div>
         </DropdownMenu>

@@ -407,7 +407,7 @@ const ListBranch = () => {
                   <div className="list-branch-accordion-container">
                     <div className="list-branch-accordion-header list-branch-accordion-header-expanded">
                       <div className="list-branch-accordion-title-container">
-                        <Image src={branchIcon} width={30} height={30} preview={false} />
+                        <Image src={branchIcon} width={30} height={30} preview={false}  />
                         <span className="list-branch-accordion-title">{branch.branch_name}</span>
                       </div>
                       <div className="list-branch-accordion-actions">

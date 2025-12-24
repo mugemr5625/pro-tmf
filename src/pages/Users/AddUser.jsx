@@ -767,11 +767,11 @@ const AddUser = () => {
               },
             ]}
           >
-            <Input.Password
-              placeholder="Enter password"
-              size="large"
-              prefix={<LockOutlined />}
-            />
+            <InputWithAddon
+                  icon={<LockOutlined />}
+                  placeholder="New password"
+                  type="password"
+                />
           </Form.Item>
         </div>
         <div className="col-md-6">
@@ -796,11 +796,11 @@ const AddUser = () => {
               }),
             ]}
           >
-            <Input.Password
-              placeholder="Confirm password"
-              size="large"
-              prefix={<LockOutlined />}
-            />
+             <InputWithAddon
+                  icon={<LockOutlined />}
+                  placeholder="Confirm new password"
+                  type="password"
+                />
           </Form.Item>
         </div>
       </div>

@@ -140,6 +140,7 @@
   padding: 0;
   background: #f9f9f9;
 }
+/* Disable image preview completely */
 .ant-image-mask-info {
   display: none !important;
 }

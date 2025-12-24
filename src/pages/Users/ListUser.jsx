@@ -88,29 +88,15 @@ const ListUser = () => {
   const initializeLineExpansionState = (groupedData, expanded = false) => {
       const initialExpandedState = {};
       Object.keys(groupedData).forEach(lineName => {
-          initialExpandedState[lineName] = expanded;
+          initialExpandedState[lineName] = true;
       });
       setExpandedLines(initialExpandedState);
   };
   
   // HANDLER: To toggle the expansion state of a line group (Accordion Logic)
   const toggleLineExpansion = (clickedLineName) => {
-    setExpandedLines(prev => {
-        const isCurrentlyExpanded = prev[clickedLineName];
-        
-        // 1. Collapse all existing lines
-        const newState = {};
-        Object.keys(prev).forEach(lineName => {
-            newState[lineName] = false; 
-        });
-        
-        // 2. Expand the clicked line IF it was not already expanded
-        if (!isCurrentlyExpanded) {
-            newState[clickedLineName] = true; 
-        }
-        
-        return newState;
-    });
+  
+  return;
   };
 
   const uniqueLines = useMemo(() => {
@@ -226,7 +212,7 @@ const ListUser = () => {
         setGroupedData(grouped);
         
         // Set all lines to collapsed on load (expanded=false)
-        initializeLineExpansionState(grouped, false);
+        initializeLineExpansionState(grouped, true);
 
         // Initialize infinite scroll pagination
         Object.keys(grouped).forEach(lineName => {
@@ -509,7 +495,7 @@ const ListUser = () => {
             const newExpanded = {};
             Object.keys(grouped).forEach(lineName => {
                 // If the line existed before, keep its state. Otherwise, default to collapsed (false).
-                newExpanded[lineName] = prev[lineName] !== undefined ? prev[lineName] : false;
+                newExpanded[lineName] = true;
             });
             return newExpanded;
         });
@@ -880,7 +866,7 @@ const ListUser = () => {
                 {/* LINE HEADER: Added onClick handler for expand/collapse (Accordion) */}
                 <div 
                     className="list-user-line-header"
-                    onClick={() => toggleLineExpansion(lineName)}
+                  
                 >
                   <div className="list-user-line-title-container">
                    

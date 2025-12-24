@@ -198,6 +198,10 @@ display: inline-flex;
     box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02);
     transition: all 0.2s;
   }
+  .last-area-item {
+  scroll-margin-bottom: 300px; /* creates extra scroll room */
+}
+
 
 .view-area-list-container {
   max-height: 400px;

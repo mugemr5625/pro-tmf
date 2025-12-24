@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Form, Select, Button, Card, Modal, message, Row, Col, Spin, Input } from "antd";
-import { LockOutlined, EyeInvisibleOutlined, EyeTwoTone, LoadingOutlined } from "@ant-design/icons";
+import { Form, Select, Button, Card, Modal, message, Row, Col, Spin, Input, Image } from "antd";
+import { EyeInvisibleOutlined, EyeTwoTone, BankOutlined, ApartmentOutlined, UserOutlined ,LockOutlined} from "@ant-design/icons";
 import { GET, POST } from "../../helpers/api_helper";
 import { USERS } from "helpers/url_helper";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../../helpers/errorMessages";
+import passwordIcon from "../../assets/icons/password (1).png";
+import SelectWithAddon from "../../components/Common/SelectWithAddon";
+import InputWithAddon from "../../components/Common/InputWithAddon";
+import "./ResetPassword.css";
 
 const { Option } = Select;
 
@@ -35,26 +39,36 @@ const ResetPassword = () => {
         const userData = Array.isArray(response.data) ? response.data : [];
         setAllUsersData(userData);
 
-        // Extract unique branches from employees
+        // Extract unique branches from line_allocations and base_branch
         const uniqueBranches = new Set();
         userData.forEach(user => {
-          if (user.employees && Array.isArray(user.employees)) {
-            user.employees.forEach(emp => {
-              if (emp.branch_name) {
-                uniqueBranches.add(emp.branch_name);
+          // Add base branch if exists
+          if (user.base_branch_name) {
+            uniqueBranches.add(user.base_branch_name);
+          }
+          // Add branches from line allocations
+          if (user.line_allocations && Array.isArray(user.line_allocations)) {
+            user.line_allocations.forEach(allocation => {
+              if (allocation.branch_name) {
+                uniqueBranches.add(allocation.branch_name);
               }
             });
           }
         });
         setBranches(Array.from(uniqueBranches).map((name, index) => ({ id: index, name })));
 
-        // Extract unique lines
+        // Extract unique lines from line_allocations and base_line
         const uniqueLines = new Set();
         userData.forEach(user => {
-          if (user.employees && Array.isArray(user.employees)) {
-            user.employees.forEach(emp => {
-              if (emp.line_name) {
-                uniqueLines.add(emp.line_name);
+          // Add base line if exists
+          if (user.base_line_name) {
+            uniqueLines.add(user.base_line_name);
+          }
+          // Add lines from line allocations
+          if (user.line_allocations && Array.isArray(user.line_allocations)) {
+            user.line_allocations.forEach(allocation => {
+              if (allocation.line_name) {
+                uniqueLines.add(allocation.line_name);
               }
             });
           }
@@ -77,10 +91,15 @@ const ResetPassword = () => {
     // Filter lines based on selected branch
     const uniqueLines = new Set();
     allUsersData.forEach(user => {
-      if (user.employees && Array.isArray(user.employees)) {
-        user.employees.forEach(emp => {
-          if (emp.branch_name === branchName && emp.line_name) {
-            uniqueLines.add(emp.line_name);
+      // Check base branch and line
+      if (user.base_branch_name === branchName && user.base_line_name) {
+        uniqueLines.add(user.base_line_name);
+      }
+      // Check line allocations
+      if (user.line_allocations && Array.isArray(user.line_allocations)) {
+        user.line_allocations.forEach(allocation => {
+          if (allocation.branch_name === branchName && allocation.line_name) {
+            uniqueLines.add(allocation.line_name);
           }
         });
       }
@@ -100,21 +119,30 @@ const ResetPassword = () => {
     const seenUserIds = new Set();
 
     allUsersData.forEach(user => {
-      if (user.employees && Array.isArray(user.employees)) {
-        user.employees.forEach(emp => {
-          if (
-            emp.branch_name === branchName &&
-            emp.line_name === lineName &&
-            !seenUserIds.has(user.id)
-          ) {
-            seenUserIds.add(user.id);
-            filteredUsersList.push({
-              id: user.id,
-              name: user.username,
-              username: user.username,
-              employee_id: emp.id
-            });
+      let isMatch = false;
+      
+      // Check if user's base branch and line match
+      if (user.base_branch_name === branchName && user.base_line_name === lineName) {
+        isMatch = true;
+      }
+      
+      // Check line allocations
+      if (!isMatch && user.line_allocations && Array.isArray(user.line_allocations)) {
+        user.line_allocations.forEach(allocation => {
+          if (allocation.branch_name === branchName && allocation.line_name === lineName) {
+            isMatch = true;
           }
+        });
+      }
+      
+      // Add user if matched and not already added
+      if (isMatch && !seenUserIds.has(user.id)) {
+        seenUserIds.add(user.id);
+        filteredUsersList.push({
+          id: user.id,
+          name: user.username,
+          username: user.username,
+          full_name: user.full_name
         });
       }
     });
@@ -210,14 +238,20 @@ const ResetPassword = () => {
 
   return (
     <div style={{ padding: '0 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-        <LockOutlined style={{ marginRight: '8px', fontSize: '20px' }} />
-        <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>Reset User Password</h2>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+        <Image 
+          src={passwordIcon} 
+          alt="Lock Icon"
+          preview={false}
+          width={30}
+          height={30}
+        />
+        <h2 style={{ margin: '6px', fontSize: '20px', fontWeight: 600 }}>Reset User Password</h2>
       </div>
 
       <Card
         bordered={false}
-        style={{ marginLeft: 0, marginRight: 0 }}
+        style={{margin: 0, padding: 0, boxShadow: 'none'}}
       >
         <Form
           form={form}
@@ -232,13 +266,13 @@ const ResetPassword = () => {
                 name="branch_name"
                 rules={[{ required: true, message: ERROR_MESSAGES.RESET_PASSWORD.BRANCH_REQUIRED }]}
               >
-                <Select
+                <SelectWithAddon
+                  icon={<BankOutlined />}
                   placeholder="Select Branch"
                   onChange={handleBranchChange}
                   showSearch
                   loading={dataLoading}
                   notFoundContent={dataLoading ? <Spin size="small" /> : null}
-                  suffixIcon={dataLoading ? <LoadingOutlined spin /> : undefined}
                   filterOption={(input, option) =>
                     option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }
@@ -248,7 +282,7 @@ const ResetPassword = () => {
                       {branch.name}
                     </Option>
                   ))}
-                </Select>
+                </SelectWithAddon>
               </Form.Item>
             </Col>
 
@@ -258,7 +292,8 @@ const ResetPassword = () => {
                 name="line_name"
                 rules={[{ required: true, message: ERROR_MESSAGES.RESET_PASSWORD.LINE_REQUIRED }]}
               >
-                <Select
+                <SelectWithAddon
+                  icon={<ApartmentOutlined />}
                   placeholder="Select Line"
                   onChange={handleLineChange}
                   disabled={!form.getFieldValue('branch_name')}
@@ -272,7 +307,7 @@ const ResetPassword = () => {
                       {line.name}
                     </Option>
                   ))}
-                </Select>
+                </SelectWithAddon>
               </Form.Item>
             </Col>
 
@@ -282,7 +317,8 @@ const ResetPassword = () => {
                 name="user_name"
                 rules={[{ required: true, message: ERROR_MESSAGES.RESET_PASSWORD.USER_REQUIRED }]}
               >
-                <Select
+                <SelectWithAddon
+                  icon={<UserOutlined />}
                   placeholder="Select User"
                   disabled={!form.getFieldValue('line_name')}
                   showSearch
@@ -295,7 +331,7 @@ const ResetPassword = () => {
                       {user.name}
                     </Option>
                   ))}
-                </Select>
+                </SelectWithAddon>
               </Form.Item>
             </Col>
           </Row>
@@ -313,9 +349,10 @@ const ResetPassword = () => {
                   }
                 ]}
               >
-                <Input.Password
+                <InputWithAddon
+                  icon={<LockOutlined />}
                   placeholder="Enter new password"
-                  iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                  type="password"
                 />
               </Form.Item>
             </Col>
@@ -337,13 +374,15 @@ const ResetPassword = () => {
                   }),
                 ]}
               >
-                <Input.Password
+                <InputWithAddon
+                  icon={<LockOutlined />}
                   placeholder="Confirm new password"
-                  iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                  type="password"
                 />
               </Form.Item>
             </Col>
           </Row>
+
 
           <Form.Item>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>

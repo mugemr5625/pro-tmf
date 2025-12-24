@@ -452,7 +452,7 @@ const CustomerCollapseContent = ({ customer, areaIdToNameMap, documents = [] }) 
           <Descriptions.Item label="Area:">
             {areaName}
           </Descriptions.Item>
-          <Descriptions.Item label="Coordinates:">
+          <Descriptions.Item label="Geolocation">
             {customer.latitude && customer.longitude ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {/* <span>{`${parseFloat(customer.latitude).toFixed(6)}, ${parseFloat(customer.longitude).toFixed(6)}`}</span> */}
@@ -463,7 +463,7 @@ const CustomerCollapseContent = ({ customer, areaIdToNameMap, documents = [] }) 
                   onClick={handleViewLocation}
                   style={{ padding: 0 }}
                 >
-                  View Map
+                  Saved Location
                 </Button>
               </div>
             ) : (

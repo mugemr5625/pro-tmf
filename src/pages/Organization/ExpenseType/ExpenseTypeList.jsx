@@ -48,26 +48,6 @@ const ExpenseTypeList = () => {
     setExpandedLines(initialExpandedState);
   };
 
-  // Toggle line expansion (Accordion Logic)
-  const toggleLineExpansion = (clickedLineName) => {
-    setExpandedLines(prev => {
-      const isCurrentlyExpanded = prev[clickedLineName];
-      
-      // Collapse all existing lines
-      const newState = {};
-      Object.keys(prev).forEach(lineName => {
-        newState[lineName] = false;
-      });
-      
-      // Expand the clicked line IF it was not already expanded
-      if (!isCurrentlyExpanded) {
-        newState[clickedLineName] = true;
-      }
-      
-      return newState;
-    });
-  };
-
   // Fetch expense types
   const getExpenseTypesList = useCallback(async () => {
     setLoading(true);
@@ -458,7 +438,7 @@ const ExpenseTypeList = () => {
                 {/* LINE HEADER */}
                 <div 
                   className="expense-type-list-line-header"
-                  onClick={() => toggleLineExpansion(lineName)}
+                 
                 >
                   <div className="expense-type-list-line-title-container">
                     {/* <Avatar src={lineIcon}>
@@ -485,7 +465,7 @@ const ExpenseTypeList = () => {
                 </div>
 
                 {/* LINE CONTENT - Only render if expanded */}
-                {isLineExpanded && (
+                
                   <div
                     id={`scrollable-${lineName}`}
                     className="expense-type-list-list-container"
@@ -600,7 +580,7 @@ const ExpenseTypeList = () => {
                       />
                     </InfiniteScroll>
                   </div>
-                )}
+                
               </div>
             );
           })

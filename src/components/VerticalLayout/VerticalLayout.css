@@ -231,3 +231,7 @@
     display: none !important;
   }
 }
+.transparent-footer {
+  background-color: white !important;
+  background: white !important;
+}

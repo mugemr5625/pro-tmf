@@ -16,6 +16,7 @@ const SelectWithAddon = ({ icon, children, ...rest }) => {
       </div>
       <Select
         bordered={false}
+        listHeight={32 * 5}    
         style={{ flex: 1 }}
         {...rest}
       >
