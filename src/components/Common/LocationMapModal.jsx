@@ -1,4 +1,4 @@
-import React, { useState, useEffect ,useRef} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, notification } from 'antd';
 import { EnvironmentOutlined, ReloadOutlined } from '@ant-design/icons';
 import { GoogleMap, LoadScript, Marker, Circle } from '@react-google-maps/api';
@@ -34,10 +34,7 @@ const LocationMapModal = ({
     );
     const [selectedLocation, setSelectedLocation] = useState(initialLocation);
     const [currentAccuracy, setCurrentAccuracy] = useState(null);
-const locationPollRef = React.useRef(null);
-const lastCoordsRef = React.useRef(null);
 
-const isFirefoxMobile = /firefox/i.test(navigator.userAgent);
     // Update map when initialLocation changes
     useEffect(() => {
         if (initialLocation) {
@@ -59,126 +56,93 @@ const isFirefoxMobile = /firefox/i.test(navigator.userAgent);
         }
     }, [visible, selectedLocation]);
 
-    const handleGetCurrentLocation = () => {
-        if (!navigator.geolocation) {
-            notification.error({
-                message: 'Geolocation Not Supported',
-                description: 'Your browser does not support geolocation.',
-            });
-            return;
-        }
 
-        notification.info({
-            message: 'Getting Location',
-            description: 'Please allow location access and wait...',
-            duration: 4,
-        });
-
-
-
-
-    if (isFirefoxMobile) {
-    if (locationPollRef.current) {
-      clearInterval(locationPollRef.current);
+const getUserCurrentLocation = () => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject({ message: "Geolocation not supported" });
+      return;
     }
 
-    const pollLocation = () => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude, accuracy } = pos.coords;
-
-          // Ignore cached / duplicate coords
-          if (
-            lastCoordsRef.current &&
-            Math.abs(latitude - lastCoordsRef.current.lat) < 0.00001 &&
-            Math.abs(longitude - lastCoordsRef.current.lng) < 0.00001
-          ) {
-            return;
-          }
-
-          lastCoordsRef.current = { lat: latitude, lng: longitude };
-
-          setSelectedLocation({
-            lat: latitude.toFixed(6),
-            lng: longitude.toFixed(6),
-            address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
-          });
-
-          setMapCenter({ lat: latitude, lng: longitude });
-          setCurrentAccuracy(accuracy);
-        },
-        (err) => {
-          console.error('Firefox GPS error', err);
-        },
-        {
-          enableHighAccuracy: true,
-          maximumAge: 0,
-          timeout: 8000,
-        }
-      );
+    const highAccuracyOptions = {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0,
     };
 
-    pollLocation(); // initial fetch
-    locationPollRef.current = setInterval(pollLocation, 3000);
+    const lowAccuracyOptions = {
+      enableHighAccuracy: false,
+      timeout: 20000,
+      maximumAge: 10000,
+    };
 
-    return;
-  }else {
-        // Use watchPosition for Chrome (your existing code)
-        const watchId = navigator.geolocation.watchPosition(
-            (position) => {
-                const { latitude, longitude, accuracy } = position.coords;
-
-                console.log("Live Accuracy:", accuracy);
-
-                if (accuracy <= 2) {
-                    const lat = latitude.toFixed(6);
-                    const lng = longitude.toFixed(6);
-
-                    setSelectedLocation({
-                        lat,
-                        lng,
-                        address: `${lat}, ${lng}`,
-                    });
-
-                    setMapCenter({ lat: latitude, lng: longitude });
-
-                    notification.success({
-                        message: "High Accuracy Location Locked ✅",
-                        description: `Accuracy: ${accuracy.toFixed(1)} meters`,
-                        duration: 3,
-                    });
-
-                    navigator.geolocation.clearWatch(watchId);
-                } else {
-                    setSelectedLocation({
-                        lat: latitude.toFixed(6),
-                        lng: longitude.toFixed(6),
-                        address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
-                    });
-
-                    setMapCenter({ lat: latitude, lng: longitude });
-                    setCurrentAccuracy(accuracy);
-                }
-            },
-            (error) => {
-                let errorMessage = "Unable to get location";
-                if (error.code === 1) errorMessage = "Location permission denied";
-                if (error.code === 2) errorMessage = "Location unavailable";
-                if (error.code === 3) errorMessage = "Location request timeout";
-
-                notification.error({
-                    message: "GPS Error",
-                    description: errorMessage,
-                });
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 20000,
-            }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        });
+      },
+      (error) => {
+        // 🔁 Fallback (Firefox & Android safe)
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            resolve({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+              accuracy: position.coords.accuracy,
+            });
+          },
+          (err) => reject(err),
+          lowAccuracyOptions
         );
-    }
+      },
+      highAccuracyOptions
+    );
+  });
 };
 
+
+const handleGetCurrentLocation = async () => {
+  notification.info({
+    message: "Getting Location",
+    description: "Please allow location access…",
+    duration: 3,
+  });
+
+  try {
+    const { lat, lng, accuracy } = await getUserCurrentLocation();
+
+    setSelectedLocation({
+      lat: lat.toFixed(6),
+      lng: lng.toFixed(6),
+      address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+    });
+
+    setMapCenter({ lat, lng });
+    setCurrentAccuracy(accuracy);
+
+    notification.success({
+      message: "Location Found ✅",
+      description: `Accuracy: ${accuracy.toFixed(1)} meters`,
+      duration: 3,
+    });
+  } catch (error) {
+    let msg = "Unable to get location";
+    if (error.code === 1) msg = "Location permission denied";
+    if (error.code === 2) msg = "Location unavailable";
+    if (error.code === 3) msg = "Location request timeout";
+
+    notification.error({
+      message: "Location Error",
+      description: msg,
+    });
+  }
+};
+
+
+ 
     const handleMapClick = (e) => {
         if (!editable) return;
 
@@ -207,12 +171,6 @@ const isFirefoxMobile = /firefox/i.test(navigator.userAgent);
     };
 
     const handleClose = () => {
-         if (locationPollRef.current) {
-    clearInterval(locationPollRef.current);
-    locationPollRef.current = null;
-  }
-
-  lastCoordsRef.current = null;
         setCurrentAccuracy(null);
         if (onClose) onClose();
     };
@@ -299,12 +257,13 @@ const isFirefoxMobile = /firefox/i.test(navigator.userAgent);
                             animation={window.google?.maps?.Animation?.DROP}
                         />
                     )}
-                    {currentAccuracy && (
+                    {selectedLocation && currentAccuracy && editable && (
                         <Circle
                             center={{
-                               mapCenter
+                                lat: parseFloat(selectedLocation.lat),
+                                lng: parseFloat(selectedLocation.lng),
                             }}
-                           radius={Math.min(currentAccuracy, 100)}
+                            radius={currentAccuracy}
                             options={{
                                 fillOpacity: 0.15,
                                 strokeOpacity: 0.4,
