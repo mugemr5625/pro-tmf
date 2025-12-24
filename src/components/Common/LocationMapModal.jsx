@@ -74,36 +74,76 @@ const LocationMapModal = ({
        const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
 
     if (isFirefox) {
-        // Use getCurrentPosition for Firefox
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude, accuracy } = position.coords;
-                const lat = latitude.toFixed(6);
-                const lng = longitude.toFixed(6);
+        // Firefox: Use multiple getCurrentPosition calls with progressive refinement
+        let bestAccuracy = Infinity;
+        let bestPosition = null;
+        let attemptCount = 0;
+        const maxAttempts = 5;
+        const targetAccuracy = 10; // Try to get within 10 meters
 
-                setSelectedLocation({ lat, lng, address: `${lat}, ${lng}` });
-                setMapCenter({ lat: latitude, lng: longitude });
-                setCurrentAccuracy(accuracy);
+        const attemptGetLocation = () => {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    attemptCount++;
 
-                notification.success({
-                    message: "Location Acquired ✅",
-                    description: `Accuracy: ${accuracy.toFixed(1)} meters`,
-                    duration: 3,
-                });
-            },
-            (error) => {
-                notification.error({
-                    message: "GPS Error",
-                    description: error.code === 1 ? "Permission denied" : "Unable to get location",
-                });
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 15000,
-                maximumAge: 0,
-            }
-        );
-    } else {
+                    console.log(`Firefox Attempt ${attemptCount}/${maxAttempts} - Accuracy: ${accuracy.toFixed(1)}m`);
+
+                    // Update if this is more accurate than previous attempts
+                    if (accuracy < bestAccuracy) {
+                        bestAccuracy = accuracy;
+                        bestPosition = position;
+
+                        const lat = latitude.toFixed(6);
+                        const lng = longitude.toFixed(6);
+
+                        setSelectedLocation({ lat, lng, address: `${lat}, ${lng}` });
+                        setMapCenter({ lat: latitude, lng: longitude });
+                        setCurrentAccuracy(accuracy);
+
+                        // Visual feedback
+                        notification.info({
+                            message: `Refining... ${attemptCount}/${maxAttempts}`,
+                            description: `Current accuracy: ${accuracy.toFixed(1)} meters`,
+                            duration: 2,
+                        });
+                    }
+
+                    // Continue trying if accuracy is poor and we haven't maxed attempts
+                    if (accuracy > targetAccuracy && attemptCount < maxAttempts) {
+                        // Wait a bit before next attempt to allow GPS to improve
+                        setTimeout(attemptGetLocation, 1500);
+                    } else {
+                        // Done - show final result
+                        notification.success({
+                            message: "Location Acquired ✅",
+                            description: `Final accuracy: ${bestAccuracy.toFixed(1)} meters (${attemptCount} attempts)`,
+                            duration: 3,
+                        });
+                    }
+                },
+                (error) => {
+                    let errorMessage = "Unable to get location";
+                    if (error.code === 1) errorMessage = "Location permission denied";
+                    if (error.code === 2) errorMessage = "Location unavailable";
+                    if (error.code === 3) errorMessage = "Location request timeout";
+
+                    notification.error({
+                        message: "GPS Error",
+                        description: errorMessage,
+                    });
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0, // Always get fresh position
+                }
+            );
+        };
+
+        // Start the refinement process
+        attemptGetLocation();
+     } else {
         // Use watchPosition for Chrome (your existing code)
         const watchId = navigator.geolocation.watchPosition(
             (position) => {
