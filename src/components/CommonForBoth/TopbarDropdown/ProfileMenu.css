@@ -157,14 +157,14 @@
   
   .noti-icon,
   #page-header-user-dropdown {
-    width: 40px !important;
-    height: 40px !important;
+    width: 30px !important;
+    height: 30px !important;
   }
   
   .noti-icon img,
   .header-profile-user {
-    width: 28px !important;
-    height: 28px !important;
+    width: 24px !important;
+    height: 24px !important;
   }
   
   .avatar {
