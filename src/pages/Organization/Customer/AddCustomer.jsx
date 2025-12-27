@@ -53,6 +53,7 @@ const [isEditMode, setIsEditMode] = useState(false);
         try {
             setLoader(true);
             const response = await GET(AREA);
+            console.log(response.data)
             if (response?.status === 200) {
                 const data = response.data;
                 setAllData(data);
@@ -60,27 +61,29 @@ const [isEditMode, setIsEditMode] = useState(false);
                 // Extract unique branches
                 const branchMap = new Map();
                 data.forEach(item => {
-                    if (item.branch_id && !branchMap.has(item.branch_id)) {
-                        branchMap.set(item.branch_id, {
-                            id: item.branch_id,
+                    if (item.branchid && !branchMap.has(item.branchid)) {
+                        branchMap.set(item.branchid, {
+                            id: item.branchid,
                             branch_name: item.branch_name
                         });
                     }
                 });
                 const uniqueBranches = Array.from(branchMap.values());
+                console.log("branches",uniqueBranches)
 
                 // Extract unique lines
                 const lineMap = new Map();
                 data.forEach(item => {
-                    if (item.line_id && !lineMap.has(item.line_id)) {
-                        lineMap.set(item.line_id, {
-                            id: item.line_id,
+                    if (item.lineid && !lineMap.has(item.lineid)) {
+                        lineMap.set(item.lineid, {
+                            id: item.lineid,
                             name: item.line_name,
-                            branch_id: item.branch_id
+                            branch_id: item.branchid
                         });
                     }
                 });
                 const uniqueLines = Array.from(lineMap.values());
+                console.log("lines",uniqueLines)
 
                 // Extract unique areas
                 const areaMap = new Map();
@@ -89,12 +92,13 @@ const [isEditMode, setIsEditMode] = useState(false);
                         areaMap.set(item.id, {
                             id: item.id,
                             name: item.areaName,
-                            branch_id: item.branch_id,
-                            line_id: item.line_id
+                            branch_id: item.branchid,
+                            line_id: item.lineid
                         });
                     }
                 });
                 const uniqueAreas = Array.from(areaMap.values());
+                console.log("areas",uniqueAreas)
 
                 setBranchList(uniqueBranches);
                 setLineList(uniqueLines);
@@ -126,6 +130,7 @@ const [isEditMode, setIsEditMode] = useState(false);
                         line => line.name === storedLineName &&
                             line.branch_id === matchedBranch?.id
                     );
+                    console.log(matchedBranch,matchedLine)
 
                     if (matchedBranch && matchedLine) {
                         // Set form values
@@ -244,8 +249,8 @@ const [isEditMode, setIsEditMode] = useState(false);
 
                 // Initialize reference contacts
                 if (!data.reference_contacts || data.reference_contacts.length === 0) {
-                    data.reference_contacts = [{ reference_number: '' }];
-                }
+                data.reference_contacts = [{ reference_name: '', reference_number: '', reference_description: '' }];
+            }
 
                 // ✅ OPTIMIZED: Load existing coordinates
                 if (data?.latitude && data?.longitude) {
@@ -304,9 +309,9 @@ const [isEditMode, setIsEditMode] = useState(false);
 
         if (!params.id) {
             getAllCustomers();
-            form.setFieldsValue({
-                reference_contacts: [{ reference_number: '' }]
-            });
+             form.setFieldsValue({
+        reference_contacts: [{ reference_name: '', reference_number: '', reference_description: '' }]
+    });
         }
     }, [params.id, getAllCustomers, getAreaList, form]);
 
@@ -332,83 +337,201 @@ const [isEditMode, setIsEditMode] = useState(false);
         setMapModalVisible(true);
     };
 
-    const handleGetCurrentLocation = () => {
-        if (!navigator.geolocation) {
-            notification.error({
-                message: 'Geolocation Not Supported',
-                description: 'Your browser does not support geolocation.',
-                // duration: 5,
-            });
-            return;
-        }
-
-        notification.info({
-            message: 'Getting Location',
-            description: 'Please allow location access and wait...',
-            duration: 4,
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+        notification.error({
+            message: 'Geolocation Not Supported',
+            description: 'Your browser does not support geolocation.',
         });
+        return;
+    }
 
-        // OPTIMIZED: Get high-accuracy position
-        const watchId = navigator.geolocation.watchPosition(
-            (position) => {
-                const { latitude, longitude, accuracy } = position.coords;
+    notification.info({
+        message: 'Getting GPS Location',
+        description: 'Acquiring satellite fix... Please wait outdoors for best results.',
+        duration: 5,
+    });
 
-                console.log("Live Accuracy:", accuracy);
+    let watchId = null;
+    let bestAccuracy = Infinity;
+    let timeoutId = null;
+    let improvementTimeoutId = null;
+    let lastImprovementTime = Date.now();
 
-                // ✅ Only accept when accuracy is GOOD (≤ 5 meters)
-                if (accuracy <= 5) {
-                    const lat = latitude.toFixed(6);
-                    const lng = longitude.toFixed(6);
-
-                    setSelectedLocation({
-                        lat,
-                        lng,
-                        address: `${lat}, ${lng}`,
-                    });
-
-                    setMapCenter({ lat: latitude, lng: longitude });
-
-                    notification.success({
-                        message: "High Accuracy Location Locked ✅",
-                        description: `Accuracy: ${accuracy.toFixed(1)} meters`,
-                        duration: 3,
-                    });
-
-                    // ✅ Stop tracking once good accuracy is achieved
-                    navigator.geolocation.clearWatch(watchId);
-                } else {
-                    // Keep updating marker live while accuracy improves
-                    setSelectedLocation({
-                        lat: latitude.toFixed(6),
-                        lng: longitude.toFixed(6),
-                        address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
-                    });
-
-                    setMapCenter({ lat: latitude, lng: longitude });
-                    setCurrentAccuracy(accuracy);
-
-                }
-            },
-            (error) => {
-                let errorMessage = "Unable to get location";
-                if (error.code === 1) errorMessage = "Location permission denied";
-                if (error.code === 2) errorMessage = "Location unavailable";
-                if (error.code === 3) errorMessage = "Location request timeout";
-
-                notification.error({
-                    message: "GPS Error",
-                    description: errorMessage,
-                });
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 20000,
-                maximumAge: 0,
-            }
-        );
+    // Mobile GPS-optimized options
+    const options = {
+        enableHighAccuracy: true,
+        timeout: 120000,       // 2 minutes for mobile GPS
+        maximumAge: 0,         // Always get fresh GPS data
     };
 
+    let bestPosition = null;
+    let positionCount = 0;
 
+    const finishWithBestPosition = (reason = '') => {
+        if (watchId !== null) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+        }
+        if (timeoutId !== null) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+        }
+        if (improvementTimeoutId !== null) {
+            clearTimeout(improvementTimeoutId);
+            improvementTimeoutId = null;
+        }
+
+        if (bestPosition) {
+            const { latitude, longitude, accuracy } = bestPosition.coords;
+
+            setSelectedLocation({
+                lat: latitude.toFixed(6),
+                lng: longitude.toFixed(6),
+                address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+            });
+
+            setMapCenter({ lat: latitude, lng: longitude });
+
+            console.log(`Finished: ${reason}, Accuracy: ${accuracy.toFixed(1)}m`);
+
+            if (accuracy <= 2) {
+                notification.success({
+                    message: "Excellent GPS Lock ✅",
+                    description: `Accuracy: ${accuracy.toFixed(1)} meters`,
+                    duration: 3,
+                });
+            } else if (accuracy > 2 && accuracy <= 10) {
+                notification.success({
+                    message: "Good GPS Lock ✅",
+                    description: `Accuracy: ${accuracy.toFixed(1)} meters`,
+                    duration: 3,
+                });
+            } else {
+                notification.warning({
+                    message: "GPS Lock Acquired",
+                    description: `Accuracy: ${accuracy.toFixed(1)} meters. Move outdoors for better signal.`,
+                    duration: 4,
+                });
+            }
+        }
+    };
+
+    watchId = navigator.geolocation.watchPosition(
+        (position) => {
+            const { latitude, longitude, accuracy } = position.coords;
+            positionCount++;
+
+            console.log(`Update #${positionCount}: Accuracy=${accuracy.toFixed(1)}m, Lat=${latitude.toFixed(6)}, Lng=${longitude.toFixed(6)}`);
+
+            // Update if this is better accuracy
+            if (accuracy < bestAccuracy) {
+                const improvement = bestAccuracy - accuracy;
+                console.log(`✅ Improved by ${improvement.toFixed(1)}m`);
+                
+                bestAccuracy = accuracy;
+                bestPosition = position;
+                lastImprovementTime = Date.now();
+
+                // Update UI immediately with best position
+                setSelectedLocation({
+                    lat: latitude.toFixed(6),
+                    lng: longitude.toFixed(6),
+                    address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+                });
+
+                setMapCenter({ lat: latitude, lng: longitude });
+                
+                if (typeof setCurrentAccuracy === 'function') {
+                    setCurrentAccuracy(accuracy);
+                }
+
+                // Reset the "no improvement" timeout
+                if (improvementTimeoutId !== null) {
+                    clearTimeout(improvementTimeoutId);
+                }
+                
+                // If no improvement for 10 seconds, lock position
+                improvementTimeoutId = setTimeout(() => {
+                    if (bestPosition) {
+                        finishWithBestPosition('No improvement for 10 seconds');
+                    }
+                }, 10000);
+            }
+
+            // Lock immediately if excellent accuracy achieved
+            if (accuracy <= 5) {
+                finishWithBestPosition('Excellent accuracy achieved');
+            }
+            // Lock if very good accuracy after 3+ readings
+            else if (accuracy <= 10 && positionCount >= 3) {
+                finishWithBestPosition('Very good accuracy achieved');
+            }
+            // Lock if good accuracy after 5+ readings
+            else if (accuracy <= 20 && positionCount >= 5) {
+                finishWithBestPosition('Good accuracy achieved');
+            }
+        },
+        (error) => {
+            console.error("Geolocation error:", error.code, error.message);
+            
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+            }
+            if (improvementTimeoutId !== null) {
+                clearTimeout(improvementTimeoutId);
+            }
+
+            // If we have a position already, use it
+            if (bestPosition) {
+                finishWithBestPosition('Error occurred but position available');
+                return;
+            }
+
+            // Error messages
+            let errorMessage = "Unable to get GPS location";
+            let description = "";
+            
+            if (error.code === 1) {
+                errorMessage = "Location Permission Denied";
+                description = "Please enable location permissions in Firefox settings.";
+            } else if (error.code === 2) {
+                errorMessage = "GPS Position Unavailable";
+                description = "Cannot get GPS signal. Ensure GPS is enabled and you're outdoors.";
+            } else if (error.code === 3) {
+                errorMessage = "GPS Timeout";
+                description = "GPS took too long. Try again outdoors with clear sky view.";
+            }
+
+            notification.error({ 
+                message: errorMessage, 
+                description: description,
+                duration: 6,
+            });
+        },
+        options
+    );
+
+    // Maximum timeout: 45 seconds, then use best available
+    timeoutId = setTimeout(() => {
+        if (bestPosition) {
+            finishWithBestPosition('Maximum time reached');
+        } else {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+            notification.error({
+                message: "GPS Timeout",
+                description: "Could not acquire GPS signal. Please ensure GPS is enabled and try outdoors.",
+                duration: 6,
+            });
+        }
+    }, 45000);
+};
 
     const handleMapClick = (e) => {
         const lat = e.latLng.lat();
@@ -450,13 +573,14 @@ const [isEditMode, setIsEditMode] = useState(false);
     // Replace the onFinish function with this updated version:
 
     const onFinish = async (values) => {
+        
         setLoader(true);
         try {
             // Filter out empty reference contacts
             const filteredReferenceContacts = (values.reference_contacts || []).filter(
-                contact => contact.reference_number && contact.reference_number.trim() !== ''
-            );
-
+            contact => contact.reference_name?.trim() || contact.reference_number?.trim() || contact.reference_description?.trim()
+        );
+        console.log(filteredReferenceContacts)
             const payload = {
                 customer_name: values.customer_name,
                 mobile_number: values.mobile_number,
@@ -544,8 +668,8 @@ const [isEditMode, setIsEditMode] = useState(false);
 
     const handleReset = () => {
         form.resetFields();
- form.setFieldsValue({
-        reference_contacts: [{ reference_number: '' }]
+  form.setFieldsValue({
+        reference_contacts: [{ reference_name: '', reference_number: '', reference_description: '' }]
     });
         // If values are from localStorage, restore them
         if (isFromLocalStorage && savedBranchName && savedLineName && savedAreaId) {
@@ -642,6 +766,9 @@ const [isEditMode, setIsEditMode] = useState(false);
                     layout="vertical"
                     onFinish={onFinish}
                     className="add-customer-form"
+                      onFinishFailed={(errorInfo) => {  // ✅ ADD THIS
+        console.log('❌ Form validation failed:', errorInfo);
+    }}
                 >
                     <div className="container add-customer-form-container">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -1103,69 +1230,123 @@ const [isEditMode, setIsEditMode] = useState(false);
                             <Input type="hidden" />
                         </Form.Item>
 
-                        <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
-                        <Divider orientation="center">Reference Contacts</Divider>
+                       <Divider style={{ borderTop: "2px solid #d9d9d9" }} />
 
-                        <Form.List name="reference_contacts">
-                            {(fields, { add, remove }) => (
-                                <>
-                                    {fields.map(({ key, name, ...restField }, index) => (
-                                        <div key={key} className="row mb-3">
-                                            <div className="col-md-6" style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
-                                              <Form.Item
-                                    {...restField}
-                                    name={[name, 'reference_number']}
-                                    label={`Reference Contact ${index + 1}`}
-                                    style={{ flexGrow: 1, marginBottom: 0 }}
-                                >
-                                    <InputWithAddon
-                                        icon={<PhoneOutlined />}
-                                        placeholder="10 digit mobile number"
-                                        maxLength={10}
-                                    />
-                                </Form.Item>
+<Form.List name="reference_contacts">
+    {(fields, { add, remove }) => (
+        <>
+            {fields.map(({ key, name, ...restField }, index) => (
+                <div key={key}>
+                    <Divider orientation="center">Reference Contact {index + 1}</Divider>
+                    
+                    <div className="row mb-2">
+                        {/* Name Field */}
+                        <div className="col-md-6">
+                            <Form.Item
+                                {...restField}
+                                name={[name, 'reference_name']}
+                                label="Name"
+                                rules={[
+                                    { min: 2, message: 'Name must be at least 2 characters' },
+                                    { pattern: /^[A-Za-z\s]+$/, message: 'Must contain only alphabets' }
+                                ]}
+                            >
+                                <InputWithAddon
+                                    icon={<UserOutlined />}
+                                    placeholder="Enter name"
+                                    onKeyPress={(e) => {
+                                        if (!/[A-Za-z\s]/.test(e.key)) {
+                                            e.preventDefault();
+                                        }
+                                    }}
+                                />
+                            </Form.Item>
+                        </div>
 
-                                                {fields.length > 1 && (
-                                                    <Button
-                                                        type="primary"
-                                                        danger
-                                                        shape="circle"
-                                                        icon={<MinusOutlined />}
-                                                        onClick={() => remove(name)}
-                                                        style={{
-                                                            width: 35,
-                                                            height: 35,
-                                                            backgroundColor: 'red',
-                                                            borderColor: 'red',
-                                                        }}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
+                        {/* Mobile Number Field */}
+                        <div className="col-md-6">
+                            <Form.Item
+                                {...restField}
+                                name={[name, 'reference_number']}
+                                label="Mobile Number"
+                                rules={[
+                                    { pattern: /^\d{10}$/, message: 'Must be 10 digits' }
+                                ]}
+                            >
+                                <InputWithAddon
+                                    icon={<PhoneOutlined />}
+                                    placeholder="10 digit mobile number"
+                                    maxLength={10}
+                                    onKeyPress={(e) => {
+                                        if (!/\d/.test(e.key)) {
+                                            e.preventDefault();
+                                        }
+                                    }}
+                                />
+                            </Form.Item>
+                        </div>
+                    </div>
 
-                                    {/* Add Button - Only show if less than 5 reference contacts */}
-                                    {fields.length < 5 && (
-                                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                                            <Button
-                                                type="primary"
-                                                shape="circle"
-                                                icon={<PlusOutlined />}
-                                                onClick={() => add()}
-                                                style={{
-                                                    width: 35,
-                                                    height: 35,
-                                                    backgroundColor: '#28a745',
-                                                    borderColor: '#28a745',
-                                                    color: '#fff',
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-                                </>
-                            )}
-                        </Form.List>
+                    {/* Description Field */}
+                    <div className="row mb-3">
+                        <div className="col-md-12">
+                            <Form.Item
+                                {...restField}
+                                name={[name, 'reference_description']}
+                                label="Description"
+                            >
+                                <Input.TextArea
+                                    placeholder="Enter description"
+                                    autoSize={{ minRows: 1, maxRows: 6 }}
+                                    size="large"
+                                    allowClear
+                                />
+                            </Form.Item>
+                        </div>
+                    </div>
 
+                    {/* Remove Button */}
+                    {fields.length > 1 && (
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                            <Button
+                                type="primary"
+                                danger
+                                shape="circle"
+                                icon={<MinusOutlined />}
+                                onClick={() => remove(name)}
+                                style={{
+                                    width: 35,
+                                    height: 35,
+                                    backgroundColor: 'red',
+                                    borderColor: 'red',
+                                }}
+                            />
+                        </div>
+                    )}
+                </div>
+            ))}
+
+            {/* Add Button - Only show if less than 5 reference contacts */}
+            {fields.length < 5 && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                    <Button
+                        type="primary"
+                        shape="circle"
+                        icon={<PlusOutlined />}
+                        onClick={() => add()}
+                        style={{
+                            width: 35,
+                            height: 35,
+                            backgroundColor: '#28a745',
+                            borderColor: '#28a745',
+                            color: '#fff',
+                        }}
+                    />
+                </div>
+            )}
+        </>
+    )}
+</Form.List>
                        
 
                         <div className="text-center mt-4">
